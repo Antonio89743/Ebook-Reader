@@ -51,17 +51,10 @@ def list_to_string(list):
     return string
 
 def load_folders_to_scan_array():
-    # input_file = open ('stores-small.json')
-    # json_array = json.load(input_file)
-    # store_list = []
-
-    # for item in json_array:
-    #     store_details = {"name":None, "city":None}
-    #     store_details['name'] = item['name']
-    #     store_details['city'] = item['city']
-    #     store_list.append(store_details)
-    # print(store_list)
-    return 
+    file = open(os.path.join(save_folder_path, 'folders_to_scan.json'), 'r')
+    json_file_data = file.read()
+    json_data = json.loads(json_file_data)
+    return json_data
 
 main_window = Tk()
 main_window.geometry("900x900")
@@ -71,7 +64,7 @@ main_window.rowconfigure(0,weight=1)
 main_window.columnconfigure(0,weight=1)
 folders_to_scan_array :array = []
 save_folder_path = r"C:\Users\anton\AppData\Roaming\BookWorm"
-# folders_to_scan_array = load_folders_to_scan_array()
+folders_to_scan_array = load_folders_to_scan_array()
 
 def scan_folders(folders_to_scan):
     print(type(folders_to_scan))
@@ -101,6 +94,7 @@ def active_frame(frame):
 
 def on_program_opened(): 
     load_folders_to_scan_array()
+    print(folders_to_scan_array)
     scan_folders(folders_to_scan_array)
     active_frame(main_menu())
 
@@ -133,14 +127,9 @@ def folders_to_scan():
     
 def save_folders_to_scan_array(folders_to_scan_array):
     data = json.dumps(folders_to_scan_array)
-    file = open(os.path.join(save_folder_path + 'folders_to_scan.json'), 'a')
-    file.write(data)
+    file = open(os.path.join(save_folder_path, 'folders_to_scan.json'), 'w')
+    file.write(data) #before doing this, check if the directory is already on file, so there are no duplicates
     file.close()
-    # config_writer = configparser.ConfigParser()
-    # config_writer['Folders To Scan'] = {
-    #     'Folders To Scan' : folders_to_scan_array
-    # }
-    # get folders_to_scan_array and save them on disk
 
 def add_new_folder_to_scan():
     new_folder = filedialog.askdirectory()
@@ -150,7 +139,7 @@ def add_new_folder_to_scan():
 
 
 
-#  save, load array
+#  load array
 #  make main menu
 #  for every epub file, add book icon, this will require some sort of a grid?
 #  on book icon pressed open up the book contents
