@@ -1,6 +1,9 @@
 from array import array
+from asyncio.windows_events import NULL
 import configparser
 import string
+from types import NoneType
+from typing import List
 import ebooklib
 from ebooklib import epub
 from bs4 import BeautifulSoup
@@ -65,10 +68,11 @@ main_window.columnconfigure(0,weight=1)
 folders_to_scan_array :array = []
 save_folder_path = r"C:\Users\anton\AppData\Roaming\BookWorm"
 folders_to_scan_array = load_folders_to_scan_array()
+previous_frame = None
 
 def scan_folders(folders_to_scan):
     print(type(folders_to_scan))
-    if type(folders_to_scan) is list: # type is list??
+    if type(folders_to_scan) is list:
         for folder in folders_to_scan:
             epub_files = glob.glob(folder + "/**/*.epub", recursive = True)
             for epub_file in epub_files:
@@ -84,19 +88,19 @@ def main_menu():
     frame_main_menu = Frame(main_window, bg='red')
     frame_main_menu.grid(row=0,column=0,sticky='nsew')
 
-    settings_button = Button(frame_main_menu, text='Settings', command=lambda:active_frame(settings()))
+    settings_button = Button(frame_main_menu, text='Settings', command=lambda:active_frame(settings(), main_menu()))
     settings_button.pack(side = RIGHT, anchor="s")
-
     return frame_main_menu
 
-def active_frame(frame):
-    frame.tkraise()
+def active_frame(new_frame, previous_frame_is):
+    previous_frame = previous_frame_is
+    print(previous_frame)
+    new_frame.tkraise()
 
 def on_program_opened(): 
     load_folders_to_scan_array()
-    print(folders_to_scan_array)
     scan_folders(folders_to_scan_array)
-    active_frame(main_menu())
+    active_frame(main_menu(), None)
 
 on_program_opened()
 
@@ -107,8 +111,13 @@ def settings():
     scan_folders_label = Label(frame_settings, text="Folders scanned for eligible files")
     scan_folders_label.pack()
 
-    settings_button = Button(frame_settings, text='Scanned Folders', command=lambda:active_frame(folders_to_scan()))
+    settings_button = Button(frame_settings, text='Scanned Folders', command=lambda:active_frame(folders_to_scan(), None))
     settings_button.pack()
+
+    settings_button = Button(frame_settings, text='Return', command=lambda:active_frame(previous_frame, settings()))
+    
+    settings_button.pack(side = RIGHT, anchor="n")
+
     
     return frame_settings
 
@@ -128,18 +137,26 @@ def folders_to_scan():
 def save_folders_to_scan_array(folders_to_scan_array):
     data = json.dumps(folders_to_scan_array)
     file = open(os.path.join(save_folder_path, 'folders_to_scan.json'), 'w')
-    file.write(data) #before doing this, check if the directory is already on file, so there are no duplicates
+    file.write(data)
     file.close()
 
 def add_new_folder_to_scan():
     new_folder = filedialog.askdirectory()
     scan_folders(new_folder)
-    folders_to_scan_array.append(new_folder)
+    check_list_for_duplicates(folders_to_scan_array, new_folder)
     save_folders_to_scan_array(folders_to_scan_array)
 
+def check_list_for_duplicates(list :List, new_list_member):
+    duplicate :bool = False
+    for list_member in list:
+        if list_member == new_list_member:
+            duplicate = True
+    if duplicate == False:
+        list.append(new_list_member)
+    elif duplicate == True:
+        pass
 
 
-#  load array
 #  make main menu
 #  for every epub file, add book icon, this will require some sort of a grid?
 #  on book icon pressed open up the book contents
@@ -174,3 +191,8 @@ main_window.mainloop()
 # epub2text("D:\Books\J. R. R. Tolkien\LotR\J.R.R. Tolkien - Lord of the Rings Collection-2000.epub")))
 
 # read folders from google drive
+# make it so you can only have one yellow window open at any given time
+
+
+
+# upon load, add a picture button in main with the pic of the book cover, below it set name of book, and below that, set name of author
