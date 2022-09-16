@@ -4,6 +4,11 @@ import random
 import settings_frame
 import scan_folders
 import global_variables.load_folders_to_scan
+import file_cover_image
+from PIL import Image
+import zipfile
+from lxml import etree
+from PIL import ImageTk as itk
 
 class DynamicGrid(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -17,7 +22,7 @@ class DynamicGrid(tk.Frame):
         self.text = tk.Text(self.frame, wrap="char", borderwidth=0, highlightthickness=0, bg='orange', state="disabled")
         self.text.pack(fill="both", expand=True)
         
-        self.boxes = []
+
         
         current_active_frame = self.text
 
@@ -57,11 +62,11 @@ class DynamicGrid(tk.Frame):
         return_button_icon = tk.PhotoImage(file='icons and images\icons8-settings-500.png')
         return_button = tk.Button(
             ribbon_frame, 
-            text="Curently Reading",
+            text="Return",
             image = return_button_icon, 
             width = 60, 
             height = 60,
-            command=lambda:active_frame(return_button_array[len(return_button_array)-1])
+            command=lambda:active_frame(return_button_array[len(return_button_array)-1]) #don't do -1, the number needs to adapt
             )
         return_button.image = return_button_icon
         return_button.pack()
@@ -116,23 +121,70 @@ class DynamicGrid(tk.Frame):
 
 
 
-    def add_box(self, color=None):
-        bg = color if color else random.choice(("red", "orange", "green", "blue", "violet"))
-        box = tk.Frame(self.text, bd=1, relief="sunken", background=bg,
-                       width=100, height=100)
-        self.boxes.append(box)
+    def add_box(self, epub_file_path):
+        # try to add here the zip stuff from the other file
+
+        # self.button_image = Image.open(file_cover_image.get_epub_cover_image(epub_file_path))
+        # print(self.button_image)
+
+        # self.button_image = file_cover_image.get_epub_cover_image(epub_file_path)
+        # photo = itk.PhotoImage(file = self.button_image)
+        # canvas = tk.Button(self,width=999,height=999, image=photo)
+        # canvas.pack()
+        
+        # image = file_cover_image.get_epub_cover_image(epub_file_path)
+        # background = image
+        # print(image, " ", background)
+        # photo = itk.PhotoImage(file = background)
+        # print(photo)
+        # button = tk.Button(self.text,width=200,height=200, image=photo)
+        # button.pack()
+
+
+
+
+
+
+        # root = tk.Tk()
+        # root.geometry('300x300')
+
+        # background = file_cover_image.get_epub_cover_image(epub_file_path)
+        # print(background)
+        # photo = itk.PhotoImage(file = background)
+        # print(photo)
+        # button = tk.Button(root,width=300,height=300, image=photo)
+        # button.pack()
+        # root.mainloop()
+
+
+#  maybe make the other file make all of these widgets too?
+
+
+        # button = tk.Button(self.text, width=25, height=15, image = self.button_image)
+
+
+
+
+
+        #The Pack geometry manager packs widgets in rows or columns.
+
+
+
+        # bg = color if color else random.choice(("red", "orange", "green", "blue", "violet"))
+        # box = tk.Frame(self.text, bd=1, relief="sunken", background=bg,
+        #                width=100, height=100)
         self.text.configure(state="normal")
-        self.text.window_create("end", window=box)
+        self.text.window_create("end", window=button)
         self.text.configure(state="disabled")
 
+
+def make_widgets_for_each_file(dictionary_of_valid_files, dynamic_grid):
+    for epub_file in dictionary_of_valid_files["array_of_epub_files"]:
+        dynamic_grid.add_box(epub_file)
 
 
 class Example(object):
     def __init__(self):
-
-        folders_to_scan_array :array = []
-        folders_to_scan_array = global_variables.load_folders_to_scan.load_folders_to_scan()
-        scan_folders.scan_folders(folders_to_scan_array)
 
         self.root = tk.Tk()
         self.frame = tk.Frame(self.root,width = 100, height = 350, bg='white')
@@ -140,6 +192,13 @@ class Example(object):
 
         self.dg = DynamicGrid(self.frame, width=500, height=200)
         self.dg.pack(side="top", fill="both", expand=True)
+
+        folders_to_scan_array :array = []
+        folders_to_scan_array = global_variables.load_folders_to_scan.load_folders_to_scan()
+        dictionary_of_valid_files = scan_folders.scan_folders(folders_to_scan_array)
+        make_widgets_for_each_file(dictionary_of_valid_files, self.dg)
+
+
        
 
 
