@@ -4,6 +4,7 @@ import configparser
 import string
 from types import NoneType
 from typing import List
+from xml.sax import xmlreader
 import ebooklib
 from ebooklib import epub
 from bs4 import BeautifulSoup
@@ -13,6 +14,9 @@ from tkinter import filedialog
 import glob, os
 import configparser
 import json
+from PIL import Image, ImageTk
+import filetype
+import io
 
 def epub2thtml(epub_path):
     book = epub.read_epub(epub_path)
@@ -57,6 +61,7 @@ def load_folders_to_scan_array():
     file = open(os.path.join(save_folder_path, 'folders_to_scan.json'), 'r')
     json_file_data = file.read()
     json_data = json.loads(json_file_data)
+    file.close()
     return json_data
 
 main_window = Tk()
@@ -70,19 +75,14 @@ save_folder_path = r"C:\Users\anton\AppData\Roaming\BookWorm"
 folders_to_scan_array = load_folders_to_scan_array()
 previous_frame = None
 
-def scan_folders(folders_to_scan):
-    print(type(folders_to_scan))
-    if type(folders_to_scan) is list:
-        for folder in folders_to_scan:
-            epub_files = glob.glob(folder + "/**/*.epub", recursive = True)
-            for epub_file in epub_files:
-                print(epub_file)
+style = ttk.Style()
+style.configure('Vertical.TRfame', background = 'red')
 
-    elif type(folders_to_scan) is str:
-        print(folders_to_scan)
-        epub_files = glob.glob(folders_to_scan + "/**/*.epub", recursive = True)
-        for epub_file in epub_files:
-             print(epub_file)
+shoulder_option = ttk.Frame(main_window, width = 250, height = 250, style = 'Vertical.TFrame')
+shoulder_option.grid(row = 0, column = 2, rowspan = 3, sticky = 'NSEW')
+# main_window
+
+
 
 def main_menu():
     frame_main_menu = Frame(main_window, bg='red')
@@ -90,7 +90,122 @@ def main_menu():
 
     settings_button = Button(frame_main_menu, text='Settings', command=lambda:active_frame(settings(), main_menu()))
     settings_button.pack(side = RIGHT, anchor="s")
+    
+    show_files()
+
     return frame_main_menu
+    
+def scan_folders(folders_to_scan):
+    if type(folders_to_scan) is list:
+        for folder in folders_to_scan:
+            epub_files = glob.glob(folder + "/**/*.epub", recursive = True)
+            for epub_file in epub_files:
+                book = epub.read_epub(epub_file)
+                
+                cover_image = book.get_item_with_id('cover-image')
+                print("Gdsdffsa", cover_image)
+                print(type(cover_image)) #ebooklib.epub.EpubImage
+
+                if epub_file == glob.glob("*.png", recursive = True):
+                    pass
+                # imag = Image.open(cover_image)
+
+                
+                
+                cover_image = book.get_item_with_id('cover-image')
+                if cover_image:
+                    # just take this as a cover image
+                    print("gsdgsd", cover_image)
+                    print("123tyu", cover_image.get_content())
+                    x = cover_image.get_content() # return raw image?
+                    # image_content = open(x, "rb").read()
+
+                    # image_file = Image.open('test').read()
+                    # The object was bytes-like, so in
+                    # order to display it in the google colab I needed to use IPython.display
+                    # rather than PIL (saving the images to file by writing as binary and then opening with PIL also worked).
+
+
+
+
+                    # image_file = Image.open(cover_image).read()
+                    # image_file = Image.open(cover_image, 'rb').read()
+
+
+                    # image_file = Image.open(image)
+                    # image_file.resize(300,300)
+                    # photo_image = ImageTk.PhotoImage(image_file)
+                    # button = Button(frame_main_menu)
+
+
+                    pass
+                elif cover_image == None:
+                    images = book.get_items_of_type(ebooklib.ITEM_IMAGE)
+
+
+
+
+#  should this part be done with css/html?
+
+                    pass
+
+
+
+
+# from PIL import Image as pil_image
+# fname = 'my_image.jpg'
+# with open(fname, 'rb') as f:
+#     img = pil_image.open(io.BytesIO(f.read()))
+
+                # I did try it with blob.upload_from_file(buf) using buf = TemporaryFile() as well as with buf = NamedTemporaryFile().
+
+
+                # for image in images:
+                #     if image.get_name() == "cover.jpeg":
+                #         # print(image.get_content())
+
+
+                #         image_file = Image.open(image.get_content())
+
+
+                #         image_file = Image.open(image)
+                #         image_file.resize(300,300)
+                #         photo_image = ImageTk.PhotoImage(image_file)
+                #         button = Button(frame_main_menu)
+                    # print(image.get_name())
+
+
+
+                # if filetype.is_image(epub_file):
+                #     print(f"{epub_file} is a valid image...", epub_file)
+
+
+                # file_cover = ImageTk.PhotoImage(Image.open(book.get_item_with_id('cover-image')))
+                # label = Label(image=file_cover, backgroundcolor = 'green')
+                # label.pack(side = RIGHT, anchor="n")
+
+    # settings_button = Button(frame_main_menu, text='Settings', command=lambda:active_frame(settings(), main_menu()))
+    # settings_button.pack(side = RIGHT, anchor="s")
+
+                # print(epub_file)
+
+    elif type(folders_to_scan) is str:
+        print(folders_to_scan)
+        epub_files = glob.glob(folders_to_scan + "/**/*.epub", recursive = True)
+        for epub_file in epub_files:
+             print(epub_file)
+
+def show_files():
+    # image = Image.open()
+    # creaate a texture button?, set it in a grid = row, column, when to go to another row?
+    pass
+
+#  for every epub file, add book icon, this will require some sort of a grid?
+#  on book icon pressed open up the book contents
+#  below book icon, have a text with the name of the book, and below that, name of the artist
+#  on artist name pressed, go to a screen that will show you all books you've got from that artist
+
+#  files can be organized by release year, by name, all assending or desending
 
 def active_frame(new_frame, previous_frame_is):
     previous_frame = previous_frame_is
@@ -105,6 +220,7 @@ def on_program_opened():
 on_program_opened()
 
 def settings():
+
     frame_settings = Frame(main_window, bg='blue')
     frame_settings.grid(row=0,column=0,sticky='nsew')
 
@@ -115,10 +231,8 @@ def settings():
     settings_button.pack()
 
     settings_button = Button(frame_settings, text='Return', command=lambda:active_frame(previous_frame, settings()))
-    
     settings_button.pack(side = RIGHT, anchor="n")
 
-    
     return frame_settings
 
 def file_opener():
@@ -157,17 +271,10 @@ def check_list_for_duplicates(list :List, new_list_member):
         pass
 
 
-#  make main menu
-#  for every epub file, add book icon, this will require some sort of a grid?
-#  on book icon pressed open up the book contents
-#  below book icon, have a text with the name of the book, and below that, name of the artist
-#  on artist name pressed, go to a screen that will show you all books you've got from that artist
 
 # on settings, top right add button to return to previous screen, whether it be bookreader screen or main menu
 
-
-
-# have a vertical list of folders
+# have a vertical list of folders, on yellow frame
 # those are just div with 2 horizontal texts, one below another
 # text 1 shows the name of the folder
 # text 2 shows the full path to the folder
@@ -182,7 +289,7 @@ def check_list_for_duplicates(list :List, new_list_member):
 
 # chozen_file_location = "D:\Books\J. R. R. Tolkien\LotR\J.R.R. Tolkien - Lord of the Rings Collection-2000.epub"
 # text = Text(main_window, wrap = WORD)
-# text.insert(INSERT, epub2text(chozen_file_location))
+#  text.insert(INSERT, epub2text(chozen_file_location))
 # text.config(state=DISABLED)
 # text.pack() 
 
@@ -196,3 +303,4 @@ main_window.mainloop()
 
 
 # upon load, add a picture button in main with the pic of the book cover, below it set name of book, and below that, set name of author
+#  make it work with audio books too

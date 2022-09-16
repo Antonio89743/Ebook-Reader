@@ -1,6 +1,9 @@
+from array import array
 import tkinter as tk
 import random
 import settings_frame
+import scan_folders
+import global_variables.load_folders_to_scan
 
 class DynamicGrid(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -21,7 +24,28 @@ class DynamicGrid(tk.Frame):
         def active_frame(new_active_frame):
             nonlocal current_active_frame
             nonlocal return_button_array
+
+            # check if current_active_frame and new_active_frame are the same
+
+
+            print(type(new_active_frame))
+
+            # new_active_frame_1 = new_active_frame[-1]
+            # print("1234567890", type(new_active_frame[-1]))
+
+            # print("qwertyuioppasdfghjkl;", (new_active_frame_1))
+
+
+
+
+
             if current_active_frame != new_active_frame:
+
+
+
+
+
+                print(current_active_frame, new_active_frame)
                 return_button_array.append(current_active_frame)
                 current_active_frame.pack_forget()
                 new_active_frame.pack(side="right", fill="both", expand=True)
@@ -105,6 +129,11 @@ class DynamicGrid(tk.Frame):
 
 class Example(object):
     def __init__(self):
+
+        folders_to_scan_array :array = []
+        folders_to_scan_array = global_variables.load_folders_to_scan.load_folders_to_scan()
+        scan_folders.scan_folders(folders_to_scan_array)
+
         self.root = tk.Tk()
         self.frame = tk.Frame(self.root,width = 100, height = 350, bg='white')
         self.frame.pack(side="left", fill="both", expand=True)
@@ -114,32 +143,11 @@ class Example(object):
        
 
 
-
-
-
-
-
-
-
-
-
-
-
         # add a few boxes to start
         # for i in range(10):
         #     self.dg.add_box()
 
 
-
-
-
-
-
-
-
-
-
     def start(self):
         self.root.mainloop()
-
 Example().start()
