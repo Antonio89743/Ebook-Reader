@@ -1,12 +1,17 @@
+from array import array
 import glob, os
 
+array_or_epub_files : array = []
+dictionary_of_valid_files = {
+    "array_of_epub_files": array_or_epub_files,
+}
 
 def scan_folders(folders_to_scan):
     if type(folders_to_scan) is list:
         for folder in folders_to_scan:
             epub_files = glob.glob(folder + "/**/*.epub", recursive = True)
             for epub_file in epub_files:
-                pass
+                array_or_epub_files.append(os.path.abspath(epub_file))
                 # book = epub.read_epub(epub_file)
                 
                 # cover_image = book.get_item_with_id('cover-image')
@@ -100,4 +105,7 @@ def scan_folders(folders_to_scan):
         print(folders_to_scan)
         epub_files = glob.glob(folders_to_scan + "/**/*.epub", recursive = True)
         for epub_file in epub_files:
-             print(epub_file)
+             array_or_epub_files.append(os.path.abspath(epub_file))
+    
+
+    return dictionary_of_valid_files
