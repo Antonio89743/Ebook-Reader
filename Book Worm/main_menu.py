@@ -121,66 +121,46 @@ class DynamicGrid(tk.Frame):
 
 
 
-    def add_box(self, epub_file_path):
-        # try to add here the zip stuff from the other file
+    def add_book_cover_and_info(self, epub_file_path):
 
-        # self.button_image = Image.open(file_cover_image.get_epub_cover_image(epub_file_path))
-        # print(self.button_image)
-
-        # self.button_image = file_cover_image.get_epub_cover_image(epub_file_path)
-        # photo = itk.PhotoImage(file = self.button_image)
-        # canvas = tk.Button(self,width=999,height=999, image=photo)
-        # canvas.pack()
+        frame = tk.Frame(self.text, width = 100, height = 350, bg='purple')
+        frame.pack()
         
-        # image = file_cover_image.get_epub_cover_image(epub_file_path)
-        # background = image
-        # print(image, " ", background)
-        # photo = itk.PhotoImage(file = background)
-        # print(photo)
-        # button = tk.Button(self.text,width=200,height=200, image=photo)
-        # button.pack()
+        image = file_cover_image.get_epub_cover_image(epub_file_path)
+        background = image
+        photo = itk.PhotoImage(file = background)
+        button = tk.Button(frame,width=200,height=400, image=photo)
+        button.image = photo
+        button.pack()
 
+        
+        settings_button = tk.Button(
+        frame, 
+        text= file_cover_image.get_epub_book_title(epub_file_path),
+        width = 30, 
+        height = 2
+        ).pack()
 
-
-
-
-
-        # root = tk.Tk()
-        # root.geometry('300x300')
-
-        # background = file_cover_image.get_epub_cover_image(epub_file_path)
-        # print(background)
-        # photo = itk.PhotoImage(file = background)
-        # print(photo)
-        # button = tk.Button(root,width=300,height=300, image=photo)
-        # button.pack()
-        # root.mainloop()
-
-
-#  maybe make the other file make all of these widgets too?
-
-
-        # button = tk.Button(self.text, width=25, height=15, image = self.button_image)
-
-
+        settings_button = tk.Button(
+        frame, 
+        text= file_cover_image.get_epub_book_author(epub_file_path),
+        width = 30, 
+        height = 2
+        ).pack()
 
 
 
         #The Pack geometry manager packs widgets in rows or columns.
-
-
-
         # bg = color if color else random.choice(("red", "orange", "green", "blue", "violet"))
         # box = tk.Frame(self.text, bd=1, relief="sunken", background=bg,
         #                width=100, height=100)
         self.text.configure(state="normal")
-        self.text.window_create("end", window=button)
+        self.text.window_create("end", window=frame)
         self.text.configure(state="disabled")
-
 
 def make_widgets_for_each_file(dictionary_of_valid_files, dynamic_grid):
     for epub_file in dictionary_of_valid_files["array_of_epub_files"]:
-        dynamic_grid.add_box(epub_file)
+        dynamic_grid.add_book_cover_and_info(epub_file)
 
 
 class Example(object):
