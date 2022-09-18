@@ -1,3 +1,4 @@
+from array import array
 import os
 import zipfile
 from lxml import etree
@@ -20,7 +21,8 @@ def get_epub_cover_image(epub_path):
         cover_href = t.xpath("//opf:manifest/opf:item[@id='" + cover_id + "']", namespaces=namespaces)[0].get("href")
         if rootfile_path:
          if os.path.dirname(rootfile_path) == "":
-            cover_path = (cover_href)
+            cover_path = cover_href
+            print("xxxxxxxx ", cover_path)
          else:
             cover_path = (os.path.dirname(rootfile_path) + "/" + cover_href)
         return z.open(cover_path)
@@ -38,15 +40,50 @@ def get_epub_book_title(epub_path):
 def get_epub_book_author(epub_path):
     with zipfile.ZipFile(epub_path) as z:
         t = etree.fromstring(z.read("META-INF/container.xml"))
-        rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile",
-                                             namespaces=namespaces)[0].get("full-path")
+        rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile", namespaces=namespaces)[0].get("full-path")
         t = etree.fromstring(z.read(rootfile_path))
-        cover_id = t.xpath("//opf:metadata",
-                                    namespaces=namespaces)[0]
+        cover_id = t.xpath("//opf:metadata", namespaces=namespaces)[0]
         file_title = cover_id.find('{http://purl.org/dc/elements/1.1/}creator')
         if hasattr(file_title, 'text'):
-          return file_title.text
+            return file_title.text
 
-# get_epub_book_author(r"C:\Users\anton\OneDrive\Radna površina\Epub Reader\Epub-Reader\trash\The Last Wish by Andrzej Sapkowski .epub")
+def get_epub_book_text(epub_path): #this func is only ran trough on individual book open and it should return the entire book (combine htmls, pics, tables and other files), where you're left off
+    spine_item_location :array = []
+    with zipfile.ZipFile(epub_path) as z:
+        t = etree.fromstring(z.read("META-INF/container.xml"))
+        rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile", namespaces=namespaces)[0].get("full-path")
+        t = etree.fromstring(z.read(rootfile_path))
+        for item in t.xpath("//opf:spine/opf:itemref", namespaces=namespaces):
+            spine_itemref = item.get("idref")
+            spine_item_location.append(t.xpath("//opf:manifest/opf:item[@id='" + spine_itemref + "']", namespaces=namespaces)[0].get("href"))
+
+        if rootfile_path:
+            if os.path.dirname(rootfile_path) == "":
+                cover_path = (spine_item_location[1])
+        
+        for spine_item_file in range(len(spine_item_location)):
+
+            if spine_item_location[spine_item_file].endswith(".html"):
+                print(spine_item_location[spine_item_file])
+                print(z.read(spine_item_location[spine_item_file]))
+                #  get the contents with a library
+
+
+            # elif spine_item_location[spine_item_file].endswith(".xhtml"):
+            #     pass
+
+            # elif spine_item_location[spine_item_file].endswith(".xml"):
+            #     pass
+
+
+
+        # import codecs
+        # f = (z.read(cover_path))
+
+        # print (f)
+        # print(z.open(cover_path))
+        # return z.open(cover_path)
+
+get_epub_book_text(r"C:\Users\anton\OneDrive\Radna površina\Epub Reader\Epub-Reader\trash\Lolita - Vladimir Vladimirovich Nabokov.epub")
 
 # lxml licence
