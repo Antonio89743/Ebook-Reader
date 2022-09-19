@@ -2,6 +2,7 @@ from array import array
 import os
 import zipfile
 from lxml import etree
+import html_file_data
 
 namespaces = {
    "calibre":"http://calibre.kovidgoyal.net/2009/metadata",
@@ -47,7 +48,7 @@ def get_epub_book_author(epub_path):
         if hasattr(file_title, 'text'):
             return file_title.text
 
-def get_epub_book_text(epub_path): #this func is only ran trough on individual book open and it should return the entire book (combine htmls, pics, tables and other files), where you're left off
+def get_epub_book_text(epub_path): # return the entire book (combine htmls, pics, tables and other files), where you're left off
     spine_item_location :array = []
     with zipfile.ZipFile(epub_path) as z:
         t = etree.fromstring(z.read("META-INF/container.xml"))
@@ -57,33 +58,30 @@ def get_epub_book_text(epub_path): #this func is only ran trough on individual b
             spine_itemref = item.get("idref")
             spine_item_location.append(t.xpath("//opf:manifest/opf:item[@id='" + spine_itemref + "']", namespaces=namespaces)[0].get("href"))
 
-        if rootfile_path:
-            if os.path.dirname(rootfile_path) == "":
-                cover_path = (spine_item_location[1])
+        # if rootfile_path:
+        #     if os.path.dirname(rootfile_path) == "":
+        #         cover_path = (spine_item_location[1])
         
+        x = []
+
         for spine_item_file in range(len(spine_item_location)):
 
+
+
             if spine_item_location[spine_item_file].endswith(".html"):
+
                 print(spine_item_location[spine_item_file])
-                print(z.read(spine_item_location[spine_item_file]))
-                #  get the contents with a library
+                x.append(html_file_data.get_html_text(z.read(spine_item_location[spine_item_file]).decode("utf-8")))
 
+            elif spine_item_location[spine_item_file].endswith(".xhtml"):
+                pass
 
-            # elif spine_item_location[spine_item_file].endswith(".xhtml"):
-            #     pass
+            elif spine_item_location[spine_item_file].endswith(".xml"):
+                pass
 
-            # elif spine_item_location[spine_item_file].endswith(".xml"):
-            #     pass
-
-
-
-        # import codecs
-        # f = (z.read(cover_path))
-
-        # print (f)
-        # print(z.open(cover_path))
-        # return z.open(cover_path)
+        return x
 
 get_epub_book_text(r"C:\Users\anton\OneDrive\Radna površina\Epub Reader\Epub-Reader\trash\Lolita - Vladimir Vladimirovich Nabokov.epub")
 
 # lxml licence
+# html licence
