@@ -3,6 +3,7 @@ import tkinter as tk
 from types import NoneType
 import scan_folders
 import global_variables.load_folders_to_scan
+from tkscrolledframe import ScrolledFrame
 
 folders_to_scan_array :array = []
 folders_to_scan_array = global_variables.load_folders_to_scan.load_folders_to_scan()
@@ -10,29 +11,70 @@ folders_to_scan_array = global_variables.load_folders_to_scan.load_folders_to_sc
 def list_of_folders_to_scan(frame):
 
     folders_to_scan_list_frame = tk.Frame(frame, width = 500, height = 90, bg = 'red')
-    folders_to_scan_list_frame.pack(side="top", fill="x", expand=True)
-    folders_to_scan_list_frame_shrunk = True
+    folders_to_scan_list_frame.place(relwidth=0.8, y=50, relx=0.1)
+    # folders_to_scan_list_frame.config(command=t.yview) # add a scrollbar to the frame
 
-    def create_list_of_folders_to_scan():
 
-        settings_button = tk.Button(folders_to_scan_list_frame, height = 20, pady=10, text=' + ')
-        settings_button.pack()
+
+    # scrollbar = tk.Scrollbar(
+    #     frame,
+    #     orient='vertical'
+    #     )
+
+    # scrollbar.place(anchor='e')
+
+    # # scrollbar.config(yscrollcommand=scrollbar.set)
+
+    # # scrollbar.config(command=folders_to_scan_list_frame.yview)
+
+    # scrollbar.config(command = folders_to_scan_list_frame.yview)
 
     
+
+
+
+
+
+
+
+
+    # now how and where to actually make the widgets for individual folder locations
+    folders_to_scan_list_frame_shrunk = True
+
+    add_folder_to_scan_button = tk.Button(folders_to_scan_list_frame, height = 1, width = 10, pady=10, text=' + ')
+    
+    def add_element_for_folder_to_scan():
+
+        y_position = 90
+
+        for n in range (3):
+
+            folders_to_scan_list_element_frame = tk.Frame(folders_to_scan_list_frame, width = 100, height = 120, bg = 'blue')
+            folders_to_scan_list_element_frame.place(y = y_position, relx = 0.5)
+            
+            add_folder_to_scan_button = tk.Button(folders_to_scan_list_element_frame, height = 1, width = 1, pady=10, text=' X ')
+            add_folder_to_scan_button.place(y = 20, relx = 0.7)
+
+            y_position += 190
+
+
+
+            
+    add_element_for_folder_to_scan()
+
     def folders_to_scan_list_frame_expand_shrink():
         nonlocal folders_to_scan_list_frame
         nonlocal folders_to_scan_list_frame_shrunk
         if folders_to_scan_list_frame_shrunk == True:
-            folders_to_scan_list_frame.pack(side="right", fill="both", expand=True)
-            create_list_of_folders_to_scan()
-
+            folders_to_scan_list_frame.place(relwidth=0.8, y=50, height=4000, relx=0.1) # should adapt to the contents of the scroll container
+            add_folder_to_scan_button.place(y = 30, relx = 0.5)
         elif folders_to_scan_list_frame_shrunk == False:
-            folders_to_scan_list_frame.pack(side="top", fill="x", expand=True)
+            folders_to_scan_list_frame.place(height=23, relwidth=0.8, y=50, relx=0.1)
         folders_to_scan_list_frame_shrunk = not folders_to_scan_list_frame_shrunk
 
 
-    settings_button = tk.Button(folders_to_scan_list_frame, text='Expand', command = lambda: folders_to_scan_list_frame_expand_shrink())
-    settings_button.pack(side = "right" , anchor="n")
+    expand_folders_to_scan_list_button = tk.Button(folders_to_scan_list_frame, text='Expand', command = lambda: folders_to_scan_list_frame_expand_shrink())
+    expand_folders_to_scan_list_button.pack(side = "right" , anchor="n")
 
     # for folder in range(20):
         
@@ -78,8 +120,9 @@ def settings_frame(main_window):
     frame_settings = tk.Frame(main_window, bg = 'blue')
     frame_settings.pack(side = "right", fill = "both", expand = True)
 
-    tab_frames = tk.Frame(main_window, bg='blue')
-    tab_frames.place(anchor="center", relx=0.5, y = 20)
+    tab_frames = tk.Frame(frame_settings, bg='white', padx=40, pady=20)
+    tab_frames.pack(side = "top", fill = "none", expand = False)
+
 
     themes_and_prefrences_frame = tk.Frame(frame_settings, bg = 'green')
     themes_and_prefrences_frame.pack(side="right", fill="both", expand = True)
@@ -91,35 +134,35 @@ def settings_frame(main_window):
     folders_to_scan_frame = tk.Frame(frame_settings, bg='orange')
 
 
+    list_of_folders_to_scan(folders_to_scan_frame)
 
 
 
 
+    # folders_to_scan_list_frame = tk.Frame(folders_to_scan_frame, width = 500, height = 90, bg = 'red')
+    # folders_to_scan_list_frame.pack(side="top", fill="x", expand=True)
+    # folders_to_scan_list_frame_shrunk = True
 
-    folders_to_scan_list_frame = tk.Frame(folders_to_scan_frame, width = 500, height = 90, bg = 'red')
-    folders_to_scan_list_frame.pack(side="top", fill="x", expand=True)
-    folders_to_scan_list_frame_shrunk = True
+    # def create_list_of_folders_to_scan():
 
-    def create_list_of_folders_to_scan():
-
-        settings_button = tk.Button(folders_to_scan_list_frame, height = 20, pady=10, text=' + ')
-        settings_button.pack()
+    #     settings_button = tk.Button(folders_to_scan_list_frame, height = 20, pady=10, text=' + ')
+    #     settings_button.pack()
 
     
-    def folders_to_scan_list_frame_expand_shrink():
-        nonlocal folders_to_scan_list_frame
-        nonlocal folders_to_scan_list_frame_shrunk
-        if folders_to_scan_list_frame_shrunk == True:
-            folders_to_scan_list_frame.pack(side="right", fill="both", expand=True)
-            create_list_of_folders_to_scan()
+    # def folders_to_scan_list_frame_expand_shrink():
+    #     nonlocal folders_to_scan_list_frame
+    #     nonlocal folders_to_scan_list_frame_shrunk
+    #     if folders_to_scan_list_frame_shrunk == True:
+    #         folders_to_scan_list_frame.pack(side="right", fill="both", expand=True)
+    #         create_list_of_folders_to_scan()
 
-        elif folders_to_scan_list_frame_shrunk == False:
-            folders_to_scan_list_frame.pack(side="top", fill="x", expand=True)
-        folders_to_scan_list_frame_shrunk = not folders_to_scan_list_frame_shrunk
+    #     elif folders_to_scan_list_frame_shrunk == False:
+    #         folders_to_scan_list_frame.pack(side="top", fill="x", expand=True)
+    #     folders_to_scan_list_frame_shrunk = not folders_to_scan_list_frame_shrunk
 
 
-    settings_button = tk.Button(folders_to_scan_list_frame, text='Expand', command = lambda: folders_to_scan_list_frame_expand_shrink())
-    settings_button.pack(side = "right" , anchor="n")
+    # settings_button = tk.Button(folders_to_scan_list_frame, text='Expand', command = lambda: folders_to_scan_list_frame_expand_shrink())
+    # settings_button.pack(side = "right" , anchor="n")
 
 
 

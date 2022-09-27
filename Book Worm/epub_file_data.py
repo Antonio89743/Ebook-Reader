@@ -48,6 +48,26 @@ def get_epub_book_author(epub_path):
         if hasattr(file_title, 'text'):
             return file_title.text
 
+def get_epub_book_publisher(epub_path):
+    with zipfile.ZipFile(epub_path) as z:
+        t = etree.fromstring(z.read("META-INF/container.xml"))
+        rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile", namespaces=namespaces)[0].get("full-path")
+        t = etree.fromstring(z.read(rootfile_path))
+        cover_id = t.xpath("//opf:metadata", namespaces=namespaces)[0]
+        file_publisher = cover_id.find('{http://purl.org/dc/elements/1.1/}publisher')
+        if hasattr(file_publisher, 'text'):
+            return file_publisher.text
+
+def get_epub_book_language(epub_path):
+    with zipfile.ZipFile(epub_path) as z:
+        t = etree.fromstring(z.read("META-INF/container.xml"))
+        rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile", namespaces=namespaces)[0].get("full-path")
+        t = etree.fromstring(z.read(rootfile_path))
+        cover_id = t.xpath("//opf:metadata", namespaces=namespaces)[0]
+        file_language = cover_id.find('{http://purl.org/dc/elements/1.1/}language')
+        if hasattr(file_language, 'text'):
+            return file_language.text
+
 def get_epub_book_text(epub_path): # return the entire book (combine htmls, pics, tables and other files), where you're left off
     spine_item_location :array = []
     with zipfile.ZipFile(epub_path) as z:
