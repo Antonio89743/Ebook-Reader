@@ -42,9 +42,13 @@ class DynamicGrid(tk.Frame):
         self.frame = tk.Frame(self, bg='black')
         self.frame.pack(side="right", fill="both", expand=True)
         
-        self.text = tk.Text(self.frame, wrap="char", borderwidth=0, highlightthickness=0, bg='orange', state="disabled")
+        self.text = tk.Text(self.frame, wrap="char", borderwidth=0, highlightthickness=0, bg='orange', state="disabled", cursor="arrow")
         self.text.pack(fill="both", expand=True)
         
+        scrollbar = tk.Scrollbar(self.text, command=self.text.yview)
+        self.text['yscroll'] = scrollbar.set
+        scrollbar.pack(side="right", fill="both", expand=False)
+
         current_active_frame = self.text   
 
         ribbon_frame = tk.Frame(parent,width = 100, height = 350, bg='yellow')

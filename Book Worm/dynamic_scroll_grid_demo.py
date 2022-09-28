@@ -1,15 +1,7 @@
-
-# Python program to illustrate the usage of 
-# autohiding scrollbars using tkinter
-   
-# Importing tkinter
 from tkinter import *
-   
-# Creating class AutoScrollbar
+
 class AutoScrollbar(Scrollbar):
        
-    # Defining set method with all 
-    # its parameter
     def set(self, low, high):
            
         if float(low) <= 0.0 and float(high) >= 1.0:
@@ -34,7 +26,6 @@ class AutoScrollbar(Scrollbar):
         raise (TclError, "place cannot be used  with \
         this widget")
   
-# creating tkinter window 
 root = Tk()
    
 # Defining vertical scrollbar
@@ -45,25 +36,14 @@ verscrollbar = AutoScrollbar(root)
 verscrollbar.grid(row=0, column=1, 
                   sticky=N+S)
    
-# Defining horizontal scrollbar
-horiscrollbar = AutoScrollbar(root, 
-                              orient=HORIZONTAL)
-   
-# Calling grid method with all its 
-# parameter w.r.t horizontal scrollbar
-horiscrollbar.grid(row=1, column=0, 
-                   sticky=E+W)
-   
 # Creating scrolled canvas
 canvas = Canvas(root,
-                yscrollcommand=verscrollbar.set,
-                xscrollcommand=horiscrollbar.set)
+                yscrollcommand=verscrollbar.set)
   
 canvas.grid(row=0, column=0, sticky=N+S+E+W)
    
 verscrollbar.config(command=canvas.yview)
-horiscrollbar.config(command=canvas.xview)
-   
+
 # Making the canvas expandable
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(0, weight=1)
@@ -90,5 +70,4 @@ frame.update_idletasks()
 # Configuring canvas
 canvas.config(scrollregion=canvas.bbox("all"))
    
-# Calling mainloop method
 root.mainloop()

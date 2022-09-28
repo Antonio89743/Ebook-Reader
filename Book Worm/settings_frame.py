@@ -31,7 +31,7 @@ def list_of_folders_to_scan(frame):
 
     
 
-
+############## option1 = tkinter.Button(opt1, wraplength=80, justify=LEFT, text='This is the text')
 
 
 
@@ -133,8 +133,14 @@ def settings_frame(main_window):
 
     folders_to_scan_frame = tk.Frame(frame_settings, bg='orange')
 
+    text_widget = tk.Text(folders_to_scan_frame, wrap="char", borderwidth=0, highlightthickness=0, bg='orange', state="disabled", cursor="arrow")
+    text_widget.pack(fill="both", expand=True)
 
-    list_of_folders_to_scan(folders_to_scan_frame)
+    scrollbar = tk.Scrollbar(text_widget, command=text_widget.yview)
+    text_widget['yscroll'] = scrollbar.set
+    scrollbar.pack(side="right", fill="both", expand=False)
+
+    list_of_folders_to_scan(text_widget)
 
 
 
