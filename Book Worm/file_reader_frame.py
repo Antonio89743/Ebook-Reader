@@ -17,7 +17,6 @@ def file_reader_main_frame(main_window, file_path):
 
 
 
-
         # text_box = tk.Text(
         #     ws,
         #     height=13,
