@@ -129,9 +129,10 @@ Screen:
                 halign: "center"
            
     BoxLayout:
-        Button:
+        MDIconButton:
             text: "Return"
             size_hint: (0.3, 0.3)
+            icon: "icons and images\icons8-settings-500.png" 
             on_press: screen_manager.current = 'main menu'
 
 '''
