@@ -1,11 +1,14 @@
+from kivy.config import Config
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+Config.set('graphics', 'width', '800')
+Config.set('graphics', 'height', '800')
+Config.set('graphics', 'minimum_width', '400')
+Config.set('graphics', 'minimum_height', '400')
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty
 
 from kivymd.app import MDApp
-from kivy.config import Config
-Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
-
 # KV = '''
 # <ContentNavigationDrawer>:
 
@@ -112,10 +115,10 @@ Screen:
         id: screen_manager
 
         Screen:
-            name: "scr 1"
+            name: "main menu"
 
             MDLabel:
-                text: "Screen 1"
+                text: "main menu"
                 halign: "center"
 
 
@@ -127,11 +130,15 @@ Screen:
            
     BoxLayout:
         Button:
-            text: "Main Menu"
-            size_hint: (0.5, 0.5)
-            on_press: screen_manager.current = 'scr 2'
+            text: "Return"
+            size_hint: (0.3, 0.3)
+            on_press: screen_manager.current = 'main menu'
 
 '''
+
+#  you'll have to redo the return func somehow
+#  setup settings, curretnly reading file, main menu including the filters and the rest
+
 
 class ContentNavigationDrawer(BoxLayout):
     screen_manager = ObjectProperty()
