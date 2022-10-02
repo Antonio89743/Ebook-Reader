@@ -115,30 +115,50 @@ Screen:
         id: screen_manager
 
         Screen:
-            name: "main menu"
+            name: "Main Menu"
 
             MDLabel:
-                text: "main menu"
+                text: "Main Menu"
                 halign: "center"
 
-
         Screen:
-            name: "scr 2"
+            name: "Read Currently Open File Screen"
             MDLabel:
                 text: "Screen 2"
                 halign: "center"
-           
+        
+        Screen:
+            name: "Settings Screen"
+            MDLabel:
+                text: "Settings"
+                halign: "center"
+
+
     BoxLayout:
+        id: nav_bar
+        orientation: 'vertical'
+
         MDIconButton:
-            text: "Return"
+            size_hint: (0.3, 0.3)
+            on_press: screen_manager.current = "Main Menu"
+        
+        MDIconButton:
+            color : [1.0, 1.0, 1.0, 1.0]
+            size_hint: (0.3, 0.3)
+            on_press: screen_manager.current = "Main Menu"
+
+        MDIconButton:
+            md_bg_color : [1.0, 1.0, 1.0, 1.0]
             size_hint: (0.3, 0.3)
             icon: "icons and images\icons8-settings-500.png" 
-            on_press: screen_manager.current = 'main menu'
+            on_press: screen_manager.current = "Settings Screen"
 
 '''
 
+#  setup main menu, get it to add elements for every book, add sort and filter buttons, books, series, authors, 
+#  see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
+#  get the box layout to change position
 #  you'll have to redo the return func somehow
-#  setup settings, curretnly reading file, main menu including the filters and the rest
 
 
 class ContentNavigationDrawer(BoxLayout):
