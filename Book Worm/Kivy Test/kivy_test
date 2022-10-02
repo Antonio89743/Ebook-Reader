@@ -1,0 +1,147 @@
+from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
+from kivy.properties import ObjectProperty
+
+from kivymd.app import MDApp
+from kivy.config import Config
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+
+# KV = '''
+# <ContentNavigationDrawer>:
+
+#     ScrollView:
+
+#         MDList:
+
+#             OneLineListItem:
+#                 text: "Screen 1"
+#                 on_press:
+#                     root.screen_manager.current = "scr 1"
+
+#             OneLineListItem:
+#                 text: "Screen 2"
+#                 on_press:
+#                     root.screen_manager.current = "scr 2"
+
+
+# Screen:
+
+#     MDTopAppBar:
+#         id: toolbar
+#         pos_hint: {"top": 1}
+#         elevation: 10
+#         title: "Book Reader"
+        
+
+        
+#     MDNavigationLayout:
+#         x: toolbar.height
+
+#         ScreenManager:
+#             id: screen_manager
+
+#             Screen:
+#                 name: "scr 1"
+
+#                 MDLabel:
+#                     text: "Screen 1"
+#                     halign: "center"
+                
+#                     Button:
+#                         text: "gay"
+#                         pos_hint: {"x":50}
+#                         size_hint: (0.5, 0.5)
+#                         on_press:
+#                             root.screen_manager.current = "scr 2"
+
+#             Screen:
+#                 name: "scr 2"
+
+#                 MDLabel:
+#                     text: "Screen 2"
+#                     halign: "center"
+
+#         MDNavigationDrawer:
+#             state: "close"
+#             status: "closed"
+#             enable_swiping: False
+#             id: nav_drawer
+#             scrim_color: [0, 0, 0, 0]
+#             pos: 0,-60
+#             close_on_click: False
+#             ContentNavigationDrawer:
+#                 screen_manager: screen_manager
+#                 nav_drawer: nav_drawer
+
+
+# '''
+KV = '''
+
+<ContentNavigationDrawer>:
+
+    ScrollView:
+
+        MDList:
+
+            OneLineListItem:
+                text: "Screen 1"
+                on_press:
+                    root.screen_manager.current = "scr 1"
+
+            OneLineListItem:
+                text: "Screen 2"
+                on_press:
+                    root.screen_manager.current = "scr 2"
+
+
+Screen:
+
+    MDTopAppBar:
+        id: toolbar
+        pos_hint: {"top": 1}
+        elevation: 10
+        title: "Book Reader"
+
+
+    FloatLayout: 
+        size: root.width, root.height
+
+
+
+    ScreenManager:
+        id: screen_manager
+
+        Screen:
+            name: "scr 1"
+
+            MDLabel:
+                text: "Screen 1"
+                halign: "center"
+
+
+        Screen:
+            name: "scr 2"
+            MDLabel:
+                text: "Screen 2"
+                halign: "center"
+           
+    BoxLayout:
+        Button:
+            text: "Main Menu"
+            size_hint: (0.5, 0.5)
+            on_press: screen_manager.current = 'scr 2'
+
+'''
+
+class ContentNavigationDrawer(BoxLayout):
+    screen_manager = ObjectProperty()
+    nav_drawer = ObjectProperty()
+
+
+class FileReaderApp(MDApp):
+    def build(self):
+        self.title = "Book Reader"
+        return Builder.load_string(KV)
+
+
+FileReaderApp().run()
