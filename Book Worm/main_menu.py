@@ -73,6 +73,18 @@ class DynamicGrid(tk.Frame):
         return_button.image = return_button_icon
         return_button.pack()
 
+        main_menu_icon = tk.PhotoImage(file='icons and images\icons8-settings-500.png')
+        main_menu_button = tk.Button(
+            ribbon_frame, 
+            text = "Return",
+            image = main_menu_icon, 
+            width = 60, 
+            height = 60,
+            command = lambda:active_frame(self.text, "nah")
+            )
+        main_menu_button.image = main_menu_icon
+        main_menu_button.pack()
+
         currently_open_button_icon = tk.PhotoImage(file='icons and images\icons8-settings-500.png')
         currently_open_button = tk.Button(
             ribbon_frame, 
@@ -134,8 +146,6 @@ class DynamicGrid(tk.Frame):
         settings_button.pack(side = "left", anchor="s")
 
 
-
-
 #     def add_book_cover_and_info(self, epub_file_path, file_type):
 
 #         background = None
@@ -175,28 +185,6 @@ class DynamicGrid(tk.Frame):
 #         height = 2
 # #       got to page with all the info about the author and his works, maybe hook there a wiki article
 #         ).pack()
-
-
-
-#         #The Pack geometry manager packs widgets in rows or columns.
-#         # bg = color if color else random.choice(("red", "orange", "green", "blue", "violet"))
-#         # box = tk.Frame(self.text, bd=1, relief="sunken", background=bg,
-#         #                width=100, height=100)
-#         self.text.configure(state="normal")
-#         self.text.window_create("end", window = frame)
-#         self.text.configure(state="disabled")
-
-# def make_widgets_for_each_file(dictionary_of_valid_files, dynamic_grid):
-#     for epub_file in dictionary_of_valid_files["array_of_epub_files"]:
-#         dynamic_grid.add_book_cover_and_info(epub_file, "epub")
-    
-#     # for mobi_file in dictionary_of_valid_files["array_of_mobi_files"]:
-#     #     dynamic_grid.add_book_cover_and_info(mobi_file, "mobi")
-    
-#     # for pdf_file in dictionary_of_valid_files["array_of_pdf_files"]:
-#     #     dynamic_grid.add_book_cover_and_info(pdf_file, "pdf")
-
-
 
     def add_book_cover_and_info(self, file_path, file_type): #workaround for sorting is creating arrays that are sorted by date/alphabetically/etc, and just following array
 

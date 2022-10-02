@@ -10,31 +10,38 @@ folders_to_scan_array = global_variables.load_folders_to_scan.load_folders_to_sc
 
 def list_of_folders_to_scan(frame):
 
-    # text_widget = tk.Text(frame, borderwidth=0, highlightthickness=0, bg='gray', state="disabled", cursor="arrow")
+    # text_widget = tk.Text(scrollbar, borderwidth=0, highlightthickness=0, bg='gray', state="disabled", cursor="arrow")
     # text_widget.pack(fill="both", expand=True)
 
-    # scrollbar = tk.Scrollbar(text_widget, command=text_widget.yview)
+    # scrollbar = tk.Scrollbar(frame, command=text_widget.yview)
     # text_widget['yscroll'] = scrollbar.set
     # scrollbar.pack(side="right", fill="both", expand=False)
 
-    canvas = tk.Canvas(frame, bg="pink")
-    canvas.pack(fill="both", expand=True)
+    # canvas = tk.Canvas(frame, bg="pink")
+    # canvas.pack(fill="both", expand=True)
 
-    scrollbar = tk.Scrollbar(frame, orient="vertical", command=canvas.yview)
-    scrollbar.pack(side="right", fill="y")
+    # scrollbar = tk.Scrollbar(frame, orient="vertical", command=canvas.yview)
+    # scrollbar.pack(side="right", fill="y")
 
-    canvas.configure(yscrollcommand=scrollbar.set)
-    canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion = canvas.bbox("all")))
+    # canvas.configure(yscrollcommand=scrollbar.set)
+    # canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion = canvas.bbox("all")))
 
-    canvas_frame = tk.Frame(canvas, bg="white")
+    # canvas_frame = tk.Frame(canvas, bg="white")
 
-    canvas.create_window((0,0), window=canvas_frame, anchor="nw")
+    # canvas.create_window((0,0), window=canvas_frame, anchor="nw")
 
-    folders_to_scan_list_frame = tk.Frame(canvas_frame, width = 500, height = 90, bg = 'red')
+    scrollbar = tk.Scrollbar(frame)
+    text_widget = tk.Text(frame, height=10, width=10, yscrollcommand=scrollbar.set, bg='purple')
+    scrollbar.config(command=text_widget.yview)
+    scrollbar.pack(side='right', fill='y')
+    text_widget.pack(fill="both", expand=True)
+
+    folders_to_scan_list_frame = tk.Frame(text_widget, width = 500, height = 90, bg = 'red')
     folders_to_scan_list_frame.place(relwidth=0.8, y=50, relx=0.1)
 
-
-
+    # text_widget.configure(state="normal")
+    # text_widget.window_create("end", window = folders_to_scan_list_frame)
+    # text_widget.configure(state="disabled")
 
     # folders_to_scan_list_frame.grid(row=3, column=4)
 
@@ -57,9 +64,9 @@ def list_of_folders_to_scan(frame):
 
             y_position += 190
 
-            # text_widget.configure(state="normal")
-            # text_widget.window_create("end", window = folders_to_scan_list_frame)
-            # text_widget.configure(state="disabled")
+            text_widget.configure(state="normal")
+            text_widget.window_create("end", window = folders_to_scan_list_frame)
+            text_widget.configure(state="disabled")
 
 
 
