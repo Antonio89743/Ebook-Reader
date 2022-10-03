@@ -217,7 +217,7 @@ Screen:
                 height: root.height - 70
                 
                 BoxLayout:
-                    pos_hint: {"right": 1}
+                    pos_hint: {"right": 0}
 
                     size_hint: (None, None)
                     orientation: 'horizontal'                
