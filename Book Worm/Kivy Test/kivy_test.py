@@ -245,6 +245,7 @@ Screen:
 
                             Button:
                                 text: "Local Folders To Scan"
+                                on_press: root.say_hello()
 
                 TabbedPanelItem:
                     text: "About"
@@ -299,25 +300,20 @@ Screen:
 
 '''
 
-
-#  fix scrollview position
-#  box layouts should be outside of the scrollview, similar in settings
+#  box layouts should be outside of the scrollview
 #  setup main menu, get it to add elements for every book, add sort and filter buttons, books, series, authors, 
 #  see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
 #  get the box layout to change position
-#  you'll have to redo the return func somehow
+#  redo the return func
 #  filter by file format
-
 
 class ContentNavigationDrawer(BoxLayout):
     screen_manager = ObjectProperty()
     nav_drawer = ObjectProperty()
 
-
 class FileReaderApp(MDApp):
     def build(self):
         self.title = "Book Reader"
         return Builder.load_string(Kivy)
-
-
+    
 FileReaderApp().run()
