@@ -121,44 +121,46 @@ Screen:
 
             ScrollView:
                 do_scroll_x: False
-                pos_hint: {"right": 1, "top": 1}
+                pos_hint: {"right": 1}
                 size_hint: (None, None)
                 width: root.width - 70
-                height: root.height
+                height: root.height - 70
 
                 BoxLayout:
-                    pos_hint: {"center_x": 0.5}
+                    pos_hint: {"top": 1}
                     size_hint: (None, None)
-                    width: root.width - 70
-                    height: root.height - 35
+                    width: root.width 
+                    height: root.height 
                     orientation: 'vertical'
 
                     BoxLayout:
+                        pos_hint: {"top": 1}
                         size_hint: (None, None)
                         orientation: 'horizontal'
 
                         Button:
+                            pos_hint: {"top": 1}
                             text: "Files"
                             size_hint: (None, None)
                             width: 70
-                            height: 70
+
                         
                         Button:
                             text: "Series"
                             size_hint: (None, None)
                             width: 70
-                            height: 70
+
 
                         Button:
                             text: "Authors"
                             size_hint: (None, None)
                             width: 70
-                            height: 70
+
                         
                         MDIconButton:
                             size_hint: (None, None)
                             width: 70
-                            height: 70
+
                             color : [1.0, 1.0, 1.0, 1.0]             
 
                     BoxLayout:
@@ -169,13 +171,13 @@ Screen:
                             text: "Sort"
                             size_hint: (None, None)
                             width: 70
-                            height: 20
+
 
                         Button:
                             text: "Filter"
                             size_hint: (None, None)
                             width: 70
-                            height: 20
+
 
                     MDLabel:
                         text: "Main Menu"
@@ -192,14 +194,12 @@ Screen:
                             text: "Files"
                             size_hint: (None, None)
                             width: 70
-                            height: 700
-                        
+
                         Button:
                             text: "Files"
                             size_hint: (None, None)
                             width: 70
-                            height: 700      
-
+     
         Screen:
             name: "Read Currently Open File Screen"
             MDLabel:
@@ -208,43 +208,48 @@ Screen:
         
         Screen:
             name: "Settings Screen"
-
-            ScrollView:
-                do_scroll_x: False
-                pos_hint: {"right": 1}
+            
+            TabbedPanel:
+                do_default_tab: False
+                tab_pos: "top_mid"
                 size_hint: (None, None)
+                tab_width: 200
+                pos_hint: {"right": 1}
                 width: root.width - 70
                 height: root.height - 70
+
+                TabbedPanelItem:
+                    text: "Themes & Preferences"
+                    Label:
+                        text: "CCCC"    
                 
-                BoxLayout:
-                    pos_hint: {"right": 0}
+                TabbedPanelItem:
+                    text: "Scanning Folders"
 
-                    size_hint: (None, None)
-                    orientation: 'horizontal'                
-
-                    Button:
-                        text: "Themes & Preferences"
+                    ScrollView:
+                        do_scroll_x: False
+                        pos_hint: {"right": 1}
                         size_hint: (None, None)
-                        width: 200
-
+                        width: root.width - 70
+                        height: root.height - 70
                     
-                    Button:
-                        text: "Scanning Folders"
-                        size_hint: (None, None)
-                        width: 200
+                        BoxLayout:
+                            pos_hint: {"top": 1}
+                            size_hint: (None, None)
+                            width: root.width 
+                            height: root.height 
+                            orientation: 'vertical'
 
+                            Label:
+                                text: "Local Folders To Scan"
 
-                    Button:
-                        text: "About"
-                        size_hint: (None, None)
-                        width: 100
-                        height: 40
+                            Button:
+                                text: "Local Folders To Scan"
 
-                    Button:
-                        text: "About"
-                        size_hint: (None, None)
-                        width: 100
-                        height: 40
+                TabbedPanelItem:
+                    text: "About"
+                    Label:
+                        text: "cxzczxc"
 
 
     BoxLayout:
