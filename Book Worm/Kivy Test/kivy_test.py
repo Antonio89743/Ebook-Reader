@@ -240,7 +240,11 @@ Screen:
                         width: 100
                         height: 40
 
-
+                    Button:
+                        text: "About"
+                        size_hint: (None, None)
+                        width: 100
+                        height: 40
 
 
     BoxLayout:
