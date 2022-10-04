@@ -9,98 +9,29 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty
 
 from kivymd.app import MDApp
+from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
+
 # from kivy.core.window import Window
 # Window.fullscreen = True
 # Window.maximize()
 
-# KV = '''
-# <ContentNavigationDrawer>:
-
-#     ScrollView:
-
-#         MDList:
-
-#             OneLineListItem:
-#                 text: "Screen 1"
-#                 on_press:
-#                     root.screen_manager.current = "scr 1"
-
-#             OneLineListItem:
-#                 text: "Screen 2"
-#                 on_press:
-#                     root.screen_manager.current = "scr 2"
-
-
-# Screen:
-
-#     MDTopAppBar:
-#         id: toolbar
-#         pos_hint: {"top": 1}
-#         elevation: 10
-#         title: "Book Reader"
-        
-
-        
-#     MDNavigationLayout:
-#         x: toolbar.height
-
-#         ScreenManager:
-#             id: screen_manager
-
-#             Screen:
-#                 name: "scr 1"
-
-#                 MDLabel:
-#                     text: "Screen 1"
-#                     halign: "center"
-                
-#                     Button:
-#                         text: "gay"
-#                         pos_hint: {"x":50}
-#                         size_hint: (0.5, 0.5)
-#                         on_press:
-#                             root.screen_manager.current = "scr 2"
-
-#             Screen:
-#                 name: "scr 2"
-
-#                 MDLabel:
-#                     text: "Screen 2"
-#                     halign: "center"
-
-#         MDNavigationDrawer:
-#             state: "close"
-#             status: "closed"
-#             enable_swiping: False
-#             id: nav_drawer
-#             scrim_color: [0, 0, 0, 0]
-#             pos: 0,-60
-#             close_on_click: False
-#             ContentNavigationDrawer:
-#                 screen_manager: screen_manager
-#                 nav_drawer: nav_drawer
-
-
-# '''
-
 Kivy = '''
 
-<ContentNavigationDrawer>:
+<LocalFoldersExpansionPanelContent>
+    height: self.minimum_height
+    adaptive_height: True
+    orientation: "vertical"
+    pos_hint: {"center_x": 0.5}
+    size_hint: (0.7, None)
+    padding: [20, 20, 20, 20]
+    spacing: 20
 
-    ScrollView:
-
-        MDList:
-
-            OneLineListItem:
-                text: "Screen 1"
-                on_press:
-                    root.screen_manager.current = "scr 1"
-
-            OneLineListItem:
-                text: "Screen 2"
-                on_press:
-                    root.screen_manager.current = "scr 2"
-
+    Button:
+        text: "Add Local Folder To Scan"
+        size_hint: (0.7, None)
+        pos_hint: {"center_x": 0.5, "top": 1}
+        width: 100
+        on_press: app.AddLocalFolderToScanButtonPressed()
 
 Screen:
 
@@ -118,87 +49,46 @@ Screen:
         Screen:
             id: main_menu_screen
             name: "Main Menu"
-
-            ScrollView:
-                do_scroll_x: False
-                pos_hint: {"right": 1}
+            
+            TabbedPanel:
+                do_default_tab: False
+                tab_pos: "top_left"
                 size_hint: (None, None)
+                tab_width: 150
+                pos_hint: {"right": 1}
                 width: root.width - 70
                 height: root.height - 70
+                
+                TabbedPanelItem:
+                    text: "Files"
 
-                BoxLayout:
-                    pos_hint: {"top": 1}
-                    size_hint: (None, None)
-                    width: root.width 
-                    height: root.height 
-                    orientation: 'vertical'
-
-                    BoxLayout:
-                        pos_hint: {"top": 1}
-                        size_hint: (None, None)
-                        orientation: 'horizontal'
-
-                        Button:
-                            pos_hint: {"top": 1}
-                            text: "Files"
-                            size_hint: (None, None)
-                            width: 70
-
-                        
-                        Button:
-                            text: "Series"
-                            size_hint: (None, None)
-                            width: 70
-
-
-                        Button:
-                            text: "Authors"
-                            size_hint: (None, None)
-                            width: 70
-
-                        
-                        MDIconButton:
-                            size_hint: (None, None)
-                            width: 70
-
-                            color : [1.0, 1.0, 1.0, 1.0]             
-
-                    BoxLayout:
-                        orientation: 'horizontal'
-                        pos_hint: {"y": 0}
-
-                        Button:
-                            text: "Sort"
-                            size_hint: (None, None)
-                            width: 70
-
-
-                        Button:
-                            text: "Filter"
-                            size_hint: (None, None)
-                            width: 70
-
-
-                    MDLabel:
-                        text: "Main Menu"
-                        halign: "center"
-                    
-                    BoxLayout:
+                    ScrollView:
+                        id: scroll_view
+                        always_overscroll: False
+                        do_scroll_x: False
                         pos_hint: {"right": 1}
                         size_hint: (None, None)
                         width: root.width - 70
-                        height: root.height - 35
-                        orientation: 'vertical'
+                        height: root.height - 70
 
-                        Button:
-                            text: "Files"
+                        BoxLayout:
+                            id: box
+                            pos_hint: {"top": 1}
                             size_hint: (None, None)
-                            width: 70
+                            width: scroll_view.width 
+                            height: self.minimum_height 
+                            orientation: 'vertical'
 
-                        Button:
-                            text: "Files"
-                            size_hint: (None, None)
-                            width: 70
+                TabbedPanelItem:
+                    text: "Collections"
+                    Label:
+                        text: "CCCC"    
+
+                TabbedPanelItem:
+                    text: "Authors"
+                    Label:
+                        text: "XXXXX"    
+                
      
         Screen:
             name: "Read Currently Open File Screen"
@@ -227,31 +117,35 @@ Screen:
                     text: "Scanning Folders"
 
                     ScrollView:
+                        id: scroll_view
+                        always_overscroll: False
                         do_scroll_x: False
                         pos_hint: {"right": 1}
                         size_hint: (None, None)
                         width: root.width - 70
                         height: root.height - 70
-                    
+
                         BoxLayout:
+                            id: settings_scanning_local_folders_box_layout
                             pos_hint: {"top": 1}
                             size_hint: (None, None)
-                            width: root.width 
-                            height: root.height 
+                            width: scroll_view.width 
+                            height: self.minimum_height 
                             orientation: 'vertical'
 
                             Label:
                                 text: "Local Folders To Scan"
-
-                            Button:
-                                text: "Local Folders To Scan"
-                                on_press: root.say_hello()
+                                font_size: 20
+                                halign: "left"
+                                size_hint: (None, None)
+                                pos_hint: {"left": 1, "top": 1}
+                                width: 250
+                                height: 50
 
                 TabbedPanelItem:
                     text: "About"
                     Label:
                         text: "cxzczxc"
-
 
     BoxLayout:
         canvas.before:
@@ -268,6 +162,12 @@ Screen:
             height: 70
             on_press: screen_manager.current = "Main Menu"
         
+        MDIconButton:
+            pos_hint: {"center_y": 1}
+            width: 70
+            height: 70
+            color : [1.0, 1.0, 1.0, 1.0]
+
         MDIconButton:
             pos_hint: {"center_y": 1}
             width: 70
@@ -300,20 +200,41 @@ Screen:
 
 '''
 
-#  box layouts should be outside of the scrollview
 #  setup main menu, get it to add elements for every book, add sort and filter buttons, books, series, authors, 
 #  see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
 #  get the box layout to change position
 #  redo the return func
 #  filter by file format
 
-class ContentNavigationDrawer(BoxLayout):
-    screen_manager = ObjectProperty()
-    nav_drawer = ObjectProperty()
+class LocalFoldersExpansionPanelContent(BoxLayout):
+    '''LocalFoldersExpansionPanelContent'''
 
 class FileReaderApp(MDApp):
+
+    def AddLocalFolderToScanButtonPressed(self):
+        # pop up file explorer
+        # add panel on the end of grid with button to remove and label that shows folder directory
+        print("ertyui")
+
     def build(self):
         self.title = "Book Reader"
         return Builder.load_string(Kivy)
     
+    def on_start(self):
+        self.root.ids.settings_scanning_local_folders_box_layout.add_widget(
+            MDExpansionPanel(
+                content = LocalFoldersExpansionPanelContent(),
+                panel_cls = MDExpansionPanelOneLine(
+                    text = "Local Folders To Scan",
+                    size_hint = (1, None),
+                    pos_hint = {"center_x": 0.5}  
+                    # position this in the middle of the screen and set size hit x to 0.8
+                    )
+                )   
+            )
+    
 FileReaderApp().run()
+
+# on navbar add a searchbar iconbutton
+#   on press expand it to a full searchbar
+# main menu:
