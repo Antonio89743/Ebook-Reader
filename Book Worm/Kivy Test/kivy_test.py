@@ -5,19 +5,60 @@ Config.set('graphics', 'height', '800')
 Config.set('graphics', 'minimum_width', '700')
 Config.set('graphics', 'minimum_height', '400')
 from kivy.lang import Builder
-from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import ObjectProperty
-
 from kivymd.app import MDApp
+from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
-
 # from kivy.core.window import Window
 # Window.fullscreen = True
 # Window.maximize()
+from os.path import sep, expanduser, isdir, dirname
+import sys
 
 Kivy = '''
 
+#:import Factory kivy.factory.Factory
+
+<LocalFolderPopUp@Popup>
+
+    auto_dismiss: False
+    title: "Choose Folder"
+    size_hint: (0.8, 0.8)
+    pos_hint: {"center_x": 0.5}
+
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "horizontal"
+
+        BoxLayout:
+            id: folder_chooser_box_layout_vertical
+            size: root.size
+            pos: root.pos
+            orientation: "vertical"
+
+        BoxLayout:
+            size: root.size
+            pos: root.pos
+            orientation: "vertical"
+
+            FileChooserListView:
+                id: folder_chooser
+                dirselect: True   
+                rootpath: "E:"
+
+            BoxLayout:
+                size_hint_y: None
+                height: 30
+                Button:
+                    text: "Close"
+                    on_release: root.dismiss()
+
+                Button:
+                    text: "Add Folder"
+                    on_release: app.add_folder_to_scan_folder_selected(folder_chooser.selection)
+
 <LocalFoldersExpansionPanelContent>
+
     height: self.minimum_height
     adaptive_height: True
     orientation: "vertical"
@@ -31,7 +72,7 @@ Kivy = '''
         size_hint: (0.7, None)
         pos_hint: {"center_x": 0.5, "top": 1}
         width: 100
-        on_press: app.AddLocalFolderToScanButtonPressed()
+        on_press: Factory.LocalFolderPopUp().open()
 
 Screen:
 
@@ -206,15 +247,18 @@ Screen:
 #  redo the return func
 #  filter by file format
 
+class AddLocalFolderToScanDialog():
+    '''AddLocalFolderToScanDialog'''
+
 class LocalFoldersExpansionPanelContent(BoxLayout):
     '''LocalFoldersExpansionPanelContent'''
 
 class FileReaderApp(MDApp):
 
-    def AddLocalFolderToScanButtonPressed(self):
-        # pop up file explorer
         # add panel on the end of grid with button to remove and label that shows folder directory
-        print("ertyui")
+
+    def add_folder_to_scan_folder_selected(self, folder_selected):
+        print(folder_selected)
 
     def build(self):
         self.title = "Book Reader"
@@ -231,7 +275,10 @@ class FileReaderApp(MDApp):
                     # position this in the middle of the screen and set size hit x to 0.8
                     )
                 )   
-            )
+            ) 
+        import os, string
+        available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
+        print(available_drives)
     
 FileReaderApp().run()
 
