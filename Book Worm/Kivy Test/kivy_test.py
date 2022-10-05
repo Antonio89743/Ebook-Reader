@@ -7,10 +7,12 @@ Config.set('graphics', 'minimum_height', '400')
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button as KivyButton
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 # from kivy.core.window import Window
 # Window.fullscreen = True
 # Window.maximize()
+import os, string
 from os.path import sep, expanduser, isdir, dirname
 import sys
 
@@ -24,6 +26,7 @@ Kivy = '''
     title: "Choose Folder"
     size_hint: (0.8, 0.8)
     pos_hint: {"center_x": 0.5}
+    on_open: app.add_buttons_for_drives()
 
     BoxLayout:
         size: root.size
@@ -246,6 +249,7 @@ Screen:
 #  get the box layout to change position
 #  redo the return func
 #  filter by file format
+# add panel on the end of grid with button to remove and label that shows folder directory
 
 class AddLocalFolderToScanDialog():
     '''AddLocalFolderToScanDialog'''
@@ -255,7 +259,15 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
 
 class FileReaderApp(MDApp):
 
-        # add panel on the end of grid with button to remove and label that shows folder directory
+    def add_buttons_for_drives(self):
+        available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
+        for drive in available_drives:
+            self.root.ids.folder_chooser_box_layout_vertical.add_widget(
+                KivyButton(
+                    text = "{drive}"
+                )
+            )
+            print(drive)
 
     def add_folder_to_scan_folder_selected(self, folder_selected):
         print(folder_selected)
@@ -276,12 +288,8 @@ class FileReaderApp(MDApp):
                     )
                 )   
             ) 
-        import os, string
-        available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
-        print(available_drives)
     
 FileReaderApp().run()
 
 # on navbar add a searchbar iconbutton
 #   on press expand it to a full searchbar
-# main menu:
