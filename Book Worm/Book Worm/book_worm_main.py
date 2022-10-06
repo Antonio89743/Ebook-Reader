@@ -15,6 +15,8 @@ from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import os, string
 from os.path import sep, expanduser, isdir, dirname, exists
 import sys
+import json
+import scan_folders
 
 Kivy = '''
 
@@ -123,13 +125,12 @@ Screen:
                         width: root.width - 70
                         height: root.height - 70
 
-                        BoxLayout:
-                            id: box
+                        GridLayout:
+                            id: main_menu_grid_layout
                             pos_hint: {"top": 1}
                             size_hint: (None, None)
                             width: scroll_view.width 
                             height: self.minimum_height 
-                            orientation: 'vertical'
 
                 TabbedPanelItem:
                     text: "Collections"
@@ -140,7 +141,6 @@ Screen:
                     text: "Authors"
                     Label:
                         text: "XXXXX"    
-                
      
         Screen:
             name: "Read Currently Open File Screen"
@@ -259,8 +259,6 @@ Screen:
 #  filter by file format
 # add panel on the end of grid with button to remove and label that shows folder directory
 
-
-
 class AddLocalFolderToScanDialog():
     '''AddLocalFolderToScanDialog'''
 
@@ -268,6 +266,12 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
     '''LocalFoldersExpansionPanelContent'''
 
 class FileReaderApp(MDApp):
+
+    def add_main_menu_widgets(self, file_list):
+        print(file_list)
+        # self.root.ids.main_menu_grid_layout.add_widget(
+            # get this to create cards
+        # )
 
     def add_buttons_for_drives(self):
         available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
@@ -286,15 +290,25 @@ class FileReaderApp(MDApp):
         self.title = "Book Reader"
         return Builder.load_string(Kivy)
     
-    def on_start(self):
-
+    def local_folders_and_cash_scan(self):
+        
         if exists("Book Worm\Book Worm\quick_cash.json"):
-            # in that file put locations of all file, both local and from cloud, but on load only read local, after that read clod but do it before doing a full scan
-            # load stuff from here
-            pass
+            file = open("Book Worm\Book Worm\quick_cash.json", "r")
+            json_file_data = file.read()
+            folders_to_scan_array = json.loads(json_file_data)
+            file.close()
+            available_file_paths_dictonary = scan_folders.scan_folders(json_file_data)
+            self.add_main_menu_widgets(available_file_paths_dictonary)
+
         elif exists("Book Worm\Book Worm\local_folders_to_scan.json"):
-            # load stuff from here, you'll have to chech if there isn't already a file with that dir made
-            pass
+            file = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
+            json_file_data = file.read()
+            folders_to_scan_array = json.loads(json_file_data)
+            file.close()
+            available_file_paths_dictonary = scan_folders.scan_folders(json_file_data)
+            self.add_main_menu_widgets(available_file_paths_dictonary)
+
+    def create_local_folders_to_scan_expansion_panel(self):
 
         self.root.ids.settings_scanning_local_folders_box_layout.add_widget(
             MDExpansionPanel(
@@ -307,8 +321,14 @@ class FileReaderApp(MDApp):
                     )
                 )   
             ) 
+
+    def on_start(self):
+ 
+        self.local_folders_and_cash_scan()
+        self.create_local_folders_to_scan_expansion_panel()
     
 FileReaderApp().run()
 
 # on navbar add a searchbar iconbutton
 #   on press expand it to a full searchbar
+# create a file with: open("Book Worm\Book Worm\local_folders_to_scan.json", "a")
