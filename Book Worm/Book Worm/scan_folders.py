@@ -17,25 +17,19 @@ def scan_folders(folders_to_scan):
             epub_files = glob.glob(folder + "/**/*.epub", recursive = True)
             for epub_file in epub_files:
                 absolute_path_to_file = os.path.abspath(epub_file)
-                if array_or_epub_files.count(absolute_path_to_file) > 0 :
-                    pass
-                else:
+                if array_or_epub_files.count(absolute_path_to_file) == 0 :
                     array_or_epub_files.append(absolute_path_to_file)
 
             mobi_files = glob.glob(folder + "/**/*.mobi", recursive = True)
             for mobi_file in epub_files:
                 absolute_path_to_file = os.path.abspath(mobi_file)
-                if array_or_mobi_files.count(absolute_path_to_file) > 0 :
-                    pass
-                else:
+                if array_or_mobi_files.count(absolute_path_to_file) == 0 :
                     array_or_mobi_files.append(absolute_path_to_file)
 
             pdf_files = glob.glob(folder + "/**/*.pdf", recursive = True)
             for pdf_file in epub_files:
                 absolute_path_to_file = os.path.abspath(pdf_file)
-                if array_or_pdf_files.count(absolute_path_to_file) > 0 :
-                    pass
-                else:
+                if array_or_pdf_files.count(absolute_path_to_file) == 0 :
                     array_or_pdf_files.append(absolute_path_to_file)
 
     elif type(folders_to_scan) is str: #this will still mean that you'll have to create all widgets again, mark the new un widgeted files
@@ -44,25 +38,19 @@ def scan_folders(folders_to_scan):
         epub_files = glob.glob(folders_to_scan + "/**/*.epub", recursive = True)
         for epub_file in epub_files:
             absolute_path_to_file = os.path.abspath(epub_file)
-            if array_or_epub_files.count(absolute_path_to_file) > 0 :
-                pass
-            else:
+            if array_or_epub_files.count(absolute_path_to_file) == 0 :
                 array_or_epub_files.append(absolute_path_to_file)
 
         mobi_files = glob.glob(folders_to_scan + "/**/*.mobi", recursive = True)
         for mobi_file in epub_files:
             absolute_path_to_file = os.path.abspath(mobi_file)
-            if array_or_mobi_files.count(absolute_path_to_file) > 0 :
-                pass
-            else:
+            if array_or_mobi_files.count(absolute_path_to_file) == 0 :
                 array_or_mobi_files.append(absolute_path_to_file)
 
         pdf_files = glob.glob(folders_to_scan + "/**/*.pdf", recursive = True)
         for pdf_file in epub_files:
             absolute_path_to_file = os.path.abspath(pdf_file)
-            if array_or_pdf_files.count(absolute_path_to_file) > 0 :
-                pass
-            else:
+            if array_or_pdf_files.count(absolute_path_to_file) == 0 :
                 array_or_pdf_files.append(absolute_path_to_file)
 
     return dictionary_of_valid_files

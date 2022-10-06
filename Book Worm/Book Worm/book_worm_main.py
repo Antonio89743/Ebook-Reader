@@ -252,12 +252,14 @@ Screen:
 
 '''
 
-#  setup main menu, get it to add elements for every book, add sort and filter buttons, books, series, authors, 
 #  see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
 #  get the box layout to change position
-#  redo the return func
-#  filter by file format
-# add panel on the end of grid with button to remove and label that shows folder directory
+#  add widget on the end of grid with button to remove and label that shows folder directory
+
+# make widgets in main menu
+# do the drives in fileselect
+# add folder to scan func
+# add widgets for folders in settings
 
 class AddLocalFolderToScanDialog():
     '''AddLocalFolderToScanDialog'''
@@ -268,7 +270,11 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
 class FileReaderApp(MDApp):
 
     def add_main_menu_widgets(self, file_list):
-        print(file_list)
+        print("xx", file_list)
+        # first check if a widget for that file already exists, if not, create it
+            # you can do that by creating an array of files that already have a widget and check if the file is on the list already
+
+            
         # self.root.ids.main_menu_grid_layout.add_widget(
             # get this to create cards
         # )
@@ -284,29 +290,45 @@ class FileReaderApp(MDApp):
             print(drive)
 
     def add_folder_to_scan_folder_selected(self, folder_selected):
-        print(folder_selected)
+        # add this in cash json and in the other json
+        # call func to scan for files create widgets
+        available_file_paths_dictonary = scan_folders.scan_folders(folder_selected)
+        self.add_main_menu_widgets(available_file_paths_dictonary)
 
     def build(self):
         self.title = "Book Reader"
         return Builder.load_string(Kivy)
     
+    def full_scan(self):
+
+        if exists("Book Worm\Book Worm\local_folders_to_scan.json"):
+            file = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
+            json_file_data = file.read()
+            # folders_to_scan_array = json.loads(json_file_data)
+            file.close()
+            if json_file_data != "":
+                available_file_paths_dictonary = scan_folders.scan_folders(json_file_data) #should cash just be a saved version of that dictionary?
+                self.add_main_menu_widgets(available_file_paths_dictonary)
+            # here, update/create cash
+
     def local_folders_and_cash_scan(self):
-        
+
         if exists("Book Worm\Book Worm\quick_cash.json"):
             file = open("Book Worm\Book Worm\quick_cash.json", "r")
             json_file_data = file.read()
-            folders_to_scan_array = json.loads(json_file_data)
+            # folders_to_scan_array = json.loads(json_file_data)
             file.close()
-            available_file_paths_dictonary = scan_folders.scan_folders(json_file_data)
-            self.add_main_menu_widgets(available_file_paths_dictonary)
+            if json_file_data != "":
+                available_file_paths_dictonary = scan_folders.scan_folders(json_file_data)
+                self.add_main_menu_widgets(available_file_paths_dictonary)
 
-        elif exists("Book Worm\Book Worm\local_folders_to_scan.json"):
-            file = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
-            json_file_data = file.read()
-            folders_to_scan_array = json.loads(json_file_data)
-            file.close()
-            available_file_paths_dictonary = scan_folders.scan_folders(json_file_data)
-            self.add_main_menu_widgets(available_file_paths_dictonary)
+        elif exists("Book Worm\Book Worm\quick_cash.json") == False:
+
+            open("Book Worm\Book Worm\quick_cash.json", "a").close()
+
+            self.full_scan()            
+            if exists("Book Worm\Book Worm\local_folders_to_scan.json") == False: 
+                open("Book Worm\Book Worm\local_folders_to_scan.json", "a").close()
 
     def create_local_folders_to_scan_expansion_panel(self):
 
@@ -323,12 +345,11 @@ class FileReaderApp(MDApp):
             ) 
 
     def on_start(self):
- 
-        self.local_folders_and_cash_scan()
+        
         self.create_local_folders_to_scan_expansion_panel()
+        self.local_folders_and_cash_scan()
     
 FileReaderApp().run()
 
-# on navbar add a searchbar iconbutton
-#   on press expand it to a full searchbar
-# create a file with: open("Book Worm\Book Worm\local_folders_to_scan.json", "a")
+# on navbar add a searchbar iconbutton, on press expand it to a full searchbar
+# if cash exists then do fullscan seconds after the software has booted properly
