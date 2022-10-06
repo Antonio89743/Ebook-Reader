@@ -1,12 +1,14 @@
-import glob, os, json
+import glob, os, json, sys
 from array import array
+from json.decoder import JSONDecodeError
+
 
 local_folders_to_scan_json_file_path = "Book Worm\Book Worm\local_folders_to_scan.json"
 local_folders_to_scan_dictionary_file_path = "Book Worm\Book Worm\local_folders_to_scan_dictonary.json"
 array_or_pdf_files : array = []
 array_or_epub_files : array = []
 array_or_mobi_files : array = []
-list_folders_to_scan : list = []
+
 dictionary_of_valid_files = {
     "array_of_pdf_files": array_or_pdf_files,
     "array_of_epub_files": array_or_epub_files,
@@ -14,23 +16,48 @@ dictionary_of_valid_files = {
 }
 
 def save_local_folders_array(folders_to_scan):
-    global list_folders_to_scan
-    file = open(local_folders_to_scan_json_file_path, "r")
-    list_folders_to_scan = file.read()
 
+    with open(local_folders_to_scan_json_file_path, 'r+') as file:
+        try:
+            print("TTTTTTTTTTTTTTTTTTTTTT")
+            folders_to_scan_list = json.load(file)
+            print("dsadas", type(folders_to_scan_list))
+            list_folders_to_scan = folders_to_scan_list #this should be a list, not string
+            list_folders_to_scan.append(folders_to_scan)
+            data = json.dumps(list_folders_to_scan)
+            file.write(data)
+            file.close()   
+            #  this won't work, it won't enter data in array
+        except JSONDecodeError:
+            print("asdrfghj")
+            file = open(local_folders_to_scan_json_file_path, 'w')
+            file.write(json.dumps([folders_to_scan]))
+            file.close()       
 
-    if list_folders_to_scan != "":
-        print(list_folders_to_scan)
-        print(type(list_folders_to_scan))
+    # x = open(local_folders_to_scan_json_file_path, 'r')
 
-        print(type([list_folders_to_scan]))
-        file.close()
+    # if len(json.load(x)) == 0:
+    #     print("b")
+    # else:
+    #     print("p")
+    #     list_folders_to_scan = json.loads(folders_to_scan)
+    #     print("v ", list_folders_to_scan)
+    # file = open(local_folders_to_scan_json_file_path, "r")
+    # list_folders_to_scan = file.read()
 
-        # this still isn't laoding as a list but as a string
+    
+    # if list_folders_to_scan != "":
+    #     print(list_folders_to_scan)
+    #     print(type(list_folders_to_scan))
 
-        if list_folders_to_scan.count(str(folders_to_scan)) == 0 :
-            [list_folders_to_scan].append(folders_to_scan)
-            print(list_folders_to_scan)
+    #     print(type([list_folders_to_scan]))
+    #     file.close()
+
+    #     # this still isn't laoding as a list but as a string
+
+    #     if list_folders_to_scan.count(str(folders_to_scan)) == 0 :
+    #         [list_folders_to_scan].append(folders_to_scan)
+    #         print(list_folders_to_scan)
     #     data = json.dumps(list_folders_to_scan)
     #     file = open(local_folders_to_scan_json_file_path, 'w')
     #     file.write(data)
@@ -39,7 +66,7 @@ def save_local_folders_array(folders_to_scan):
     #     data = json.dumps([folders_to_scan])
     #     file = open(local_folders_to_scan_json_file_path, 'a')
     #     file.write(data)
-    #     file.close()      
+    #     file.close()   
 
 def save_local_files_dictionary():
     dictionary_of_valid_files = {
@@ -102,7 +129,6 @@ def scan_folders(folders_to_scan, new_folder_bool):
             save_local_folders_array(folders_to_scan)
 
         elif new_folder_bool == False:
-            dictonary_of_folders_to_scan = json.loads(folders_to_scan)
-            dictionary_of_valid_files = dictonary_of_folders_to_scan
+            dictionary_of_valid_files = json.loads(folders_to_scan)
 
     return dictionary_of_valid_files
