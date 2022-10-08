@@ -297,7 +297,7 @@ class FileReaderApp(MDApp):
         return Builder.load_string(Kivy)
     
     def full_scan(self):
-        print("qqq")
+        print("doing full scan")
         if exists("Book Worm\Book Worm\local_folders_to_scan.json"):
             file = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
             json_file_data = file.read()
@@ -311,7 +311,6 @@ class FileReaderApp(MDApp):
         if exists("Book Worm\Book Worm\local_folders_to_scan_dictonary.json"):
             file = open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "r")
             json_file_data = file.read()
-
             file.close()
             if json_file_data != "":
                 available_file_paths_dictonary = scan_folders.scan_folders(json_file_data, False)
