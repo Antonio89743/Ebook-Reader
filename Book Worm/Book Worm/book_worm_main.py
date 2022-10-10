@@ -136,7 +136,7 @@ Screen:
                         pos_hint: {"right": 1}
                         size_hint: (None, None)
                         width: root.width - 70
-                        height: root.height - 70
+                        height: root.height - 70 - 40
 
                         GridLayout:
                             id: main_menu_grid_layout
@@ -191,7 +191,7 @@ Screen:
                         pos_hint: {"right": 1}
                         size_hint: (None, None)
                         width: root.width - 70
-                        height: root.height - 70
+                        height: root.height - 70 - 40
 
                         BoxLayout:
                             id: settings_scanning_local_folders_box_layout
@@ -285,71 +285,74 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
 
 class FileReaderApp(MDApp):
 
+    files_with_widgets_list : list = []
+
     def add_main_menu_widgets(self, file_list):
 
         for file in file_list["array_of_epub_files"]:
-            # here check if file already has widget
-                # you can do that by creating an array of files that already have a widget and check if the file is on the list already
-            file_title = epub_file_data.get_epub_book_title(file)
-            file_author = epub_file_data.get_epub_book_author(file)
-            file_cover = epub_file_data.get_epub_cover_image(file)
+            
+            if self.files_with_widgets_list.count(file) == 0 :
 
-            card = MDCard(
+                file_title = epub_file_data.get_epub_book_title(file)
+                file_author = epub_file_data.get_epub_book_author(file)
+                file_cover = epub_file_data.get_epub_cover_image(file)
+
+                card = MDCard(
+                        orientation = "vertical",
+                        size_hint = (None, None),
+                        height = 500,
+                        width = 300,
+                        radius = [0, 0, 0, 0]
+                    )
+                self.root.ids.main_menu_grid_layout.add_widget(card)
+                print(file_cover, " ", type(file_cover))
+
+                box_layout = BoxLayout(
                     orientation = "vertical",
-                    size_hint = (None, None),
-                    height = 500,
-                    width = 300,
                 )
-            self.root.ids.main_menu_grid_layout.add_widget(card)
-            print(file_cover, " ", type(file_cover))
+                card.add_widget(box_layout)
 
-            box_layout = BoxLayout(
-                orientation = "vertical",
-            )
-            card.add_widget(box_layout)
-
-            # img = Image.open(file_cover)
-            # print(img.size, img.mode, len(img.getdata()))
-            # print(type(img))
+                # img = Image.open(file_cover)
+                # print(img.size, img.mode, len(img.getdata()))
+                # print(type(img))
 
 
-            # with zipfile.ZipFile("C:/Users/gmn/Downloads/Cover.zip") as myzip:
-            #     with myzip.open('Cover.jpg') as myfile:
-            #         ci = CoreImage(io.BytesIO(myfile.read()), ext="jpg")
-            #         return Image(texture=ci.texture)
+                # with zipfile.ZipFile("C:/Users/gmn/Downloads/Cover.zip") as myzip:
+                #     with myzip.open('Cover.jpg') as myfile:
+                #         ci = CoreImage(io.BytesIO(myfile.read()), ext="jpg")
+                #         return Image(texture=ci.texture)
 
-            # icon = MDIconButton(
-            #         icon = ("icons and images\icons8-settings-500.png"),
-            #         pos_hint = {"top": 1, "center_x": 1}
-                    
-            #     )
-            # box_layout.add_widget(icon)
+                # icon = MDIconButton(
+                #         icon = ("icons and images\icons8-settings-500.png"),
+                #         pos_hint = {"top": 1, "center_x": 1}
+                        
+                #     )
+                # box_layout.add_widget(icon)
 
-            if file_cover:
-                pass
+                if file_cover != None:
+                    pass
 
-            if file_title != None:
-                file_title_button = KivyButton(
-                text = file_title,
-                color = (0, 0, 0, 1),
-                size_hint = (1, None),
-                height = 50,
-                # width = 300,
-                # set position
-                )
-                card.add_widget(file_title_button)
-
-            if file_author != None:
-                file_author_button = KivyButton(
-                text = file_author,
-                color = (0, 0, 0, 1),
-                size_hint = (1, None),
-                height = 50,
-                # width = 300,
-                )
-                card.add_widget(file_author_button)
-
-            # add file to list of files that have a card widget 
+                if file_title != None:
+                    file_title_button = KivyButton(
+                    text = file_title,
+                    color = (0, 0, 0, 1),
+                    size_hint = (1, None),
+                    height = 50,
+                    # width = 300,
+                    # set position
+                    )
+                    card.add_widget(file_title_button)
+                if file_author != None:
+                    # on_press = ,
+                    file_author_button = KivyButton(
+                    text = file_author,
+                    color = (0, 0, 0, 1),
+                    size_hint = (1, None),
+                    height = 50,
+                    # width = 300,
+                    )
+                    card.add_widget(file_author_button)
+                    self.files_with_widgets_list.append(file)
 
     def add_buttons_for_drives(self):
         available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
@@ -415,4 +418,4 @@ FileReaderApp().run()
 # on navbar add a searchbar iconbutton, on press expand it to a full searchbar
 # if cash exists then do fullscan seconds after the software has booted properly
 
-#workaround for sorting is creating arrays that are sorted by date/alphabetically/etc, and just following array
+# workaround for sorting is creating arrays that are sorted by date/alphabetically/etc, and just following array
