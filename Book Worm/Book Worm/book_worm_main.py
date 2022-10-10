@@ -6,9 +6,14 @@ Config.set('graphics', 'minimum_width', '700')
 Config.set('graphics', 'minimum_height', '400')
 from kivy.lang import Builder
 from kivymd.app import MDApp
+from kivy.uix.label import Label
+from kivy.uix.image import Image
+from kivymd.uix.card import MDCard
 from kivy.uix.boxlayout import BoxLayout
+from kivymd.uix.button import MDIconButton
 from kivy.uix.button import Button as KivyButton
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
+import epub_file_data
 # from kivy.core.window import Window
 # Window.fullscreen = True
 # Window.maximize()
@@ -17,6 +22,15 @@ from os.path import sep, expanduser, isdir, dirname, exists
 import sys
 import json
 import scan_folders
+from io import StringIO 
+import imghdr
+import sys
+from zipfile import ZipFile
+from PIL import Image
+import io
+import zipfile
+from kivy.core.image import Image as CoreImage
+from itertools import cycle
 
 Kivy = '''
 
@@ -130,6 +144,9 @@ Screen:
                             size_hint: (None, None)
                             width: scroll_view.width 
                             height: self.minimum_height 
+                            padding: [20, 20, 20, 20]
+                            spacing: 20
+                            cols: 5
 
                 TabbedPanelItem:
                     text: "Collections"
@@ -269,24 +286,81 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
 class FileReaderApp(MDApp):
 
     def add_main_menu_widgets(self, file_list):
-        print("xx")
-        # first check if a widget for that file already exists, if not, create it
-            # you can do that by creating an array of files that already have a widget and check if the file is on the list already
+
+        for file in file_list["array_of_epub_files"]:
+            # here check if file already has widget
+                # you can do that by creating an array of files that already have a widget and check if the file is on the list already
+            file_title = epub_file_data.get_epub_book_title(file)
+            file_author = epub_file_data.get_epub_book_author(file)
+            file_cover = epub_file_data.get_epub_cover_image(file)
+
+            card = MDCard(
+                    orientation = "vertical",
+                    size_hint = (None, None),
+                    height = 500,
+                    width = 300,
+                )
+            self.root.ids.main_menu_grid_layout.add_widget(card)
+            print(file_cover, " ", type(file_cover))
+
+            box_layout = BoxLayout(
+                orientation = "vertical",
+            )
+            card.add_widget(box_layout)
+
+            # img = Image.open(file_cover)
+            # print(img.size, img.mode, len(img.getdata()))
+            # print(type(img))
 
 
-        # self.root.ids.main_menu_grid_layout.add_widget(
-            # get this to create cards
-        # )
+            # with zipfile.ZipFile("C:/Users/gmn/Downloads/Cover.zip") as myzip:
+            #     with myzip.open('Cover.jpg') as myfile:
+            #         ci = CoreImage(io.BytesIO(myfile.read()), ext="jpg")
+            #         return Image(texture=ci.texture)
+
+            # icon = MDIconButton(
+            #         icon = ("icons and images\icons8-settings-500.png"),
+            #         pos_hint = {"top": 1, "center_x": 1}
+                    
+            #     )
+            # box_layout.add_widget(icon)
+
+            if file_cover:
+                pass
+
+            if file_title != None:
+                file_title_button = KivyButton(
+                text = file_title,
+                color = (0, 0, 0, 1),
+                size_hint = (1, None),
+                height = 50,
+                # width = 300,
+                # set position
+                )
+                card.add_widget(file_title_button)
+
+            if file_author != None:
+                file_author_button = KivyButton(
+                text = file_author,
+                color = (0, 0, 0, 1),
+                size_hint = (1, None),
+                height = 50,
+                # width = 300,
+                )
+                card.add_widget(file_author_button)
+
+            # add file to list of files that have a card widget 
 
     def add_buttons_for_drives(self):
         available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
         for drive in available_drives:
+            pass
             # super.LocalFolderPopUp.ids.folder_chooser_box_layout_vertical.add_widget(
             #     KivyButton(
             #         text = "{drive}"
             #     )
             # )
-            print(drive)
+            # print(drive)
 
     def add_folder_to_scan_folder_selected(self, folder_selected):
         available_file_paths_dictonary = scan_folders.scan_folders(str(folder_selected), True)
@@ -297,7 +371,6 @@ class FileReaderApp(MDApp):
         return Builder.load_string(Kivy)
     
     def full_scan(self):
-        print("doing full scan")
         if exists("Book Worm\Book Worm\local_folders_to_scan.json"):
             file = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
             json_file_data = file.read()
@@ -307,7 +380,6 @@ class FileReaderApp(MDApp):
                 self.add_main_menu_widgets(available_file_paths_dictonary)
 
     def local_folders_and_files_scan(self): 
-
         if exists("Book Worm\Book Worm\local_folders_to_scan_dictonary.json"):
             file = open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "r")
             json_file_data = file.read()
@@ -315,17 +387,13 @@ class FileReaderApp(MDApp):
             if json_file_data != "":
                 available_file_paths_dictonary = scan_folders.scan_folders(json_file_data, False)
                 self.add_main_menu_widgets(available_file_paths_dictonary)
-
         elif exists("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") == False:
-
             open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "a").close()
-
             self.full_scan()            
             if exists("Book Worm\Book Worm\local_folders_to_scan.json") == False: 
                 open("Book Worm\Book Worm\local_folders_to_scan.json", "a").close()
 
     def create_local_folders_to_scan_expansion_panel(self):
-
         self.root.ids.settings_scanning_local_folders_box_layout.add_widget(
             MDExpansionPanel(
                 content = LocalFoldersExpansionPanelContent(),
@@ -339,7 +407,6 @@ class FileReaderApp(MDApp):
             ) 
 
     def on_start(self):
-        
         self.create_local_folders_to_scan_expansion_panel()
         self.local_folders_and_files_scan()
     
@@ -347,3 +414,5 @@ FileReaderApp().run()
 
 # on navbar add a searchbar iconbutton, on press expand it to a full searchbar
 # if cash exists then do fullscan seconds after the software has booted properly
+
+#workaround for sorting is creating arrays that are sorted by date/alphabetically/etc, and just following array

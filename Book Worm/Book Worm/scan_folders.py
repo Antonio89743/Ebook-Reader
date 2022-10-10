@@ -47,7 +47,6 @@ def save_local_files_dictionary():
     "array_of_epub_files": array_or_epub_files,
     "array_of_mobi_files": array_or_mobi_files,
     }
-    print(dictionary_of_valid_files)
     data = json.dumps(dictionary_of_valid_files)
     file = open(local_folders_to_scan_dictionary_file_path, 'w')
     file.write(data)
@@ -55,10 +54,7 @@ def save_local_files_dictionary():
 
 def scan_folders(folders_to_scan, new_folder_bool):
     global dictionary_of_valid_files
-    print(type(folders_to_scan))
     if type(folders_to_scan) is list:
-        print("eng")
-        print(folders_to_scan)
         for folder in folders_to_scan:
             epub_files = glob.glob(folder + "/**/*.epub", recursive = True)
             for epub_file in epub_files:
@@ -76,7 +72,6 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 if array_or_pdf_files.count(absolute_path_to_file) == 0 :
                     array_or_pdf_files.append(absolute_path_to_file)
         save_local_files_dictionary()
-
     elif type(folders_to_scan) is str:
         if new_folder_bool == True:
             folders_to_scan = folders_to_scan[1:]
@@ -100,8 +95,6 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     array_or_pdf_files.append(absolute_path_to_file)
             save_local_files_dictionary()
             save_local_folders_array(folders_to_scan)
-
         elif new_folder_bool == False:
             dictionary_of_valid_files = json.loads(folders_to_scan)
-
     return dictionary_of_valid_files

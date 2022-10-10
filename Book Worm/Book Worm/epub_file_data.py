@@ -23,7 +23,6 @@ def get_epub_cover_image(epub_path):
         if rootfile_path:
          if os.path.dirname(rootfile_path) == "":
             cover_path = cover_href
-            print("xxxxxxxx ", cover_path)
          else:
             cover_path = (os.path.dirname(rootfile_path) + "/" + cover_href)
         return z.open(cover_path)
