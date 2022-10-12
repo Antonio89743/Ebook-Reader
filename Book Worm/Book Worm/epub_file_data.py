@@ -25,7 +25,7 @@ def get_epub_cover_image(epub_path):
             cover_path = cover_href
          else:
             cover_path = (os.path.dirname(rootfile_path) + "/" + cover_href)
-        return z.open(cover_path)
+        return cover_path#z.open(cover_path)
 
 def get_epub_book_title(epub_path):
     with zipfile.ZipFile(epub_path) as z:

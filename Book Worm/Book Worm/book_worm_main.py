@@ -158,15 +158,19 @@ Screen:
                         text: "XXXXX"    
      
         Screen:
-            id: read_currently_open_file_screen
             name: "Read Currently Open File Screen"
             MDLabel:
                 text: "Read Currently Open File Screen"
                 halign: "center"
         
         Screen:
+            name: "File Details Screen"
+            MDLabel:
+                text: "File Details Screen"
+                halign: "center"
+
+        Screen:
             name: "Settings Screen"
-            
             TabbedPanel:
                 do_default_tab: False
                 tab_pos: "top_mid"
@@ -287,8 +291,8 @@ class FileReaderApp(MDApp):
 
     files_with_widgets_list : list = []
 
-    # def change_screen(screen):
-    #     self.root.ids.screen_manager.current = screen
+    def change_screen(self, screen):
+        self.root.ids.screen_manager.current = screen
 
     def add_main_menu_widgets(self, file_list):
 
@@ -327,7 +331,6 @@ class FileReaderApp(MDApp):
                 # imgdata = archive.read('img_01.png')
 
                 with zipfile.ZipFile(file) as myzip:
-                    print(file + file_cover)
 
                     x = myzip.read(file_cover)
                     # print(x, type(x))
@@ -336,11 +339,16 @@ class FileReaderApp(MDApp):
                     from kivy.core.image import Image as CoreImage
 
 
-                    # Return a Kivy image set from a bytes variable
-                    buf = io.BytesIO(x)
-                    cim = CoreImage(buf, ext="jpg").texture
-                    print(cim, type(cim))
-
+                    # buf = io.BytesIO(x)
+                    # cim = CoreImage(buf, ext="jpg")
+                    # print(cim, type(cim))
+                    # def ImageButton(ButtonBehavior, Image):  
+                    #     def on_press(self):  
+                    #         print ('pressed')
+                    # card.add_widget(cim)
+                    # from kivy.uix.behaviors import ButtonBehavior  
+                    # ImageButton(ButtonBehavior, cim)
+        
 
 
                         # with myzip.open('cover.jpg') as myfile:
@@ -367,17 +375,18 @@ class FileReaderApp(MDApp):
 
                 if file_title != None:
                     file_title_button = KivyButton(
-                    text = file_title,
-                    color = (0, 0, 0, 1),
-                    size_hint = (1, None),
-                    height = 50,
-                    # width = 300,
-                    # set position
-                    )
+                        on_press = lambda x:self.change_screen("Read Currently Open File Screen"),
+                        text = file_title,
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
+                        # set position
+                        )
                     card.add_widget(file_title_button)
+
                 if file_author != None:
                     file_author_button = KivyButton(
-                        # on_press = FileReaderApp.change_screen("Read Currently Open File Screen"),
                         text = file_author,
                         color = (0, 0, 0, 1),
                         size_hint = (1, None),
