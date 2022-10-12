@@ -7,7 +7,6 @@ Config.set('graphics', 'minimum_height', '400')
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivy.uix.label import Label
-from kivy.uix.image import Image
 from kivymd.uix.card import MDCard
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.button import MDIconButton
@@ -159,6 +158,7 @@ Screen:
                         text: "XXXXX"    
      
         Screen:
+            id: read_currently_open_file_screen
             name: "Read Currently Open File Screen"
             MDLabel:
                 text: "Read Currently Open File Screen"
@@ -287,6 +287,9 @@ class FileReaderApp(MDApp):
 
     files_with_widgets_list : list = []
 
+    # def change_screen(screen):
+    #     self.root.ids.screen_manager.current = screen
+
     def add_main_menu_widgets(self, file_list):
 
         for file in file_list["array_of_epub_files"]:
@@ -305,29 +308,59 @@ class FileReaderApp(MDApp):
                         radius = [0, 0, 0, 0]
                     )
                 self.root.ids.main_menu_grid_layout.add_widget(card)
-                print(file_cover, " ", type(file_cover))
+                print(file)
 
                 box_layout = BoxLayout(
                     orientation = "vertical",
                 )
                 card.add_widget(box_layout)
 
-                # img = Image.open(file_cover)
+                # img = io.BytesIO(open(file, 'rb').read())
                 # print(img.size, img.mode, len(img.getdata()))
                 # print(type(img))
+                # import kivy.core.image as CoreImage
+                # image = CoreImage.ImageLoader.zip_loader(file)
+                # print(image, " ", type(image))
 
+
+                # archive = zipfile.ZipFile('images.zip', 'r')
+                # imgdata = archive.read('img_01.png')
+
+                with zipfile.ZipFile(file) as myzip:
+                    print(file + file_cover)
+
+                    x = myzip.read(file_cover)
+                    # print(x, type(x))
+
+                    from kivy.uix.image import Image
+                    from kivy.core.image import Image as CoreImage
+
+
+                    # Return a Kivy image set from a bytes variable
+                    buf = io.BytesIO(x)
+                    cim = CoreImage(buf, ext="jpg").texture
+                    print(cim, type(cim))
+
+
+
+                        # with myzip.open('cover.jpg') as myfile:
+                        #     ci = CoreImage(io.BytesIO(myfile.read()), ext="jpeg")
+                        #     x = Image(texture=ci.texture)
+
+                # print(image)
 
                 # with zipfile.ZipFile("C:/Users/gmn/Downloads/Cover.zip") as myzip:
                 #     with myzip.open('Cover.jpg') as myfile:
                 #         ci = CoreImage(io.BytesIO(myfile.read()), ext="jpg")
                 #         return Image(texture=ci.texture)
 
-                # icon = MDIconButton(
-                #         icon = ("icons and images\icons8-settings-500.png"),
-                #         pos_hint = {"top": 1, "center_x": 1}
-                        
-                #     )
-                # box_layout.add_widget(icon)
+                #     icon = KivyButton(
+                #         color =(1, 0, .65, 1),
+                #         background_normal = 'normal.png',
+                #         size_hint = (.3, .3),
+                #         pos_hint = {"x":0.35, "y":0.3}
+                #    )
+                #     box_layout.add_widget(icon)
 
                 if file_cover != None:
                     pass
@@ -343,16 +376,16 @@ class FileReaderApp(MDApp):
                     )
                     card.add_widget(file_title_button)
                 if file_author != None:
-                    # on_press = ,
                     file_author_button = KivyButton(
-                    text = file_author,
-                    color = (0, 0, 0, 1),
-                    size_hint = (1, None),
-                    height = 50,
-                    # width = 300,
-                    )
+                        # on_press = FileReaderApp.change_screen("Read Currently Open File Screen"),
+                        text = file_author,
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
+                        )
                     card.add_widget(file_author_button)
-                    self.files_with_widgets_list.append(file)
+                self.files_with_widgets_list.append(file)
 
     def add_buttons_for_drives(self):
         available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
@@ -368,10 +401,6 @@ class FileReaderApp(MDApp):
     def add_folder_to_scan_folder_selected(self, folder_selected):
         available_file_paths_dictonary = scan_folders.scan_folders(str(folder_selected), True)
         self.add_main_menu_widgets(available_file_paths_dictonary)
-
-    def build(self):
-        self.title = "Book Reader"
-        return Builder.load_string(Kivy)
     
     def full_scan(self):
         if exists("Book Worm\Book Worm\local_folders_to_scan.json"):
@@ -409,13 +438,17 @@ class FileReaderApp(MDApp):
                 )   
             ) 
 
+    def build(self):
+        self.title = "Book Reader"
+        return Builder.load_string(Kivy)
+
     def on_start(self):
         self.create_local_folders_to_scan_expansion_panel()
         self.local_folders_and_files_scan()
     
 FileReaderApp().run()
 
-# on navbar add a searchbar iconbutton, on press expand it to a full searchbar
+# navbar searchbar buton on press expand it to a full searchbar
 # if cash exists then do fullscan seconds after the software has booted properly
 
 # workaround for sorting is creating arrays that are sorted by date/alphabetically/etc, and just following array
