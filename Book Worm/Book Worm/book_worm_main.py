@@ -223,7 +223,8 @@ Screen:
         canvas.before:
             Color:
                 rgba: 0, 1, 1, 1
-
+        padding: [10, 10, 10, 10]
+        spacing: 20
         id: nav_bar
         orientation: 'vertical'
         pos_hint: {"left": 0, "y": 0}
@@ -232,6 +233,7 @@ Screen:
             pos_hint: {"y": 1}
             width: 70
             height: 70
+            icon: "icons and images\go back.png"
             on_press: screen_manager.current = "Main Menu"
         
         MDIconButton:
@@ -239,12 +241,14 @@ Screen:
             width: 70
             height: 70
             color : [1.0, 1.0, 1.0, 1.0]
+            icon: "icons and images\search.png"
 
         MDIconButton:
             pos_hint: {"center_y": 1}
             width: 70
             height: 70
             color : [1.0, 1.0, 1.0, 1.0]
+            icon: "icons and images\Home-icon.svg.png" 
             on_press: screen_manager.current = "Main Menu"
             on_press: toolbar.title = "Main Menu"
 
@@ -291,6 +295,9 @@ class FileReaderApp(MDApp):
 
     files_with_widgets_list : list = []
 
+    def load_file_read_screen(self, file):
+        print("G", file)
+
     def change_screen(self, screen):
         self.root.ids.screen_manager.current = screen
 
@@ -299,11 +306,9 @@ class FileReaderApp(MDApp):
         for file in file_list["array_of_epub_files"]:
             
             if self.files_with_widgets_list.count(file) == 0 :
-
                 file_title = epub_file_data.get_epub_book_title(file)
                 file_author = epub_file_data.get_epub_book_author(file)
                 file_cover = epub_file_data.get_epub_cover_image(file)
-
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
@@ -313,7 +318,6 @@ class FileReaderApp(MDApp):
                     )
                 self.root.ids.main_menu_grid_layout.add_widget(card)
                 print(file)
-
                 box_layout = BoxLayout(
                     orientation = "vertical",
                 )
@@ -372,10 +376,9 @@ class FileReaderApp(MDApp):
 
                 if file_cover != None:
                     pass
-
                 if file_title != None:
                     file_title_button = KivyButton(
-                        on_press = lambda x:self.change_screen("Read Currently Open File Screen"),
+                        on_press = lambda x: self.change_screen("Read Currently Open File Screen"),
                         text = file_title,
                         color = (0, 0, 0, 1),
                         size_hint = (1, None),
@@ -383,8 +386,8 @@ class FileReaderApp(MDApp):
                         # width = 300,
                         # set position
                         )
+                    file_title_button.bind(on_press=lambda x: self.load_file_read_screen(file))
                     card.add_widget(file_title_button)
-
                 if file_author != None:
                     file_author_button = KivyButton(
                         text = file_author,
