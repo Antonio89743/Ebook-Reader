@@ -25,7 +25,7 @@ def get_epub_cover_image(epub_path):
             cover_path = cover_href
          else:
             cover_path = (os.path.dirname(rootfile_path) + "/" + cover_href)
-        return cover_path#z.open(cover_path)
+        return z.read(cover_path)
 
 def get_epub_book_title(epub_path):
     with zipfile.ZipFile(epub_path) as z:
@@ -89,7 +89,7 @@ def get_epub_book_text(epub_path): # return the entire book (combine htmls, pics
 
             if spine_item_location[spine_item_file].endswith(".html"):
 
-                print(spine_item_location[spine_item_file])
+                # print(spine_item_location[spine_item_file])
                 x.append(html_file_data.get_html_text(z.read(spine_item_location[spine_item_file]).decode("utf-8")))
 
             elif spine_item_location[spine_item_file].endswith(".xhtml"):

@@ -1,3 +1,4 @@
+from cProfile import label
 from kivy.config import Config
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'width', '800')
@@ -11,11 +12,15 @@ from kivymd.uix.card import MDCard
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.button import MDIconButton
 from kivy.uix.button import Button as KivyButton
+from kivy.uix.image import Image
+from kivy.core.image import Image as CoreImage
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import epub_file_data
-# from kivy.core.window import Window
+from kivy.core.window import Window
 # Window.fullscreen = True
-# Window.maximize()
+# Config.set('graphics', 'fullscreen', 0)
+# # Config.set('graphics', 'fullscreen', 'auto')
+# Window.minimize()
 import os, string
 from os.path import sep, expanduser, isdir, dirname, exists
 import sys
@@ -25,10 +30,8 @@ from io import StringIO
 import imghdr
 import sys
 from zipfile import ZipFile
-from PIL import Image
 import io
 import zipfile
-from kivy.core.image import Image as CoreImage
 from itertools import cycle
 
 Kivy = '''
@@ -84,6 +87,7 @@ Kivy = '''
                     on_release: app.add_folder_to_scan_folder_selected(folder_chooser.selection)
 
 <LocalFoldersExpansionPanelContent>
+    id: expansion_panel
     height: self.minimum_height
     adaptive_height: True
     orientation: "vertical"
@@ -137,17 +141,21 @@ Screen:
                             Button:
                                 text: "Sort"
                                 size_hint: (None, None)
-                                width: 200
+                                width: 100
+                                height: 30
                             
                             Button:
                                 text: "Assending"
                                 size_hint: (None, None)
-                                width: 200
+                                width: 100
+                                height: 30
+                                on_press: app.sort_order_button_pressed()
 
                             Button:
                                 text: "Filter"
                                 size_hint: (None, None)
-                                width: 200
+                                width: 100
+                                height: 30
 
                         ScrollView:
                             id: scroll_view
@@ -156,7 +164,7 @@ Screen:
                             pos_hint: {"right": 1}
                             size_hint: (None, None)
                             width: root.width - 70
-                            height: root.height - 70 - 40
+                            height: root.height - 70 - 40 - 5
 
                             GridLayout:
                                 id: main_menu_grid_layout
@@ -298,12 +306,7 @@ Screen:
 '''
 
 #  see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
-#  get the box layout to change position
-#  add widget on the end of grid with button to remove and label that shows folder directory
-
-# make widgets in main menu
 # do the drives in fileselect
-# add folder to scan func
 # add widgets for folders in settings
 
 class AddLocalFolderToScanDialog():
@@ -316,114 +319,77 @@ class FileReaderApp(MDApp):
     class File():
         files_with_widgets_list : list = []
         def __init__(self, app, file):
-                if self.files_with_widgets_list.count(file) == 0 :
-                    file_title = epub_file_data.get_epub_book_title(file)
-                    file_author = epub_file_data.get_epub_book_author(file)
-                    file_cover = epub_file_data.get_epub_cover_image(file)
-                    card = MDCard(
-                            orientation = "vertical",
-                            size_hint = (None, None),
-                            height = 500,
-                            width = 300,
-                            radius = [0, 0, 0, 0]
-                        )
-                    app.root.ids.main_menu_grid_layout.add_widget(card)
-                    print(file)
-                    box_layout = BoxLayout(
+            if self.files_with_widgets_list.count(file) == 0 :
+                file_title = epub_file_data.get_epub_book_title(file)
+                file_author = epub_file_data.get_epub_book_author(file)
+                file_cover = epub_file_data.get_epub_cover_image(file)
+                card = MDCard(
                         orientation = "vertical",
+                        size_hint = (None, None),
+                        height = 500,
+                        width = 300,
+                        radius = [0, 0, 0, 0]
                     )
-                    card.add_widget(box_layout)
-
-                    # img = io.BytesIO(open(file, 'rb').read())
-                    # print(img.size, img.mode, len(img.getdata()))
-                    # print(type(img))
-                    # import kivy.core.image as CoreImage
-                    # image = CoreImage.ImageLoader.zip_loader(file)
-                    # print(image, " ", type(image))
-
-
-                    # archive = zipfile.ZipFile('images.zip', 'r')
-                    # imgdata = archive.read('img_01.png')
-
-                    with zipfile.ZipFile(file) as myzip:
-
-                        x = myzip.read(file_cover)
-
-                        from kivy.uix.image import Image
-                        from kivy.core.image import Image as CoreImage
-
-
-                        # buf = io.BytesIO(x)
-                        # cim = CoreImage(buf, ext="jpg")
-                        # print(cim, type(cim))
-                        # def ImageButton(ButtonBehavior, Image):  
-                        #     def on_press(self):  
-                        #         print ('pressed')
-                        # card.add_widget(cim)
-                        # from kivy.uix.behaviors import ButtonBehavior  
-                        # ImageButton(ButtonBehavior, cim)
-            
-
-
-                            # with myzip.open('cover.jpg') as myfile:
-                            #     ci = CoreImage(io.BytesIO(myfile.read()), ext="jpeg")
-                            #     x = Image(texture=ci.texture)
-
-                    # print(image)
-
-                    # with zipfile.ZipFile("C:/Users/gmn/Downloads/Cover.zip") as myzip:
-                    #     with myzip.open('Cover.jpg') as myfile:
-                    #         ci = CoreImage(io.BytesIO(myfile.read()), ext="jpg")
-                    #         return Image(texture=ci.texture)
-
-                    #     icon = KivyButton(
-                    #         color =(1, 0, .65, 1),
-                    #         background_normal = cover_image_texture,
-                    #         size_hint = (.3, .3),
-                    #         pos_hint = {"x":0.35, "y":0.3}
-                    #    )
-                    #     box_layout.add_widget(icon)
-
-                    if file_cover != None:
-                        pass
-                    if file_title != None:
-                        file_title_button = KivyButton(
-                            on_press = lambda x: app.change_screen("Read Currently Open File Screen"),
-                            text = file_title,
-                            color = (0, 0, 0, 1),
-                            size_hint = (1, None),
-                            height = 50,
-                            # width = 300,
-                            )
-                    else:
-                        file_title_button = KivyButton(
+                app.root.ids.main_menu_grid_layout.add_widget(card)
+                box_layout = BoxLayout(
+                    orientation = "vertical",
+                )
+                card.add_widget(box_layout)
+                buf = io.BytesIO(file_cover)
+                cover_image = CoreImage(buf, ext="jpg")
+                if file_cover != None:
+                    file_cover_button = Image(
+                        texture = CoreImage(cover_image).texture,
+                    )
+                else:
+                    file_cover_button = KivyButton(
+                    on_press = lambda x: app.change_screen("Read Currently Open File Screen"),
+                    text = "File Cover Image Not Found",
+                    color = (0, 0, 0, 1),
+                    size_hint = (1, None),
+                    height = 50,
+                    # width = 300,
+                    )
+                file_cover_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
+                card.add_widget(file_cover_button)                        
+                if file_title != None:
+                    file_title_button = KivyButton(
                         on_press = lambda x: app.change_screen("Read Currently Open File Screen"),
-                        text = "File Title Not Found",
+                        text = file_title,
                         color = (0, 0, 0, 1),
                         size_hint = (1, None),
                         height = 50,
                         # width = 300,
                         )
-                    file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
-                    card.add_widget(file_title_button)
-                    if file_author != None:
-                        file_author_button = KivyButton(
-                            text = file_author,
-                            color = (0, 0, 0, 1),
-                            size_hint = (1, None),
-                            height = 50,
-                            # width = 300,
-                            )
-                    else:
-                        file_author_button = KivyButton(
-                        text = "File Author Not Found",
+                else:
+                    file_title_button = KivyButton(
+                    on_press = lambda x: app.change_screen("Read Currently Open File Screen"),
+                    text = "File Title Not Found",
+                    color = (0, 0, 0, 1),
+                    size_hint = (1, None),
+                    height = 50,
+                    # width = 300,
+                    )
+                file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
+                card.add_widget(file_title_button)
+                if file_author != None:
+                    file_author_button = KivyButton(
+                        text = file_author,
                         color = (0, 0, 0, 1),
                         size_hint = (1, None),
                         height = 50,
                         # width = 300,
-                        ) 
-                    card.add_widget(file_author_button)
-                    self.files_with_widgets_list.append(file)
+                        )
+                else:
+                    file_author_button = KivyButton(
+                    text = "File Author Not Found",
+                    color = (0, 0, 0, 1),
+                    size_hint = (1, None),
+                    height = 50,
+                    # width = 300,
+                    ) 
+                card.add_widget(file_author_button)
+                self.files_with_widgets_list.append(file)
 
     def load_file_read_screen(self, file):
         print("G", file)
@@ -486,17 +452,35 @@ class FileReaderApp(MDApp):
                 )   
             ) 
 
+    def sort_order_button_pressed(self):
+        pass # grid orientation is a no go, reverse the array of files and create widgets again
+    
     def build(self):
         self.title = "Book Reader"
         return Builder.load_string(Kivy)
-
+    
     def on_start(self):
         self.create_local_folders_to_scan_expansion_panel()
         self.local_folders_and_files_scan()
+        
+    #     from kivy.core.window import Window
+    #     self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
+    #     self._keyboard.bind(on_key_down=self._on_keyboard_down)
+
+    # def _keyboard_closed(self):
+    #     self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+    #     self._keyboard = None
+
+    # def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+    #     if keycode[1] == 'f11':
+    #         print("l")
+    #         # if Config.get("graphics", "fullscreen"):
+    #         #     print("A")
+    #             # Config.set("graphics", "fullscreen", 0)
+    #         # elif Config.get("graphics", "fullscreen") == False:
+    #         #     Config.set("graphics", "fullscreen", 1)
     
 FileReaderApp().run()
 
 # navbar searchbar buton on press expand it to a full searchbar
-# if cash exists then do fullscan seconds after the software has booted properly
-
 # workaround for sorting is creating arrays that are sorted by date/alphabetically/etc, and just following array
