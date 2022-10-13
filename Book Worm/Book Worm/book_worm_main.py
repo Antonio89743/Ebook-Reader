@@ -128,24 +128,45 @@ Screen:
                 TabbedPanelItem:
                     text: "Files"
 
-                    ScrollView:
-                        id: scroll_view
-                        always_overscroll: False
-                        do_scroll_x: False
-                        pos_hint: {"right": 1}
-                        size_hint: (None, None)
-                        width: root.width - 70
-                        height: root.height - 70 - 40
+                    BoxLayout:
+                        orientation: "vertical"
 
-                        GridLayout:
-                            id: main_menu_grid_layout
-                            pos_hint: {"top": 1}
+                        BoxLayout:
+                            orientation: "horizontal"
+
+                            Button:
+                                text: "Sort"
+                                size_hint: (None, None)
+                                width: 200
+                            
+                            Button:
+                                text: "Assending"
+                                size_hint: (None, None)
+                                width: 200
+
+                            Button:
+                                text: "Filter"
+                                size_hint: (None, None)
+                                width: 200
+
+                        ScrollView:
+                            id: scroll_view
+                            always_overscroll: False
+                            do_scroll_x: False
+                            pos_hint: {"right": 1}
                             size_hint: (None, None)
-                            width: scroll_view.width 
-                            height: self.minimum_height 
-                            padding: [20, 20, 20, 20]
-                            spacing: 20
-                            cols: 5
+                            width: root.width - 70
+                            height: root.height - 70 - 40
+
+                            GridLayout:
+                                id: main_menu_grid_layout
+                                pos_hint: {"top": 1}
+                                size_hint: (None, None)
+                                width: scroll_view.width 
+                                height: self.minimum_height 
+                                padding: [20, 20, 20, 20]
+                                spacing: 20
+                                cols: 5
 
                 TabbedPanelItem:
                     text: "Collections"
@@ -292,8 +313,117 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
     '''LocalFoldersExpansionPanelContent'''
 
 class FileReaderApp(MDApp):
+    class File():
+        files_with_widgets_list : list = []
+        def __init__(self, app, file):
+                if self.files_with_widgets_list.count(file) == 0 :
+                    file_title = epub_file_data.get_epub_book_title(file)
+                    file_author = epub_file_data.get_epub_book_author(file)
+                    file_cover = epub_file_data.get_epub_cover_image(file)
+                    card = MDCard(
+                            orientation = "vertical",
+                            size_hint = (None, None),
+                            height = 500,
+                            width = 300,
+                            radius = [0, 0, 0, 0]
+                        )
+                    app.root.ids.main_menu_grid_layout.add_widget(card)
+                    print(file)
+                    box_layout = BoxLayout(
+                        orientation = "vertical",
+                    )
+                    card.add_widget(box_layout)
 
-    files_with_widgets_list : list = []
+                    # img = io.BytesIO(open(file, 'rb').read())
+                    # print(img.size, img.mode, len(img.getdata()))
+                    # print(type(img))
+                    # import kivy.core.image as CoreImage
+                    # image = CoreImage.ImageLoader.zip_loader(file)
+                    # print(image, " ", type(image))
+
+
+                    # archive = zipfile.ZipFile('images.zip', 'r')
+                    # imgdata = archive.read('img_01.png')
+
+                    with zipfile.ZipFile(file) as myzip:
+
+                        x = myzip.read(file_cover)
+
+                        from kivy.uix.image import Image
+                        from kivy.core.image import Image as CoreImage
+
+
+                        # buf = io.BytesIO(x)
+                        # cim = CoreImage(buf, ext="jpg")
+                        # print(cim, type(cim))
+                        # def ImageButton(ButtonBehavior, Image):  
+                        #     def on_press(self):  
+                        #         print ('pressed')
+                        # card.add_widget(cim)
+                        # from kivy.uix.behaviors import ButtonBehavior  
+                        # ImageButton(ButtonBehavior, cim)
+            
+
+
+                            # with myzip.open('cover.jpg') as myfile:
+                            #     ci = CoreImage(io.BytesIO(myfile.read()), ext="jpeg")
+                            #     x = Image(texture=ci.texture)
+
+                    # print(image)
+
+                    # with zipfile.ZipFile("C:/Users/gmn/Downloads/Cover.zip") as myzip:
+                    #     with myzip.open('Cover.jpg') as myfile:
+                    #         ci = CoreImage(io.BytesIO(myfile.read()), ext="jpg")
+                    #         return Image(texture=ci.texture)
+
+                    #     icon = KivyButton(
+                    #         color =(1, 0, .65, 1),
+                    #         background_normal = cover_image_texture,
+                    #         size_hint = (.3, .3),
+                    #         pos_hint = {"x":0.35, "y":0.3}
+                    #    )
+                    #     box_layout.add_widget(icon)
+
+                    if file_cover != None:
+                        pass
+                    if file_title != None:
+                        file_title_button = KivyButton(
+                            on_press = lambda x: app.change_screen("Read Currently Open File Screen"),
+                            text = file_title,
+                            color = (0, 0, 0, 1),
+                            size_hint = (1, None),
+                            height = 50,
+                            # width = 300,
+                            )
+                    else:
+                        file_title_button = KivyButton(
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen"),
+                        text = "File Title Not Found",
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
+                        )
+                    file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
+                    card.add_widget(file_title_button)
+                    if file_author != None:
+                        file_author_button = KivyButton(
+                            text = file_author,
+                            color = (0, 0, 0, 1),
+                            size_hint = (1, None),
+                            height = 50,
+                            # width = 300,
+                            )
+                    else:
+                        file_author_button = KivyButton(
+                        text = "File Author Not Found",
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
+                        ) 
+                    card.add_widget(file_author_button)
+                    self.files_with_widgets_list.append(file)
 
     def load_file_read_screen(self, file):
         print("G", file)
@@ -302,102 +432,8 @@ class FileReaderApp(MDApp):
         self.root.ids.screen_manager.current = screen
 
     def add_main_menu_widgets(self, file_list):
-
         for file in file_list["array_of_epub_files"]:
-            
-            if self.files_with_widgets_list.count(file) == 0 :
-                file_title = epub_file_data.get_epub_book_title(file)
-                file_author = epub_file_data.get_epub_book_author(file)
-                file_cover = epub_file_data.get_epub_cover_image(file)
-                card = MDCard(
-                        orientation = "vertical",
-                        size_hint = (None, None),
-                        height = 500,
-                        width = 300,
-                        radius = [0, 0, 0, 0]
-                    )
-                self.root.ids.main_menu_grid_layout.add_widget(card)
-                print(file)
-                box_layout = BoxLayout(
-                    orientation = "vertical",
-                )
-                card.add_widget(box_layout)
-
-                # img = io.BytesIO(open(file, 'rb').read())
-                # print(img.size, img.mode, len(img.getdata()))
-                # print(type(img))
-                # import kivy.core.image as CoreImage
-                # image = CoreImage.ImageLoader.zip_loader(file)
-                # print(image, " ", type(image))
-
-
-                # archive = zipfile.ZipFile('images.zip', 'r')
-                # imgdata = archive.read('img_01.png')
-
-                with zipfile.ZipFile(file) as myzip:
-
-                    x = myzip.read(file_cover)
-                    # print(x, type(x))
-
-                    from kivy.uix.image import Image
-                    from kivy.core.image import Image as CoreImage
-
-
-                    # buf = io.BytesIO(x)
-                    # cim = CoreImage(buf, ext="jpg")
-                    # print(cim, type(cim))
-                    # def ImageButton(ButtonBehavior, Image):  
-                    #     def on_press(self):  
-                    #         print ('pressed')
-                    # card.add_widget(cim)
-                    # from kivy.uix.behaviors import ButtonBehavior  
-                    # ImageButton(ButtonBehavior, cim)
-        
-
-
-                        # with myzip.open('cover.jpg') as myfile:
-                        #     ci = CoreImage(io.BytesIO(myfile.read()), ext="jpeg")
-                        #     x = Image(texture=ci.texture)
-
-                # print(image)
-
-                # with zipfile.ZipFile("C:/Users/gmn/Downloads/Cover.zip") as myzip:
-                #     with myzip.open('Cover.jpg') as myfile:
-                #         ci = CoreImage(io.BytesIO(myfile.read()), ext="jpg")
-                #         return Image(texture=ci.texture)
-
-                #     icon = KivyButton(
-                #         color =(1, 0, .65, 1),
-                #         background_normal = 'normal.png',
-                #         size_hint = (.3, .3),
-                #         pos_hint = {"x":0.35, "y":0.3}
-                #    )
-                #     box_layout.add_widget(icon)
-
-                if file_cover != None:
-                    pass
-                if file_title != None:
-                    file_title_button = KivyButton(
-                        on_press = lambda x: self.change_screen("Read Currently Open File Screen"),
-                        text = file_title,
-                        color = (0, 0, 0, 1),
-                        size_hint = (1, None),
-                        height = 50,
-                        # width = 300,
-                        # set position
-                        )
-                    file_title_button.bind(on_press=lambda x: self.load_file_read_screen(file))
-                    card.add_widget(file_title_button)
-                if file_author != None:
-                    file_author_button = KivyButton(
-                        text = file_author,
-                        color = (0, 0, 0, 1),
-                        size_hint = (1, None),
-                        height = 50,
-                        # width = 300,
-                        )
-                    card.add_widget(file_author_button)
-                self.files_with_widgets_list.append(file)
+            self.File(self, file)
 
     def add_buttons_for_drives(self):
         available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
