@@ -119,7 +119,6 @@ Screen:
             id: main_menu_screen
             name: "Main Menu"
             on_enter: toolbar.title = "Main Menu"
-            on_pre_leave: app.on_pre_screen_leave(screen_manager.current)
             TabbedPanel:
                 do_default_tab: False
                 tab_pos: "top_left"
@@ -189,15 +188,13 @@ Screen:
         Screen:
             name: "Read Currently Open File Screen"
             on_enter: toolbar.title = ""
-            on_pre_leave: app.on_pre_screen_leave(screen_manager.current)
             MDLabel:
                 text: "Read Currently Open File Screen"
                 halign: "center"
-        
+
         Screen:
             name: "File Details Screen"
             on_enter: toolbar.title = "File Detail Screen"
-            on_pre_leave: app.on_pre_screen_leave(screen_manager.current)
             MDLabel:
                 text: "File Details Screen"
                 halign: "center"
@@ -205,7 +202,6 @@ Screen:
         Screen:
             name: "Settings Screen"
             on_enter: toolbar.title = "Settings"
-            on_pre_leave: app.on_pre_screen_leave(screen_manager.current)
             TabbedPanel:
                 do_default_tab: False
                 tab_pos: "top_mid"
@@ -284,14 +280,14 @@ Screen:
             height: 70
             color : [1.0, 1.0, 1.0, 1.0]
             icon: "icons and images\Home-icon.svg.png" 
-            on_press: screen_manager.current = "Main Menu"
+            on_press: app.change_screen("Main Menu", False)
 
         MDIconButton:
             pos_hint: {"y": 1}
             width: 70
             height: 70
             color : [1.0, 1.0, 1.0, 1.0]
-            on_press: screen_manager.current = "Read Currently Open File Screen"
+            on_press: app.change_screen("Read Currently Open File Screen", False)
 
         BoxLayout:
             id: nav_bar_settings
@@ -304,7 +300,7 @@ Screen:
                 pos_hint: {"y": 0}
                 md_bg_color : [1.0, 1.0, 1.0, 1.0]
                 icon: "icons and images\icons8-settings-500.png" 
-                on_press: screen_manager.current = "Settings Screen"
+                on_press: app.change_screen("Settings Screen", False)
                 # add onperss that will add in element to array for previous frames
 
 '''
@@ -401,20 +397,15 @@ class FileReaderApp(MDApp):
     screen_currently_in_use :int = 0
     previous_screens_and_tabs_list = ["Main Menu"]
 
-    def on_pre_screen_leave(self, currently_open_screen):
-        self.previous_screens_and_tabs_list.append(currently_open_screen)
-        self.screen_currently_in_use += 1
-        # print("leave", self.screen_currently_in_use)
-
     def return_to_previous_tab_or_screen(self):
-        # print("self.screen_currently_in_use", self.screen_currently_in_use, self.previous_screens_and_tabs_list[self.screen_currently_in_use])
-        # print(self.previous_screens_and_tabs_list)
-        # print(self.previous_screens_and_tabs_list[self.screen_currently_in_use - 1])
-        self.change_screen(self.previous_screens_and_tabs_list[self.screen_currently_in_use - 1])
+        self.change_screen(self.previous_screens_and_tabs_list[self.screen_currently_in_use - 1], True)
         self.screen_currently_in_use -= 1
 
-    def change_screen(self, screen):
+    def change_screen(self, screen, using_return_or_go_back_bool):
         self.root.ids.screen_manager.current = screen
+        self.previous_screens_and_tabs_list.append(screen)
+        if using_return_or_go_back_bool == False:
+            self.screen_currently_in_use += 1
 
     def add_main_menu_widgets(self, file_list):
         # file_list = self.sort_file_list(self, file_list)
