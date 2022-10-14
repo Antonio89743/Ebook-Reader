@@ -397,14 +397,17 @@ class FileReaderApp(MDApp):
     screen_currently_in_use :int = 0
     previous_screens_and_tabs_list = ["Main Menu"]
 
+    def go_forward_to_next_tab_or_screen(self):
+        self.change_screen(self.previous_screens_and_tabs_list[self.screen_currently_in_use + 1], True)
+
     def return_to_previous_tab_or_screen(self):
         self.change_screen(self.previous_screens_and_tabs_list[self.screen_currently_in_use - 1], True)
         self.screen_currently_in_use -= 1
 
-    def change_screen(self, screen, using_return_or_go_back_bool):
+    def change_screen(self, screen, using_return_bool):
         self.root.ids.screen_manager.current = screen
         self.previous_screens_and_tabs_list.append(screen)
-        if using_return_or_go_back_bool == False:
+        if using_return_bool == False:
             self.screen_currently_in_use += 1
 
     def add_main_menu_widgets(self, file_list):
