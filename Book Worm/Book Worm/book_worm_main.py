@@ -104,7 +104,6 @@ Kivy = '''
         on_press: Factory.LocalFolderPopUp().open()
 
 Screen:
-
     MDTopAppBar:
         id: toolbar
         size_hint: (None, None)
@@ -119,7 +118,8 @@ Screen:
         Screen:
             id: main_menu_screen
             name: "Main Menu"
-            
+            on_enter: toolbar.title = "Main Menu"
+            on_pre_leave: app.on_pre_screen_leave(screen_manager.current)
             TabbedPanel:
                 do_default_tab: False
                 tab_pos: "top_left"
@@ -158,7 +158,7 @@ Screen:
                                 height: 30
 
                         ScrollView:
-                            id: scroll_view
+                            id: main_menu_scroll_view
                             always_overscroll: False
                             do_scroll_x: False
                             pos_hint: {"right": 1}
@@ -170,7 +170,7 @@ Screen:
                                 id: main_menu_grid_layout
                                 pos_hint: {"top": 1}
                                 size_hint: (None, None)
-                                width: scroll_view.width 
+                                width: main_menu_scroll_view.width 
                                 height: self.minimum_height 
                                 padding: [20, 20, 20, 20]
                                 spacing: 20
@@ -188,18 +188,24 @@ Screen:
      
         Screen:
             name: "Read Currently Open File Screen"
+            on_enter: toolbar.title = ""
+            on_pre_leave: app.on_pre_screen_leave(screen_manager.current)
             MDLabel:
                 text: "Read Currently Open File Screen"
                 halign: "center"
         
         Screen:
             name: "File Details Screen"
+            on_enter: toolbar.title = "File Detail Screen"
+            on_pre_leave: app.on_pre_screen_leave(screen_manager.current)
             MDLabel:
                 text: "File Details Screen"
                 halign: "center"
 
         Screen:
             name: "Settings Screen"
+            on_enter: toolbar.title = "Settings"
+            on_pre_leave: app.on_pre_screen_leave(screen_manager.current)
             TabbedPanel:
                 do_default_tab: False
                 tab_pos: "top_mid"
@@ -263,7 +269,7 @@ Screen:
             width: 70
             height: 70
             icon: "icons and images\go back.png"
-            on_press: screen_manager.current = "Main Menu"
+            on_press: app.return_to_previous_tab_or_screen()
         
         MDIconButton:
             pos_hint: {"center_y": 1}
@@ -279,7 +285,6 @@ Screen:
             color : [1.0, 1.0, 1.0, 1.0]
             icon: "icons and images\Home-icon.svg.png" 
             on_press: screen_manager.current = "Main Menu"
-            on_press: toolbar.title = "Main Menu"
 
         MDIconButton:
             pos_hint: {"y": 1}
@@ -300,7 +305,6 @@ Screen:
                 md_bg_color : [1.0, 1.0, 1.0, 1.0]
                 icon: "icons and images\icons8-settings-500.png" 
                 on_press: screen_manager.current = "Settings Screen"
-                on_press: toolbar.title = "Settings"
                 # add onperss that will add in element to array for previous frames
 
 '''
@@ -394,12 +398,31 @@ class FileReaderApp(MDApp):
     def load_file_read_screen(self, file):
         print("G", file)
 
+    screen_currently_in_use :int = 0
+    previous_screens_and_tabs_list = ["Main Menu"]
+
+    def on_pre_screen_leave(self, currently_open_screen):
+        self.previous_screens_and_tabs_list.append(currently_open_screen)
+        self.screen_currently_in_use += 1
+        # print("leave", self.screen_currently_in_use)
+
+    def return_to_previous_tab_or_screen(self):
+        # print("self.screen_currently_in_use", self.screen_currently_in_use, self.previous_screens_and_tabs_list[self.screen_currently_in_use])
+        # print(self.previous_screens_and_tabs_list)
+        # print(self.previous_screens_and_tabs_list[self.screen_currently_in_use - 1])
+        self.change_screen(self.previous_screens_and_tabs_list[self.screen_currently_in_use - 1])
+        self.screen_currently_in_use -= 1
+
     def change_screen(self, screen):
         self.root.ids.screen_manager.current = screen
 
     def add_main_menu_widgets(self, file_list):
+        # file_list = self.sort_file_list(self, file_list)
         for file in file_list["array_of_epub_files"]:
             self.File(self, file)
+    
+    def sort_file_list(self, file_list):
+        pass
 
     def add_buttons_for_drives(self):
         available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
@@ -455,30 +478,34 @@ class FileReaderApp(MDApp):
     def sort_order_button_pressed(self):
         pass # grid orientation is a no go, reverse the array of files and create widgets again
     
+    def responsive_grid_layout(self, window, width, height):
+        self.root.ids.main_menu_grid_layout.cols = int(self.root.ids.main_menu_grid_layout.width / (300 + 20))
+
     def build(self):
         self.title = "Book Reader"
         return Builder.load_string(Kivy)
     
     def on_start(self):
+        Window.bind(on_resize = self.responsive_grid_layout)
         self.create_local_folders_to_scan_expansion_panel()
         self.local_folders_and_files_scan()
-        
-    #     from kivy.core.window import Window
-    #     self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
+
+        # from kivy.core.window import Window
+        # self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
     #     self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
     # def _keyboard_closed(self):
     #     self._keyboard.unbind(on_key_down=self._on_keyboard_down)
     #     self._keyboard = None
 
-    # def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-    #     if keycode[1] == 'f11':
-    #         print("l")
-    #         # if Config.get("graphics", "fullscreen"):
-    #         #     print("A")
-    #             # Config.set("graphics", "fullscreen", 0)
-    #         # elif Config.get("graphics", "fullscreen") == False:
-    #         #     Config.set("graphics", "fullscreen", 1)
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        if keycode[1] == 'f11':
+            print("l")
+            if Config.get("graphics", "fullscreen"):
+                print("A")
+                Config.set("graphics", "fullscreen", 0)
+            elif Config.get("graphics", "fullscreen") == False:
+                Config.set("graphics", "fullscreen", 1)
     
 FileReaderApp().run()
 
