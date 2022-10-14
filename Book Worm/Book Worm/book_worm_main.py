@@ -15,12 +15,9 @@ from kivy.uix.button import Button as KivyButton
 from kivy.uix.image import Image
 from kivy.core.image import Image as CoreImage
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
+import text_file_data
 import epub_file_data
 from kivy.core.window import Window
-# Window.fullscreen = True
-# Config.set('graphics', 'fullscreen', 0)
-# # Config.set('graphics', 'fullscreen', 'auto')
-# Window.minimize()
 import os, string
 from os.path import sep, expanduser, isdir, dirname, exists
 import sys
@@ -188,9 +185,14 @@ Screen:
         Screen:
             name: "Read Currently Open File Screen"
             on_enter: toolbar.title = ""
-            MDLabel:
-                text: "Read Currently Open File Screen"
-                halign: "center"
+
+            MDCard:
+                id: file_reader_content_card
+                orientation: "vertical"
+                size_hint: (None, 1)
+                pos_hint: {"center_x": 0.5}
+                width: 700
+                radius: [0, 0, 0, 0]
 
         Screen:
             name: "File Details Screen"
@@ -251,9 +253,6 @@ Screen:
                         text: "cxzczxc"
 
     BoxLayout:
-        canvas.before:
-            Color:
-                rgba: 0, 1, 1, 1
         padding: [10, 10, 10, 10]
         spacing: 20
         id: nav_bar
@@ -316,10 +315,44 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
     '''LocalFoldersExpansionPanelContent'''
 
 class FileReaderApp(MDApp):
-    class File():
+    class TxtFile():
         files_with_widgets_list : list = []
         def __init__(self, app, file):
-            if self.files_with_widgets_list.count(file) == 0 :
+            if self.files_with_widgets_list.count(file) == 0:
+                file_content = text_file_data.get_txt_file_content(file)
+                file_title = text_file_data.get_txt_file_name(file)
+                card = MDCard(
+                        orientation = "vertical",
+                        size_hint = (None, None),
+                        height = 500,
+                        width = 300,
+                        radius = [0, 0, 0, 0]
+                    )
+                app.root.ids.main_menu_grid_layout.add_widget(card)
+                if file_title != None:
+                    file_title_button = KivyButton(
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                        text = file_title,
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
+                        )
+                else:
+                    file_title_button = KivyButton(
+                    on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                    text = "File Title Not Found",
+                    color = (0, 0, 0, 1),
+                    size_hint = (1, None),
+                    height = 50,
+                    # width = 300,
+                    )
+                file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
+                card.add_widget(file_title_button)
+    class EpubFile():
+        files_with_widgets_list : list = []
+        def __init__(self, app, file):
+            if self.files_with_widgets_list.count(file) == 0:
                 file_title = epub_file_data.get_epub_book_title(file)
                 file_author = epub_file_data.get_epub_book_author(file)
                 file_cover = epub_file_data.get_epub_cover_image(file)
@@ -331,10 +364,6 @@ class FileReaderApp(MDApp):
                         radius = [0, 0, 0, 0]
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
-                box_layout = BoxLayout(
-                    orientation = "vertical",
-                )
-                card.add_widget(box_layout)
                 buf = io.BytesIO(file_cover)
                 cover_image = CoreImage(buf, ext="jpg")
                 if file_cover != None:
@@ -343,7 +372,7 @@ class FileReaderApp(MDApp):
                     )
                 else:
                     file_cover_button = KivyButton(
-                    on_press = lambda x: app.change_screen("Read Currently Open File Screen"),
+                    on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
                     text = "File Cover Image Not Found",
                     color = (0, 0, 0, 1),
                     size_hint = (1, None),
@@ -354,7 +383,7 @@ class FileReaderApp(MDApp):
                 card.add_widget(file_cover_button)                        
                 if file_title != None:
                     file_title_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Read Currently Open File Screen"),
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
                         text = file_title,
                         color = (0, 0, 0, 1),
                         size_hint = (1, None),
@@ -363,7 +392,7 @@ class FileReaderApp(MDApp):
                         )
                 else:
                     file_title_button = KivyButton(
-                    on_press = lambda x: app.change_screen("Read Currently Open File Screen"),
+                    on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
                     text = "File Title Not Found",
                     color = (0, 0, 0, 1),
                     size_hint = (1, None),
@@ -392,6 +421,10 @@ class FileReaderApp(MDApp):
                 self.files_with_widgets_list.append(file)
 
     def load_file_read_screen(self, file):
+        self.root.ids.file_reader_content_card.clear_widgets()
+        # self.root.ids.file_reader_content_card.add_widget()
+
+        # get content based on the file extension, just call get content func from different extension files
         print("G", file)
 
     screen_currently_in_use :int = 0
@@ -413,7 +446,9 @@ class FileReaderApp(MDApp):
     def add_main_menu_widgets(self, file_list):
         # file_list = self.sort_file_list(self, file_list)
         for file in file_list["array_of_epub_files"]:
-            self.File(self, file)
+            self.EpubFile(self, file)
+        for file in file_list["array_of_txt_files"]:
+            self.TxtFile(self, file)
     
     def sort_file_list(self, file_list):
         pass
@@ -472,7 +507,7 @@ class FileReaderApp(MDApp):
     def sort_order_button_pressed(self):
         pass # grid orientation is a no go, reverse the array of files and create widgets again
     
-    def responsive_grid_layout(self, window, width, height):
+    def responsive_grid_layout(self, *args):
         self.root.ids.main_menu_grid_layout.cols = int(self.root.ids.main_menu_grid_layout.width / (300 + 20))
 
     def build(self):
@@ -481,26 +516,40 @@ class FileReaderApp(MDApp):
     
     def on_start(self):
         Window.bind(on_resize = self.responsive_grid_layout)
+        Window.bind(on_restore = self.responsive_grid_layout)
+        Window.bind(on_maximize = self.responsive_grid_layout)
         self.create_local_folders_to_scan_expansion_panel()
         self.local_folders_and_files_scan()
+        
+    #     Window.bind(on_key_down = self.on_key_down)
 
-        # from kivy.core.window import Window
-        # self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
+    # def on_key_down(self, *args):
+    #     print(args, print(type(args)))
+    #     if args[3] == "Ĥ":
+    #         if Config.get("graphics", "fullscreen") == "0":
+    #             Config.set("graphics", "fullscreen", 1)
+    #         elif Config.get("graphics", "fullscreen") == "1":
+    #             Config.set("graphics", "fullscreen", 0)
+
+###########################################################################################################
+
+    #     self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
     #     self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
     # def _keyboard_closed(self):
     #     self._keyboard.unbind(on_key_down=self._on_keyboard_down)
     #     self._keyboard = None
 
-    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        if keycode[1] == 'f11':
-            print("l")
-            if Config.get("graphics", "fullscreen"):
-                print("A")
-                Config.set("graphics", "fullscreen", 0)
-            elif Config.get("graphics", "fullscreen") == False:
-                Config.set("graphics", "fullscreen", 1)
-    
+    # def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+    #     if keycode[1] == "f11":
+    #         print("l")
+    #         if Config.get("graphics", "fullscreen"):
+    #             print("A")
+    #             Config.set("graphics", "fullscreen", 0)
+    #         elif Config.get("graphics", "fullscreen") == False:
+    #             print("B")
+    #             Config.set("graphics", "fullscreen", 1)
+
 FileReaderApp().run()
 
 # navbar searchbar buton on press expand it to a full searchbar

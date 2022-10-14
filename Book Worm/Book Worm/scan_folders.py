@@ -1,4 +1,5 @@
 import glob, os, json, sys
+from pydoc import doc
 from array import array
 from json.decoder import JSONDecodeError
 
@@ -7,12 +8,22 @@ local_folders_to_scan_dictionary_file_path = "Book Worm\Book Worm\local_folders_
 array_or_pdf_files : array = []
 array_or_epub_files : array = []
 array_or_mobi_files : array = []
-
+array_or_doc_files : array = []
+array_or_docx_files : array = []
+array_or_kpf_files : array = []
+array_or_txt_files : array = []
+array_or_cbr_files : array = []
+array_or_cbz_files : array = []
 dictionary_of_valid_files = {
     "array_of_pdf_files": array_or_pdf_files,
     "array_of_epub_files": array_or_epub_files,
     "array_of_mobi_files": array_or_mobi_files,
-}
+    "array_of_doc_files": array_or_doc_files,
+    "array_of_docx_files": array_or_docx_files,
+    "array_of_kpf_files": array_or_kpf_files,
+    "array_of_txt_files": array_or_txt_files,
+    "array_of_cbr_files": array_or_cbr_files,
+    "array_of_cbz_files": array_or_cbz_files}
 
 def save_local_folders_array(folders_to_scan):
     with open(local_folders_to_scan_json_file_path, 'r+') as file:
@@ -43,10 +54,15 @@ def save_local_folders_array(folders_to_scan):
 
 def save_local_files_dictionary():
     dictionary_of_valid_files = {
-    "array_of_pdf_files": array_or_pdf_files,
-    "array_of_epub_files": array_or_epub_files,
-    "array_of_mobi_files": array_or_mobi_files,
-    }
+        "array_of_pdf_files": array_or_pdf_files,
+        "array_of_epub_files": array_or_epub_files,
+        "array_of_mobi_files": array_or_mobi_files,
+        "array_of_doc_files": array_or_doc_files,
+        "array_of_docx_files": array_or_docx_files,
+        "array_of_kpf_files": array_or_kpf_files,
+        "array_of_txt_files": array_or_txt_files,
+        "array_of_cbr_files": array_or_cbr_files,
+        "array_of_cbz_files": array_or_cbz_files}
     data = json.dumps(dictionary_of_valid_files)
     file = open(local_folders_to_scan_dictionary_file_path, 'w')
     file.write(data)
@@ -71,6 +87,36 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 absolute_path_to_file = os.path.abspath(pdf_file)
                 if array_or_pdf_files.count(absolute_path_to_file) == 0 :
                     array_or_pdf_files.append(absolute_path_to_file)
+            doc_files = glob.glob(folder + "/**/*.doc", recursive = True)
+            for doc_file in doc_files:
+                absolute_path_to_file = os.path.abspath(doc_file)
+                if array_or_doc_files.count(absolute_path_to_file) == 0 :
+                    array_or_doc_files.append(absolute_path_to_file)
+            docx_files = glob.glob(folder + "/**/*.docx", recursive = True)
+            for docx_file in docx_files:
+                absolute_path_to_file = os.path.abspath(docx_file)
+                if array_or_docx_files.count(absolute_path_to_file) == 0 :
+                    array_or_docx_files.append(absolute_path_to_file)
+            kpf_files = glob.glob(folder + "/**/*.kpf", recursive = True)
+            for kpf_file in kpf_files:
+                absolute_path_to_file = os.path.abspath(kpf_file)
+                if array_or_kpf_files.count(absolute_path_to_file) == 0 :
+                    array_or_kpf_files.append(absolute_path_to_file)
+            txt_files = glob.glob(folder + "/**/*.txt", recursive = True)
+            for txt_file in txt_files:
+                absolute_path_to_file = os.path.abspath(txt_file)
+                if array_or_txt_files.count(absolute_path_to_file) == 0 :
+                    array_or_txt_files.append(absolute_path_to_file)
+            cbr_files = glob.glob(folder + "/**/*.cbr", recursive = True)
+            for cbr_file in cbr_files:
+                absolute_path_to_file = os.path.abspath(cbr_file)
+                if array_or_cbr_files.count(absolute_path_to_file) == 0 :
+                    array_or_cbr_files.append(absolute_path_to_file)
+            cbz_files = glob.glob(folder + "/**/*.cbz", recursive = True)
+            for cbz_file in cbz_files:
+                absolute_path_to_file = os.path.abspath(cbz_file)
+                if array_or_cbz_files.count(absolute_path_to_file) == 0 :
+                    array_or_cbz_files.append(absolute_path_to_file)
         save_local_files_dictionary()
     elif type(folders_to_scan) is str:
         if new_folder_bool == True:
@@ -93,6 +139,36 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 absolute_path_to_file = os.path.abspath(pdf_file)
                 if array_or_pdf_files.count(absolute_path_to_file) == 0 :
                     array_or_pdf_files.append(absolute_path_to_file)
+            doc_files = glob.glob(folders_to_scan + "/**/*.doc", recursive = True)
+            for doc_file in doc_files:
+                absolute_path_to_file = os.path.abspath(doc_file)
+                if array_or_doc_files.count(absolute_path_to_file) == 0 :
+                    array_or_doc_files.append(absolute_path_to_file)
+            docx_files = glob.glob(folders_to_scan + "/**/*.docx", recursive = True)
+            for docx_file in docx_files:
+                absolute_path_to_file = os.path.abspath(docx_file)
+                if array_or_docx_files.count(absolute_path_to_file) == 0 :
+                    array_or_docx_files.append(absolute_path_to_file)
+            kpf_files = glob.glob(folders_to_scan + "/**/*.kpf", recursive = True)
+            for kpf_file in kpf_files:
+                absolute_path_to_file = os.path.abspath(kpf_file)
+                if array_or_kpf_files.count(absolute_path_to_file) == 0 :
+                    array_or_kpf_files.append(absolute_path_to_file)
+            txt_files = glob.glob(folders_to_scan + "/**/*.txt", recursive = True)
+            for txt_file in txt_files:
+                absolute_path_to_file = os.path.abspath(txt_file)
+                if array_or_txt_files.count(absolute_path_to_file) == 0 :
+                    array_or_txt_files.append(absolute_path_to_file)
+            cbr_files = glob.glob(folders_to_scan + "/**/*.cbr", recursive = True)
+            for cbr_file in cbr_files:
+                absolute_path_to_file = os.path.abspath(cbr_file)
+                if array_or_cbr_files.count(absolute_path_to_file) == 0 :
+                    array_or_cbr_files.append(absolute_path_to_file)
+            cbz_files = glob.glob(folders_to_scan + "/**/*.cbz", recursive = True)
+            for cbz_file in cbz_files:
+                absolute_path_to_file = os.path.abspath(cbz_file)
+                if array_or_cbz_files.count(absolute_path_to_file) == 0 :
+                    array_or_cbz_files.append(absolute_path_to_file)     
             save_local_files_dictionary()
             save_local_folders_array(folders_to_scan)
         elif new_folder_bool == False:
