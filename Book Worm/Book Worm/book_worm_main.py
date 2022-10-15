@@ -194,6 +194,15 @@ Screen:
                 width: 700
                 radius: [0, 0, 0, 0]
 
+                ScrollView:
+                    id: file_reader_content_scroll_view
+                    always_overscroll: False
+                    do_scroll_x: False
+                    pos_hint: {"right": 1}
+                    size_hint: (1, 1)
+                    width: file_reader_content_card.width 
+                    height: file_reader_content_card.height
+
         Screen:
             name: "File Details Screen"
             on_enter: toolbar.title = "File Detail Screen"
@@ -421,11 +430,22 @@ class FileReaderApp(MDApp):
                 self.files_with_widgets_list.append(file)
 
     def load_file_read_screen(self, file):
-        self.root.ids.file_reader_content_card.clear_widgets()
-        # self.root.ids.file_reader_content_card.add_widget()
+        self.root.ids.file_reader_content_scroll_view.clear_widgets()
 
-        # get content based on the file extension, just call get content func from different extension files
-        print("G", file)
+        file_name_and_extension = os.path.splitext(os.path.basename(file))
+        if file_name_and_extension[1] == ".txt":
+            file_content = text_file_data.get_txt_file_content(file)
+
+            print(file_content, type(file_content))
+            self.root.ids.file_reader_content_scroll_view.add_widget(
+                Label(
+                    text = file_content,
+                    color = [0, 0, 0, 1],
+                    pos_hint = {"left": 1}
+                )
+
+            )
+
 
     screen_currently_in_use :int = 0
     previous_screens_and_tabs_list = ["Main Menu"]

@@ -2,8 +2,7 @@ import os.path
 
 def get_txt_file_content(file_path):
     with open(file_path) as f:
-        lines = f.readlines()
-        print(lines)
+        lines = f.read()
         f.close()
     return lines
 # read text from the text file using the file read(), readline(), or readlines() method of the file object.
