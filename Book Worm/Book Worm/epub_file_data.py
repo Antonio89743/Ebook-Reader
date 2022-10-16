@@ -10,8 +10,7 @@ namespaces = {
    "dcterms":"http://purl.org/dc/terms/",
    "opf":"http://www.idpf.org/2007/opf",
    "u":"urn:oasis:names:tc:opendocument:xmlns:container",
-   "xsi":"http://www.w3.org/2001/XMLSchema-instance",
-}
+   "xsi":"http://www.w3.org/2001/XMLSchema-instance"}
 
 def get_epub_cover_image(epub_path):
     with zipfile.ZipFile(epub_path) as z:
