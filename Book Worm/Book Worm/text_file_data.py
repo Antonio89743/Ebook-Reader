@@ -1,12 +1,11 @@
 import os.path
 
 def get_txt_file_content(file_path):
-    with open(file_path) as f:
-        lines = f.read()
-        f.close()
-    return lines
-# read text from the text file using the file read(), readline(), or readlines() method of the file object.
-
+    with open(file_path) as open_file:
+        text = open_file.read()
+        open_file.close()
+    return text
+    
 def get_txt_file_size(file_path):
     return os.path.getsize(file_path)
 

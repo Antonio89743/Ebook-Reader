@@ -189,19 +189,33 @@ Screen:
             MDCard:
                 id: file_reader_content_card
                 orientation: "vertical"
-                size_hint: (None, 1)
+                size_hint: (None, None)
                 pos_hint: {"center_x": 0.5}
                 width: 700
+                height: root.height
                 radius: [0, 0, 0, 0]
+
 
                 ScrollView:
                     id: file_reader_content_scroll_view
                     always_overscroll: False
                     do_scroll_x: False
                     pos_hint: {"right": 1}
-                    size_hint: (1, 1)
-                    width: file_reader_content_card.width 
-                    height: file_reader_content_card.height
+                    size_hint: (None, None)
+                    width: file_reader_content_card.width
+                    height: root.height
+                    
+                    BoxLayout:
+                        id: file_reader_content_grid_layout
+                        pos_hint: {"top": 1}
+                        size_hint: (None, None)
+                        width: file_reader_content_scroll_view.width 
+                        height: self.minimum_height 
+                        orientation: 'vertical'
+
+                        
+
+
 
         Screen:
             name: "File Details Screen"
@@ -430,22 +444,37 @@ class FileReaderApp(MDApp):
                 self.files_with_widgets_list.append(file)
 
     def load_file_read_screen(self, file):
-        self.root.ids.file_reader_content_scroll_view.clear_widgets()
+        # self.root.ids.file_reader_content_grid_layout.clear_widgets()
+        file_content = self.get_file_contents(file)
+        print(file_content)
+        self.root.ids.file_reader_content_grid_layout.add_widget(
+            Label(
+                text = file_content,
+                color = [0, 0, 0, 1],
+                size_hint = (None, None),
+                halign = "left",
+                valign = "top",
+                size = self.root.ids.file_reader_content_grid_layout.size
+            )
+        )
 
+    def get_file_contents(self, file):
         file_name_and_extension = os.path.splitext(os.path.basename(file))
         if file_name_and_extension[1] == ".txt":
             file_content = text_file_data.get_txt_file_content(file)
-
-            print(file_content, type(file_content))
-            self.root.ids.file_reader_content_scroll_view.add_widget(
-                Label(
-                    text = file_content,
-                    color = [0, 0, 0, 1],
-                    pos_hint = {"left": 1}
-                )
-
-            )
-
+        elif file_name_and_extension[1] == ".epub": 
+            pass
+        elif file_name_and_extension[1] == ".mobi": 
+            pass
+        elif file_name_and_extension[1] == ".pdf": 
+            pass
+        elif file_name_and_extension[1] == ".doc": 
+            pass
+        elif file_name_and_extension[1] == ".docx": 
+            pass
+        elif file_name_and_extension[1] == ".cbz": 
+            pass
+        return file_content
 
     screen_currently_in_use :int = 0
     previous_screens_and_tabs_list = ["Main Menu"]
@@ -574,3 +603,5 @@ FileReaderApp().run()
 
 # navbar searchbar buton on press expand it to a full searchbar
 # workaround for sorting is creating arrays that are sorted by date/alphabetically/etc, and just following array
+
+#  use kivy bubble
