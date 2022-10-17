@@ -195,7 +195,6 @@ Screen:
                 height: root.height
                 radius: [0, 0, 0, 0]
 
-
                 ScrollView:
                     id: file_reader_content_scroll_view
                     always_overscroll: False
@@ -212,10 +211,6 @@ Screen:
                         width: file_reader_content_scroll_view.width 
                         height: self.minimum_height 
                         orientation: 'vertical'
-
-                        
-
-
 
         Screen:
             name: "File Details Screen"
@@ -447,8 +442,8 @@ class FileReaderApp(MDApp):
         # self.root.ids.file_reader_content_grid_layout.clear_widgets()
         file_content = self.get_file_contents(file)
         print(file_content)
-        self.root.ids.file_reader_content_grid_layout.add_widget(
-            Label(
+        
+        label = Label(
                 text = file_content,
                 color = [0, 0, 0, 1],
                 size_hint = (None, None),
@@ -456,7 +451,8 @@ class FileReaderApp(MDApp):
                 valign = "top",
                 size = self.root.ids.file_reader_content_grid_layout.size
             )
-        )
+        label.bind(texture_size = label.setter("size"))
+        self.root.ids.file_reader_content_grid_layout.add_widget(label)
 
     def get_file_contents(self, file):
         file_name_and_extension = os.path.splitext(os.path.basename(file))
