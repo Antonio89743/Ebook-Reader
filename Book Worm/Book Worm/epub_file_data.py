@@ -3,6 +3,8 @@ import os
 import zipfile
 from lxml import etree
 import html_file_data
+from datetime import datetime
+import os.path
 
 namespaces = {
    "calibre":"http://calibre.kovidgoyal.net/2009/metadata",
@@ -103,3 +105,7 @@ get_epub_book_text(r"C:\Users\anton\OneDrive\Radna površina\Epub Reader\Epub-Re
 
 # lxml licence
 # html licence
+
+def get_epub_file_modified_time(file_path):
+    unix_time = os.path.getmtime(file_path)
+    return datetime.fromtimestamp(unix_time).strftime("%d/%m/%Y %H:%M:%S")

@@ -322,7 +322,7 @@ Screen:
 
 '''
 
-#  see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
+# see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
 # do the drives in fileselect
 # add widgets for folders in settings
 
@@ -337,7 +337,7 @@ class FileReaderApp(MDApp):
         files_with_widgets_list : list = []
         def __init__(self, app, file):
             if self.files_with_widgets_list.count(file) == 0:
-                file_content = text_file_data.get_txt_file_content(file)
+                file_content = text_file_data.get_txt_file_content(file) #use this as a cover image in main
                 file_title = text_file_data.get_txt_file_name(file)
                 card = MDCard(
                         orientation = "vertical",
@@ -438,21 +438,25 @@ class FileReaderApp(MDApp):
                 card.add_widget(file_author_button)
                 self.files_with_widgets_list.append(file)
 
+    currently_open_file = None 
+
     def load_file_read_screen(self, file):
-        # self.root.ids.file_reader_content_grid_layout.clear_widgets()
-        file_content = self.get_file_contents(file)
-        print(file_content)
-        
-        label = Label(
-                text = file_content,
-                color = [0, 0, 0, 1],
-                size_hint = (None, None),
-                halign = "left",
-                valign = "top",
-                size = self.root.ids.file_reader_content_grid_layout.size
-            )
-        label.bind(texture_size = label.setter("size"))
-        self.root.ids.file_reader_content_grid_layout.add_widget(label)
+        if self.currently_open_file != file:
+            # self.root.ids.file_reader_content_grid_layout.clear_widgets()
+            file_content = self.get_file_contents(file)
+            
+            label = Label(
+                    text = file_content,
+                    color = [0, 0, 0, 1],
+                    size_hint = (None, None),
+                    halign = "left",
+                    valign = "top",
+                    size = self.root.ids.file_reader_content_grid_layout.size
+                )
+            label.bind(texture_size = label.setter("size"))
+            self.root.ids.file_reader_content_grid_layout.add_widget(label)
+            
+            self.currently_open_file = file
 
     def get_file_contents(self, file):
         file_name_and_extension = os.path.splitext(os.path.basename(file))
@@ -598,6 +602,4 @@ class FileReaderApp(MDApp):
 FileReaderApp().run()
 
 # navbar searchbar buton on press expand it to a full searchbar
-# workaround for sorting is creating arrays that are sorted by date/alphabetically/etc, and just following array
-
 #  use kivy bubble
