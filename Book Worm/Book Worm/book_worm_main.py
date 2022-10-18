@@ -493,11 +493,18 @@ class FileReaderApp(MDApp):
             self.screen_currently_in_use += 1
 
     def add_main_menu_widgets(self, file_list):
+        for file in file_list:
+            print(file["absolute_file_path"])
+        pass
+    # now go go to class to create widget aftr you sort the array
+    # if extension is x, go to x class
+    # to class just send the file path, in the future just fetch all data from the dictionary directly 
+
         # file_list = self.sort_file_list(self, file_list)
-        for file in file_list["array_of_epub_files"]:
-            self.EpubFile(self, file)
-        for file in file_list["array_of_txt_files"]:
-            self.TxtFile(self, file)
+        # for file in file_list["array_of_epub_files"]:
+        #     self.EpubFile(self, file)
+        # for file in file_list["array_of_txt_files"]:
+        #     self.TxtFile(self, file)
     
     def sort_file_list(self, file_list):
         pass
