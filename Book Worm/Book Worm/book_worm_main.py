@@ -333,12 +333,15 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
     '''LocalFoldersExpansionPanelContent'''
 
 class FileReaderApp(MDApp):
-    class TxtFile():
-        files_with_widgets_list : list = []
+
+    class File():
+        # files_with_widgets_list : list = []
         def __init__(self, app, file):
-            if self.files_with_widgets_list.count(file) == 0:
-                file_content = text_file_data.get_txt_file_content(file) #use this as a cover image in main
-                file_title = text_file_data.get_txt_file_name(file)
+            # if self.files_with_widgets_list.count(file) == 0:
+            print(file)
+            if file["file_format"] == "txt":
+                file_title = file["file_name"]
+
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
@@ -367,13 +370,12 @@ class FileReaderApp(MDApp):
                     )
                 file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_title_button)
-    class EpubFile():
-        files_with_widgets_list : list = []
-        def __init__(self, app, file):
-            if self.files_with_widgets_list.count(file) == 0:
-                file_title = epub_file_data.get_epub_book_title(file)
-                file_author = epub_file_data.get_epub_book_author(file)
-                file_cover = epub_file_data.get_epub_cover_image(file)
+            
+            elif file["file_format"] == "epub":
+                file_title = file["file_name"]
+                file_author = file["file_author"]
+                file_cover = epub_file_data.get_epub_cover_image(file["absolute_file_path"])
+
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
@@ -436,7 +438,7 @@ class FileReaderApp(MDApp):
                     # width = 300,
                     ) 
                 card.add_widget(file_author_button)
-                self.files_with_widgets_list.append(file)
+                # self.files_with_widgets_list.append(file)
 
     currently_open_file = None 
 
@@ -459,20 +461,19 @@ class FileReaderApp(MDApp):
             self.currently_open_file = file
 
     def get_file_contents(self, file):
-        file_name_and_extension = os.path.splitext(os.path.basename(file))
-        if file_name_and_extension[1] == ".txt":
-            file_content = text_file_data.get_txt_file_content(file)
-        elif file_name_and_extension[1] == ".epub": 
+        if file["file_format"] == "txt":
+            file_content = text_file_data.get_txt_file_content(file["absolute_file_path"])
+        elif file["file_format"] == "epub": 
             pass
-        elif file_name_and_extension[1] == ".mobi": 
+        elif file["file_format"] == "mobi": 
             pass
-        elif file_name_and_extension[1] == ".pdf": 
+        elif file["file_format"] == "pdf": 
             pass
-        elif file_name_and_extension[1] == ".doc": 
+        elif file["file_format"] == "doc": 
             pass
-        elif file_name_and_extension[1] == ".docx": 
+        elif file["file_format"] == "docx": 
             pass
-        elif file_name_and_extension[1] == ".cbz": 
+        elif file["file_format"] == "cbz": 
             pass
         return file_content
 
@@ -492,22 +493,13 @@ class FileReaderApp(MDApp):
         if using_return_bool == False:
             self.screen_currently_in_use += 1
 
-    def add_main_menu_widgets(self, file_list):
+    def add_main_menu_widgets(self, usorted_file_list):
+        file_list = self.sort_file_list(usorted_file_list)
         for file in file_list:
-            print(file["absolute_file_path"])
-        pass
-    # now go go to class to create widget aftr you sort the array
-    # if extension is x, go to x class
-    # to class just send the file path, in the future just fetch all data from the dictionary directly 
-
-        # file_list = self.sort_file_list(self, file_list)
-        # for file in file_list["array_of_epub_files"]:
-        #     self.EpubFile(self, file)
-        # for file in file_list["array_of_txt_files"]:
-        #     self.TxtFile(self, file)
+            self.File(self, file)
     
     def sort_file_list(self, file_list):
-        pass
+        return file_list
 
     def add_buttons_for_drives(self):
         available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]

@@ -57,18 +57,7 @@ def save_local_folders_array(folders_to_scan):
                 file.write(json.dumps(folders_to_scan_list))
                 file.close()     
 
-def save_local_files_dictionary():
-    array_of_valid_files = []
-    # {
-    #     "array_of_pdf_files": array_or_pdf_files,
-    #     "array_of_epub_files": array_or_epub_files,
-    #     "array_of_mobi_files": array_or_mobi_files,
-    #     "array_of_doc_files": array_or_doc_files,
-    #     "array_of_docx_files": array_or_docx_files,
-    #     "array_of_kpf_files": array_or_kpf_files,
-    #     "array_of_txt_files": array_or_txt_files,
-    #     "array_of_cbr_files": array_or_cbr_files,
-    #     "array_of_cbz_files": array_or_cbz_files}
+def save_local_files_dictionary(array_of_valid_files):
     data = json.dumps(array_of_valid_files)
     file = open(local_folders_to_scan_dictionary_file_path, 'w')
     file.write(data)
@@ -78,17 +67,13 @@ def scan_folders(folders_to_scan, new_folder_bool):
     global array_of_valid_files
     if type(folders_to_scan) is list:
         for folder in folders_to_scan:
-           
             epub_files = glob.glob(folder + "/**/*.epub", recursive = True)
             for epub_file in epub_files:
                 print(epub_file)
                 absolute_path_to_file = os.path.abspath(epub_file)
-
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
-
                     file_title = epub_file_data.get_epub_book_title(absolute_path_to_file)
                     file_author = epub_file_data.get_epub_book_author(absolute_path_to_file)
-
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
                         "file_format" : "epub", 
@@ -101,8 +86,25 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "date_most_recently_opened" : None, 
                         "country_of_origin" : None,
                         "language" : None,
-                        "file_size" : None,
-                        })
+                        "file_size" : None})
+            txt_files = glob.glob(folders_to_scan + "/**/*.txt", recursive = True)
+            for txt_file in txt_files:
+                absolute_path_to_file = os.path.abspath(txt_file)
+                if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
+                    file_title = text_file_data.get_txt_file_name(absolute_path_to_file)
+                    array_of_valid_files.append({
+                        "absolute_file_path" : absolute_path_to_file, 
+                        "file_format" : "txt", 
+                        "file_name" : file_title, 
+                        "file_author" : None,
+                        "release_date" : None,
+                        "date_added" : None,
+                        "publisher" : None, 
+                        "genre" : None, # this could be an list?
+                        "date_most_recently_opened" : None, 
+                        "country_of_origin" : None,
+                        "language" : None,
+                        "file_size" : None})     
 
 
             # mobi_files = glob.glob(folder + "/**/*.mobi", recursive = True)
@@ -155,7 +157,6 @@ def scan_folders(folders_to_scan, new_folder_bool):
             epub_files = glob.glob(folders_to_scan + "/**/*.epub", recursive = True)
             for epub_file in epub_files:
                 absolute_path_to_file = os.path.abspath(epub_file) # is this really needed or is there a better way of getting rid of // from epub_file
-
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     file_title = epub_file_data.get_epub_book_title(absolute_path_to_file)
                     file_author = epub_file_data.get_epub_book_author(absolute_path_to_file)
@@ -171,8 +172,27 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "date_most_recently_opened" : None, 
                         "country_of_origin" : None,
                         "language" : None,
-                        "file_size" : None,
-                        })
+                        "file_size" : None})
+            txt_files = glob.glob(folders_to_scan + "/**/*.txt", recursive = True)
+            for txt_file in txt_files:
+                absolute_path_to_file = os.path.abspath(txt_file)
+                if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
+                    file_title = text_file_data.get_txt_file_name(absolute_path_to_file)
+                    array_of_valid_files.append({
+                        "absolute_file_path" : absolute_path_to_file, 
+                        "file_format" : "txt", 
+                        "file_name" : file_title, 
+                        "file_author" : None,
+                        "release_date" : None,
+                        "date_added" : None,
+                        "publisher" : None, 
+                        "genre" : None, # this could be an list?
+                        "date_most_recently_opened" : None, 
+                        "country_of_origin" : None,
+                        "language" : None,
+                        "file_size" : None})
+
+
 
 
     #             absolute_path_to_file = os.path.abspath(epub_file)
@@ -218,7 +238,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
     #             absolute_path_to_file = os.path.abspath(cbz_file)
     #             if array_or_cbz_files.count(absolute_path_to_file) == 0 :
     #                 array_or_cbz_files.append(absolute_path_to_file)     
-            save_local_files_dictionary()
+            save_local_files_dictionary(array_of_valid_files)
             save_local_folders_array(folders_to_scan)
         elif new_folder_bool == False:
             array_of_valid_files = json.loads(folders_to_scan)
