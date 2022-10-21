@@ -134,11 +134,20 @@ Screen:
                         BoxLayout:
                             orientation: "horizontal"
 
-                            Button:
-                                text: "Sort"
+                            Label:
+                                text: "Sort by: "
                                 size_hint: (None, None)
                                 width: 100
                                 height: 30
+                            
+                            Spinner: 
+                                text: "Release Date"
+                                values: ("Release Date", "File Name", "Author Name", "File Format")
+                                size_hint: (None, None)
+                                sync_height: True
+                                width: 100
+                                height: 30
+                                on_text: app.sort_order_button_pressed()
                             
                             Button:
                                 text: "Assending"
@@ -160,7 +169,7 @@ Screen:
                             pos_hint: {"right": 1}
                             size_hint: (None, None)
                             width: root.width - 70
-                            height: root.height - 70 - 40 - 5
+                            height: root.height - 70 - 40 - 5 - 30
 
                             GridLayout:
                                 id: main_menu_grid_layout
@@ -479,6 +488,7 @@ class FileReaderApp(MDApp):
 
     screen_currently_in_use :int = 0
     previous_screens_and_tabs_list = ["Main Menu"]
+    list_of_files = None
 
     def go_forward_to_next_tab_or_screen(self):
         self.change_screen(self.previous_screens_and_tabs_list[self.screen_currently_in_use + 1], True)
@@ -499,6 +509,7 @@ class FileReaderApp(MDApp):
             self.File(self, file)
     
     def sort_file_list(self, file_list):
+        self.list_of_files = file_list
         return file_list
 
     def add_buttons_for_drives(self):
@@ -601,4 +612,3 @@ class FileReaderApp(MDApp):
 FileReaderApp().run()
 
 # navbar searchbar buton on press expand it to a full searchbar
-#  use kivy bubble
