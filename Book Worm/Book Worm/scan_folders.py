@@ -18,16 +18,6 @@ array_or_kpf_files : array = []
 array_or_txt_files : array = []
 array_or_cbr_files : array = []
 array_or_cbz_files : array = []
-# dictionary_of_valid_files = {
-#     "array_of_pdf_files": array_or_pdf_files,
-#     "array_of_epub_files": array_or_epub_files,
-#     "array_of_mobi_files": array_or_mobi_files,
-#     "array_of_doc_files": array_or_doc_files,
-#     "array_of_docx_files": array_or_docx_files,
-#     "array_of_kpf_files": array_or_kpf_files,
-#     "array_of_txt_files": array_or_txt_files,
-#     "array_of_cbr_files": array_or_cbr_files,
-#     "array_of_cbz_files": array_or_cbz_files}
 array_of_valid_files = []
 
 def save_local_folders_array(folders_to_scan):

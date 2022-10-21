@@ -68,7 +68,7 @@ def get_epub_book_language(epub_path):
         if hasattr(file_language, 'text'):
             return file_language.text
 
-def get_epub_book_text(epub_path): # return the entire book (combine htmls, pics, tables and other files), where you're left off
+def get_epub_book_text(epub_path): # return the entire book (combine htmls, pics, tables and other files), where you've left off
     spine_item_location :array = []
     with zipfile.ZipFile(epub_path) as z:
         t = etree.fromstring(z.read("META-INF/container.xml"))

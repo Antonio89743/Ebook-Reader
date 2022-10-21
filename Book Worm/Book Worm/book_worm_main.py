@@ -141,16 +141,18 @@ Screen:
                                 height: 30
                             
                             Spinner: 
+                                id: main_menu_widget_sort_spinner
                                 text: "Release Date"
                                 values: ("Release Date", "File Name", "Author Name", "File Format")
                                 size_hint: (None, None)
                                 sync_height: True
                                 width: 100
                                 height: 30
-                                on_text: app.sort_order_button_pressed()
+                                on_text: app.add_main_menu_widgets()
                             
                             Button:
-                                text: "Assending"
+                                id: main_menu_widget_order
+                                text: "Ascending"
                                 size_hint: (None, None)
                                 width: 100
                                 height: 30
@@ -449,11 +451,14 @@ class FileReaderApp(MDApp):
                 card.add_widget(file_author_button)
                 # self.files_with_widgets_list.append(file)
 
+    list_of_files = None
     currently_open_file = None 
+    screen_currently_in_use :int = 0
+    previous_screens_and_tabs_list = ["Main Menu"]
 
     def load_file_read_screen(self, file):
         if self.currently_open_file != file:
-            # self.root.ids.file_reader_content_grid_layout.clear_widgets()
+            self.root.ids.file_reader_content_grid_layout.clear_widgets()
             file_content = self.get_file_contents(file)
             
             label = Label(
@@ -486,10 +491,6 @@ class FileReaderApp(MDApp):
             pass
         return file_content
 
-    screen_currently_in_use :int = 0
-    previous_screens_and_tabs_list = ["Main Menu"]
-    list_of_files = None
-
     def go_forward_to_next_tab_or_screen(self):
         self.change_screen(self.previous_screens_and_tabs_list[self.screen_currently_in_use + 1], True)
 
@@ -503,14 +504,45 @@ class FileReaderApp(MDApp):
         if using_return_bool == False:
             self.screen_currently_in_use += 1
 
-    def add_main_menu_widgets(self, usorted_file_list):
-        file_list = self.sort_file_list(usorted_file_list)
-        for file in file_list:
+    def add_main_menu_widgets(self):
+        self.root.ids.main_menu_grid_layout.clear_widgets()
+        self.sort_file_list()
+        for file in self.list_of_files:
             self.File(self, file)
     
-    def sort_file_list(self, file_list):
-        self.list_of_files = file_list
-        return file_list
+    def sort_file_list(self):
+        def sort_release_year(list):
+            return list["release_date"]
+        def sort_file_format(list):
+            return list["file_format"]
+        def sort_file_name(list):
+            return list["file_name"]
+        def sort_author_name(list):
+            return list["file_author"]
+        if self.root.ids.main_menu_widget_order.text == "Ascending":
+            reverse_bool = True
+        else:
+            reverse_bool = False
+
+        # in another func, on open, get last used sort and save that in local var
+        # do the same with reversed sort order, save it locally and get it on app opened
+
+# this stuff below should be uncommented, but it returns an error
+        # if self.root.ids.main_menu_widget_sort_spinner.text == "Release Date":
+        #     self.list_of_files.sort(key = sort_release_year, reverse = reverse_bool)
+        # elif self.root.ids.main_menu_widget_sort_spinner.text == "File Name":
+        #     self.list_of_files.sort(key = sort_file_name, reverse = reverse_bool)
+        # elif self.root.ids.main_menu_widget_sort_spinner.text == "Author Name":
+        #     self.list_of_files.sort(key = sort_author_name, reverse = reverse_bool)
+        # elif self.root.ids.main_menu_widget_sort_spinner.text == "File Format":
+        #     self.list_of_files.sort(key = sort_file_format, reverse = reverse_bool)
+    
+    def sort_order_button_pressed(self):
+        if self.root.ids.main_menu_widget_order.text == "Ascending":
+            self.root.ids.main_menu_widget_order.text = "Descending"
+        else:
+            self.root.ids.main_menu_widget_order.text = "Ascending"
+        self.add_main_menu_widgets()
 
     def add_buttons_for_drives(self):
         available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
@@ -524,8 +556,8 @@ class FileReaderApp(MDApp):
             # print(drive)
 
     def add_folder_to_scan_folder_selected(self, folder_selected):
-        available_file_paths_dictonary = scan_folders.scan_folders(str(folder_selected), True)
-        self.add_main_menu_widgets(available_file_paths_dictonary)
+        self.list_of_files = scan_folders.scan_folders(str(folder_selected), True)
+        self.add_main_menu_widgets()
     
     def full_scan(self):
         if exists("Book Worm\Book Worm\local_folders_to_scan.json"):
@@ -533,8 +565,8 @@ class FileReaderApp(MDApp):
             json_file_data = file.read()
             file.close()
             if json_file_data != "":
-                available_file_paths_dictonary = scan_folders.scan_folders(json_file_data.split(","), False)
-                self.add_main_menu_widgets(available_file_paths_dictonary)
+                self.list_of_files = scan_folders.scan_folders(json_file_data.split(","), False)
+                self.add_main_menu_widgets()
 
     def local_folders_and_files_scan(self): 
         if exists("Book Worm\Book Worm\local_folders_to_scan_dictonary.json"):
@@ -542,8 +574,8 @@ class FileReaderApp(MDApp):
             json_file_data = file.read()
             file.close()
             if json_file_data != "":
-                available_file_paths_dictonary = scan_folders.scan_folders(json_file_data, False)
-                self.add_main_menu_widgets(available_file_paths_dictonary)
+                self.list_of_files = scan_folders.scan_folders(json_file_data, False)
+                self.add_main_menu_widgets()
         elif exists("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") == False:
             open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "a").close()
             self.full_scan()            
@@ -562,9 +594,6 @@ class FileReaderApp(MDApp):
                     )
                 )   
             ) 
-
-    def sort_order_button_pressed(self):
-        pass # grid orientation is a no go, reverse the array of files and create widgets again
     
     def responsive_grid_layout(self, *args):
         self.root.ids.main_menu_grid_layout.cols = int(self.root.ids.main_menu_grid_layout.width / (300 + 20))
