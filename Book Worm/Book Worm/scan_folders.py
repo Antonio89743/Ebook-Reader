@@ -4,6 +4,7 @@ from pydoc import doc
 from array import array
 from collections import Counter
 from json.decoder import JSONDecodeError
+import cbz_file_data
 import text_file_data
 import epub_file_data
 
@@ -95,7 +96,24 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "country_of_origin" : None,
                         "language" : None,
                         "file_size" : None})     
-
+            cbz_files = glob.glob(folders_to_scan + "/**/*.cbz", recursive = True)
+            for cbz in cbz_files:
+                absolute_path_to_file = os.path.abspath(txt_file)
+                if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
+                    file_title = cbz_file_data.get_cbz_file_name(absolute_path_to_file)
+                    array_of_valid_files.append({
+                        "absolute_file_path" : absolute_path_to_file, 
+                        "file_format" : "txt", 
+                        "file_name" : file_title, 
+                        "file_author" : None,
+                        "release_date" : None,
+                        "date_added" : None,
+                        "publisher" : None, 
+                        "genre" : None, # this could be an list?
+                        "date_most_recently_opened" : None, 
+                        "country_of_origin" : None,
+                        "language" : None,
+                        "file_size" : None})
 
             # mobi_files = glob.glob(folder + "/**/*.mobi", recursive = True)
             # for mobi_file in mobi_files:
@@ -181,8 +199,24 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "country_of_origin" : None,
                         "language" : None,
                         "file_size" : None})
-
-
+            cbz_files = glob.glob(folders_to_scan + "/**/*.cbz", recursive = True)
+            for cbz in cbz_files:
+                absolute_path_to_file = os.path.abspath(txt_file)
+                if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
+                    file_title = cbz_file_data.get_cbz_file_name(absolute_path_to_file)
+                    array_of_valid_files.append({
+                        "absolute_file_path" : absolute_path_to_file, 
+                        "file_format" : "txt", 
+                        "file_name" : file_title, 
+                        "file_author" : None,
+                        "release_date" : None,
+                        "date_added" : None,
+                        "publisher" : None, 
+                        "genre" : None, # this could be an list?
+                        "date_most_recently_opened" : None, 
+                        "country_of_origin" : None,
+                        "language" : None,
+                        "file_size" : None})
 
 
     #             absolute_path_to_file = os.path.abspath(epub_file)

@@ -336,7 +336,6 @@ Screen:
 '''
 
 # see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
-# do the drives in fileselect
 # add widgets for folders in settings
 
 class LocalFolderPopUp(Popup):
@@ -368,9 +367,7 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
 
 class FileReaderApp(MDApp):
     class File():
-        # files_with_widgets_list : list = []
         def __init__(self, app, file):
-            # if self.files_with_widgets_list.count(file) == 0:
             if file["file_format"] == "txt":
                 file_title = file["file_name"]
 
@@ -470,7 +467,6 @@ class FileReaderApp(MDApp):
                     # width = 300,
                     ) 
                 card.add_widget(file_author_button)
-                # self.files_with_widgets_list.append(file)
 
     list_of_files = None
     currently_open_file = None 
@@ -481,17 +477,32 @@ class FileReaderApp(MDApp):
         if self.currently_open_file != file:
             self.root.ids.file_reader_content_grid_layout.clear_widgets()
             file_content = self.get_file_contents(file)
+
+            if file["file_format"] == "txt":
+                label = Label(
+                        text = file_content,
+                        color = [0, 0, 0, 1],
+                        size_hint = (None, None),
+                        halign = "left",
+                        valign = "top",
+                        size = self.root.ids.file_reader_content_grid_layout.size
+                    )
+                label.bind(texture_size = label.setter("size"))
+                self.root.ids.file_reader_content_grid_layout.add_widget(label)
             
-            label = Label(
-                    text = file_content,
-                    color = [0, 0, 0, 1],
-                    size_hint = (None, None),
-                    halign = "left",
-                    valign = "top",
-                    size = self.root.ids.file_reader_content_grid_layout.size
-                )
-            label.bind(texture_size = label.setter("size"))
-            self.root.ids.file_reader_content_grid_layout.add_widget(label)
+            elif file["file_format"] == "epub": 
+                print(file_content, type(file_content))
+                file_content_as_string = ''.join(file_content)
+                label = Label(
+                        text = file_content_as_string,
+                        color = [0, 0, 0, 1],
+                        size_hint = (None, None),
+                        halign = "left",
+                        valign = "top",
+                        size = self.root.ids.file_reader_content_grid_layout.size
+                    )
+                label.bind(texture_size = label.setter("size"))
+                self.root.ids.file_reader_content_grid_layout.add_widget(label)
             
             self.currently_open_file = file
 
@@ -499,7 +510,7 @@ class FileReaderApp(MDApp):
         if file["file_format"] == "txt":
             file_content = text_file_data.get_txt_file_content(file["absolute_file_path"])
         elif file["file_format"] == "epub": 
-            pass
+            file_content = epub_file_data.get_epub_file_content(file["absolute_file_path"])
         elif file["file_format"] == "mobi": 
             pass
         elif file["file_format"] == "pdf": 

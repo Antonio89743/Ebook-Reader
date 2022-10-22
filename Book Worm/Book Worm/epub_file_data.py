@@ -14,8 +14,12 @@ namespaces = {
    "u":"urn:oasis:names:tc:opendocument:xmlns:container",
    "xsi":"http://www.w3.org/2001/XMLSchema-instance"}
 
-def get_epub_cover_image(epub_path):
-    with zipfile.ZipFile(epub_path) as z:
+def get_epub_file_modified_time(file_path):
+    unix_time = os.path.getmtime(file_path)
+    return datetime.fromtimestamp(unix_time).strftime("%d/%m/%Y %H:%M:%S")
+
+def get_epub_cover_image(file_path):
+    with zipfile.ZipFile(file_path) as z:
         t = etree.fromstring(z.read("META-INF/container.xml"))
         rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile", namespaces=namespaces)[0].get("full-path")
         t = etree.fromstring(z.read(rootfile_path))
@@ -28,8 +32,8 @@ def get_epub_cover_image(epub_path):
             cover_path = (os.path.dirname(rootfile_path) + "/" + cover_href)
         return z.read(cover_path)
 
-def get_epub_book_title(epub_path):
-    with zipfile.ZipFile(epub_path) as z:
+def get_epub_book_title(file_path):
+    with zipfile.ZipFile(file_path) as z:
         t = etree.fromstring(z.read("META-INF/container.xml"))
         rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile", namespaces=namespaces)[0].get("full-path")
         t = etree.fromstring(z.read(rootfile_path))
@@ -38,8 +42,8 @@ def get_epub_book_title(epub_path):
         if hasattr(file_title, 'text'):
             return file_title.text
 
-def get_epub_book_author(epub_path):
-    with zipfile.ZipFile(epub_path) as z:
+def get_epub_book_author(file_path):
+    with zipfile.ZipFile(file_path) as z:
         t = etree.fromstring(z.read("META-INF/container.xml"))
         rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile", namespaces=namespaces)[0].get("full-path")
         t = etree.fromstring(z.read(rootfile_path))
@@ -48,8 +52,8 @@ def get_epub_book_author(epub_path):
         if hasattr(file_title, 'text'):
             return file_title.text
 
-def get_epub_book_publisher(epub_path):
-    with zipfile.ZipFile(epub_path) as z:
+def get_epub_book_publisher(file_path):
+    with zipfile.ZipFile(file_path) as z:
         t = etree.fromstring(z.read("META-INF/container.xml"))
         rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile", namespaces=namespaces)[0].get("full-path")
         t = etree.fromstring(z.read(rootfile_path))
@@ -58,8 +62,8 @@ def get_epub_book_publisher(epub_path):
         if hasattr(file_publisher, 'text'):
             return file_publisher.text
 
-def get_epub_book_language(epub_path):
-    with zipfile.ZipFile(epub_path) as z:
+def get_epub_book_language(file_path):
+    with zipfile.ZipFile(file_path) as z:
         t = etree.fromstring(z.read("META-INF/container.xml"))
         rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile", namespaces=namespaces)[0].get("full-path")
         t = etree.fromstring(z.read(rootfile_path))
@@ -68,9 +72,9 @@ def get_epub_book_language(epub_path):
         if hasattr(file_language, 'text'):
             return file_language.text
 
-def get_epub_book_text(epub_path): # return the entire book (combine htmls, pics, tables and other files), where you've left off
+def get_epub_file_content(file_path): # return the entire book (combine htmls, pics, tables and other files), where you've left off
     spine_item_location :array = []
-    with zipfile.ZipFile(epub_path) as z:
+    with zipfile.ZipFile(file_path) as z:
         t = etree.fromstring(z.read("META-INF/container.xml"))
         rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile", namespaces=namespaces)[0].get("full-path")
         t = etree.fromstring(z.read(rootfile_path))
@@ -87,7 +91,6 @@ def get_epub_book_text(epub_path): # return the entire book (combine htmls, pics
         for spine_item_file in range(len(spine_item_location)):
 
 
-
             if spine_item_location[spine_item_file].endswith(".html"):
 
                 # print(spine_item_location[spine_item_file])
@@ -101,11 +104,5 @@ def get_epub_book_text(epub_path): # return the entire book (combine htmls, pics
 
         return x
 
-get_epub_book_text(r"C:\Users\anton\OneDrive\Radna površina\Epub Reader\Epub-Reader\trash\Lolita - Vladimir Vladimirovich Nabokov.epub")
-
 # lxml licence
 # html licence
-
-def get_epub_file_modified_time(file_path):
-    unix_time = os.path.getmtime(file_path)
-    return datetime.fromtimestamp(unix_time).strftime("%d/%m/%Y %H:%M:%S")
