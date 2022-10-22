@@ -1,4 +1,5 @@
 from cProfile import label
+from logging import root
 from kivy.config import Config
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'width', '800')
@@ -338,20 +339,27 @@ Screen:
 # do the drives in fileselect
 # add widgets for folders in settings
 
-class LocalFolderPopUp(Popup):    
-    def add_drives(self):
-        available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
-        for drive in available_drives:
-            self.ids.folder_chooser_box_layout_vertical.add_widget(
-                KivyButton(
-                    text = drive,
-                    size_hint = (1, None),
-                    height = 70,
-                    # on_press =  root.drive_chosen(self.ids..text)
-                    # self.ids.folder_chooser.rootpath = 
+class LocalFolderPopUp(Popup):
+    class DriveButton():
+        def __init__(self, app, drive):
+            app.ids.folder_chooser_box_layout_vertical.add_widget(
+            KivyButton(
+                text = drive,
+                pos_hint = {"top": 1},
+                size_hint = (1, None),
+                height = 70,
+                on_press = lambda x: app.drive_chosen(app, drive)
                 )
             )
 
+    def drive_chosen(self, app, drive):
+        app.ids.folder_chooser.rootpath = drive
+
+    def add_drives(self):
+        available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
+        for drive in available_drives:
+            self.DriveButton(self, drive)
+            
 class AddLocalFolderToScanDialog():
     '''AddLocalFolderToScanDialog'''
 
