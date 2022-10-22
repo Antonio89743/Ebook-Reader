@@ -7,13 +7,14 @@ Config.set('graphics', 'minimum_width', '700')
 Config.set('graphics', 'minimum_height', '400')
 from kivy.lang import Builder
 from kivymd.app import MDApp
+from kivy.uix.image import Image
+from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivymd.uix.card import MDCard
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.button import MDIconButton
-from kivy.uix.button import Button as KivyButton
-from kivy.uix.image import Image
 from kivy.core.image import Image as CoreImage
+from kivy.uix.button import Button as KivyButton
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import text_file_data
 import epub_file_data
@@ -41,7 +42,7 @@ Kivy = '''
     title: "Choose Folder"
     size_hint: (0.8, 0.8)
     pos_hint: {"center_x": 0.5}
-    on_open: app.add_buttons_for_drives()
+    on_open: root.add_drives()
 
     BoxLayout:
         size: root.size
@@ -337,6 +338,20 @@ Screen:
 # do the drives in fileselect
 # add widgets for folders in settings
 
+class LocalFolderPopUp(Popup):    
+    def add_drives(self):
+        available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
+        for drive in available_drives:
+            self.ids.folder_chooser_box_layout_vertical.add_widget(
+                KivyButton(
+                    text = drive,
+                    size_hint = (1, None),
+                    height = 70,
+                    # on_press =  root.drive_chosen(self.ids..text)
+                    # self.ids.folder_chooser.rootpath = 
+                )
+            )
+
 class AddLocalFolderToScanDialog():
     '''AddLocalFolderToScanDialog'''
 
@@ -344,12 +359,10 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
     '''LocalFoldersExpansionPanelContent'''
 
 class FileReaderApp(MDApp):
-
     class File():
         # files_with_widgets_list : list = []
         def __init__(self, app, file):
             # if self.files_with_widgets_list.count(file) == 0:
-            print(file)
             if file["file_format"] == "txt":
                 file_title = file["file_name"]
 
@@ -512,30 +525,33 @@ class FileReaderApp(MDApp):
     
     def sort_file_list(self):
         def sort_release_year(list):
+            print(list["release_date"])
             return list["release_date"]
         def sort_file_format(list):
             return list["file_format"]
         def sort_file_name(list):
+            print(list["file_name"])
             return list["file_name"]
         def sort_author_name(list):
             return list["file_author"]
         if self.root.ids.main_menu_widget_order.text == "Ascending":
-            reverse_bool = True
-        else:
             reverse_bool = False
+        else:
+            reverse_bool = True
 
         # in another func, on open, get last used sort and save that in local var
         # do the same with reversed sort order, save it locally and get it on app opened
+        # also, both default options should be available in settings
+        # problem if member of dict is none, solve this
 
-# this stuff below should be uncommented, but it returns an error
-        # if self.root.ids.main_menu_widget_sort_spinner.text == "Release Date":
-        #     self.list_of_files.sort(key = sort_release_year, reverse = reverse_bool)
-        # elif self.root.ids.main_menu_widget_sort_spinner.text == "File Name":
-        #     self.list_of_files.sort(key = sort_file_name, reverse = reverse_bool)
+        if self.root.ids.main_menu_widget_sort_spinner.text == "File Name":
+            self.list_of_files.sort(key = sort_file_name, reverse = reverse_bool)
         # elif self.root.ids.main_menu_widget_sort_spinner.text == "Author Name":
         #     self.list_of_files.sort(key = sort_author_name, reverse = reverse_bool)
-        # elif self.root.ids.main_menu_widget_sort_spinner.text == "File Format":
-        #     self.list_of_files.sort(key = sort_file_format, reverse = reverse_bool)
+        # elif self.root.ids.main_menu_widget_sort_spinner.text == "Release Date":
+        #     self.list_of_files.sort(key = sort_release_year, reverse = reverse_bool)
+        elif self.root.ids.main_menu_widget_sort_spinner.text == "File Format":
+            self.list_of_files.sort(key = sort_file_format, reverse = reverse_bool)
     
     def sort_order_button_pressed(self):
         if self.root.ids.main_menu_widget_order.text == "Ascending":
@@ -543,17 +559,6 @@ class FileReaderApp(MDApp):
         else:
             self.root.ids.main_menu_widget_order.text = "Ascending"
         self.add_main_menu_widgets()
-
-    def add_buttons_for_drives(self):
-        available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
-        for drive in available_drives:
-            pass
-            # super.LocalFolderPopUp.ids.folder_chooser_box_layout_vertical.add_widget(
-            #     KivyButton(
-            #         text = "{drive}"
-            #     )
-            # )
-            # print(drive)
 
     def add_folder_to_scan_folder_selected(self, folder_selected):
         self.list_of_files = scan_folders.scan_folders(str(folder_selected), True)
