@@ -17,6 +17,7 @@ from kivymd.uix.button import MDIconButton
 from kivy.core.image import Image as CoreImage
 from kivy.uix.button import Button as KivyButton
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
+import cbz_file_data
 import text_file_data
 import epub_file_data
 from kivy.core.window import Window
@@ -404,7 +405,6 @@ class FileReaderApp(MDApp):
                 file_title = file["file_name"]
                 file_author = file["file_author"]
                 file_cover = epub_file_data.get_epub_cover_image(file["absolute_file_path"])
-
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
@@ -468,6 +468,57 @@ class FileReaderApp(MDApp):
                     ) 
                 card.add_widget(file_author_button)
 
+            elif file["file_format"] == "cbz":
+                file_title = file["file_name"]
+                file_author = file["file_author"]
+                file_cover = cbz_file_data.get_cbz_cover_image(file["absolute_file_path"])["file"]
+                card = MDCard(
+                        orientation = "vertical",
+                        size_hint = (None, None),
+                        height = 500,
+                        width = 300,
+                        radius = [0, 0, 0, 0]
+                    )
+                app.root.ids.main_menu_grid_layout.add_widget(card)
+                buf = io.BytesIO(file_cover)
+                cover_image = CoreImage(buf, ext="jpg")
+                if file_cover != None:
+                    file_cover_button = Image(
+                        texture = CoreImage(cover_image).texture,
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                    ) 
+                else:
+                    file_cover_button = KivyButton(
+                    on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                    text = "File Cover Image Not Found",
+                    color = (0, 0, 0, 1),
+                    size_hint = (1, None),
+                    height = 50,
+                    # width = 300,
+                    )
+                file_cover_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
+                card.add_widget(file_cover_button)                        
+                if file_title != None:
+                    file_title_button = KivyButton(
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                        text = file_title,
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
+                        )
+                else:
+                    file_title_button = KivyButton(
+                    on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                    text = "File Title Not Found",
+                    color = (0, 0, 0, 1),
+                    size_hint = (1, None),
+                    height = 50,
+                    # width = 300,
+                    )
+                file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
+                card.add_widget(file_title_button)
+
     list_of_files = None
     currently_open_file = None 
     screen_currently_in_use :int = 0
@@ -504,6 +555,10 @@ class FileReaderApp(MDApp):
                 label.bind(texture_size = label.setter("size"))
                 self.root.ids.file_reader_content_grid_layout.add_widget(label)
             
+            elif file["file_format"] == "cbz": 
+                print("nice", file_content, type(file_content))
+                # how to show this?
+
             self.currently_open_file = file
 
     def get_file_contents(self, file):
@@ -520,7 +575,7 @@ class FileReaderApp(MDApp):
         elif file["file_format"] == "docx": 
             pass
         elif file["file_format"] == "cbz": 
-            pass
+            file_content = cbz_file_data.get_cbz_file_content(file["absolute_file_path"])
         return file_content
 
     def go_forward_to_next_tab_or_screen(self):
