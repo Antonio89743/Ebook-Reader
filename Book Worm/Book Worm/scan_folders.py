@@ -97,13 +97,13 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "language" : None,
                         "file_size" : None})     
             cbz_files = glob.glob(folders_to_scan + "/**/*.cbz", recursive = True)
-            for cbz in cbz_files:
-                absolute_path_to_file = os.path.abspath(txt_file)
+            for cbz_file in cbz_files:
+                absolute_path_to_file = os.path.abspath(cbz_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     file_title = cbz_file_data.get_cbz_file_name(absolute_path_to_file)
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
-                        "file_format" : "txt", 
+                        "file_format" : "cbz", 
                         "file_name" : file_title, 
                         "file_author" : None,
                         "release_date" : None,
@@ -200,13 +200,13 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "language" : None,
                         "file_size" : None})
             cbz_files = glob.glob(folders_to_scan + "/**/*.cbz", recursive = True)
-            for cbz in cbz_files:
-                absolute_path_to_file = os.path.abspath(txt_file)
+            for cbz_file in cbz_files:
+                absolute_path_to_file = os.path.abspath(cbz_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     file_title = cbz_file_data.get_cbz_file_name(absolute_path_to_file)
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
-                        "file_format" : "txt", 
+                        "file_format" : "cbz", 
                         "file_name" : file_title, 
                         "file_author" : None,
                         "release_date" : None,

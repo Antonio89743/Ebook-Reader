@@ -14,21 +14,22 @@ def get_cbz_file_name(file_path):
 
 def get_cbz_file_content(file_path):
     list_of_images = []
+    file_number :int = 0
     with zipfile.ZipFile(file_path) as z:
         file_list = z.namelist()
         for file in file_list:
             if file.endswith(".jpeg"):
-                list_of_images.append(z.read(file))
-#  here store that file is jpeg
-
-    print() # print the first file you've got, that will probably be the cover item for main menu widget
-
-#  sort this here, sort the widget cover, then do the file reader screen
-
+                file_info = {"file" : z.read(file), "file_format" : "jpeg"}
+                list_of_images.append(file_info)
+                file_number += 1
     return list_of_images
 
+def get_cbz_cover_image(file_path):
+    list_of_images = get_cbz_file_content(file_path)
+    for image in list_of_images:
+        if image["file_format"] == "jpeg":
+            file_cover = image
+            break
+    return file_cover
 
-    # PNG, JPEG, or GIF file formats
-
-
-get_cbz_file_content("trash\Attack on Titan v01 (2010) (Digital SD) (KG Manga).cbz")
+# PNG, JPEG, or GIF file formats, among others
