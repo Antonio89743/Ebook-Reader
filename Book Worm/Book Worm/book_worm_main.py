@@ -359,7 +359,7 @@ class LocalFolderPopUp(Popup):
         available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
         for drive in available_drives:
             self.DriveButton(self, drive)
-            
+
 class AddLocalFolderToScanDialog():
     '''AddLocalFolderToScanDialog'''
 
@@ -371,7 +371,6 @@ class FileReaderApp(MDApp):
         def __init__(self, app, file):
             if file["file_format"] == "txt":
                 file_title = file["file_name"]
-
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
@@ -399,8 +398,7 @@ class FileReaderApp(MDApp):
                     # width = 300,
                     )
                 file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
-                card.add_widget(file_title_button)
-            
+                card.add_widget(file_title_button)   
             elif file["file_format"] == "epub":
                 file_title = file["file_name"]
                 file_author = file["file_author"]
@@ -485,8 +483,7 @@ class FileReaderApp(MDApp):
                 if file_cover != None:
                     file_cover_button = Image(
                         texture = CoreImage(cover_image).texture,
-                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
-                    ) 
+                    )
                 else:
                     file_cover_button = KivyButton(
                     on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
@@ -542,18 +539,32 @@ class FileReaderApp(MDApp):
                 self.root.ids.file_reader_content_grid_layout.add_widget(label)
             
             elif file["file_format"] == "epub": 
-                print(file_content, type(file_content))
-                file_content_as_string = ''.join(file_content)
-                label = Label(
-                        text = file_content_as_string,
+                for file in file_content:
+                    print(file["file_type"])
+
+                    if file["file_type"] == "html":
+                        label = Label(
+                        text = file["location_content"],
                         color = [0, 0, 0, 1],
                         size_hint = (None, None),
                         halign = "left",
                         valign = "top",
                         size = self.root.ids.file_reader_content_grid_layout.size
-                    )
-                label.bind(texture_size = label.setter("size"))
-                self.root.ids.file_reader_content_grid_layout.add_widget(label)
+                            )
+                        label.bind(texture_size = label.setter("size"))
+                        self.root.ids.file_reader_content_grid_layout.add_widget(label)
+                    
+                # file_content_as_string = ''.join(file_content)
+                # label = Label(
+                #         text = file_content_as_string,
+                #         color = [0, 0, 0, 1],
+                #         size_hint = (None, None),
+                #         halign = "left",
+                #         valign = "top",
+                #         size = self.root.ids.file_reader_content_grid_layout.size
+                #     )
+                # label.bind(texture_size = label.setter("size"))
+                # self.root.ids.file_reader_content_grid_layout.add_widget(label)
             
             elif file["file_format"] == "cbz": 
                 print("nice", file_content, type(file_content))
@@ -682,6 +693,7 @@ class FileReaderApp(MDApp):
         return Builder.load_string(Kivy)
     
     def on_start(self):
+        self.responsive_grid_layout()
         Window.bind(on_resize = self.responsive_grid_layout)
         Window.bind(on_restore = self.responsive_grid_layout)
         Window.bind(on_maximize = self.responsive_grid_layout)

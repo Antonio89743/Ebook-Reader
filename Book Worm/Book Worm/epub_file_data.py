@@ -86,15 +86,14 @@ def get_epub_file_content(file_path): # return the entire book (combine htmls, p
         #     if os.path.dirname(rootfile_path) == "":
         #         cover_path = (spine_item_location[1])
         
-        x = []
+        file_contents = []
 
         for spine_item_file in range(len(spine_item_location)):
-
+            # file_contents.append(spine_item_location[spine_item_file])
 
             if spine_item_location[spine_item_file].endswith(".html"):
-
-                # print(spine_item_location[spine_item_file])
-                x.append(html_file_data.get_html_text(z.read(spine_item_location[spine_item_file]).decode("utf-8")))
+                location_content = html_file_data.get_html_text(z.read(spine_item_location[spine_item_file]).decode("utf-8"))
+                file_contents.append({"location_content" : location_content, "file_type" : "html"})
 
             elif spine_item_location[spine_item_file].endswith(".xhtml"):
                 pass
@@ -102,7 +101,10 @@ def get_epub_file_content(file_path): # return the entire book (combine htmls, p
             elif spine_item_location[spine_item_file].endswith(".xml"):
                 pass
 
-        return x
+        return file_contents
 
 # lxml licence
 # html licence
+
+# orwell - there is no item named 001.html in archive
+# "There is no item named 'LastWish_copy.html' in the archive"
