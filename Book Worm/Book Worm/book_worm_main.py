@@ -411,8 +411,7 @@ class FileReaderApp(MDApp):
                         radius = [0, 0, 0, 0]
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
-                buf = io.BytesIO(file_cover)
-                cover_image = CoreImage(buf, ext="jpg")
+                cover_image = CoreImage(io.BytesIO(file_cover), ext="jpg")
                 if file_cover != None:
                     file_cover_button = Image(
                         texture = CoreImage(cover_image).texture,
@@ -478,8 +477,7 @@ class FileReaderApp(MDApp):
                         radius = [0, 0, 0, 0]
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
-                buf = io.BytesIO(file_cover)
-                cover_image = CoreImage(buf, ext="jpg")
+                cover_image = CoreImage(io.BytesIO(file_cover), ext="jpg")
                 if file_cover != None:
                     file_cover_button = Image(
                         texture = CoreImage(cover_image).texture,
@@ -540,8 +538,6 @@ class FileReaderApp(MDApp):
             
             elif file["file_format"] == "epub": 
                 for file in file_content:
-                    print(file["file_type"])
-
                     if file["file_type"] == "html":
                         label = Label(
                         text = file["location_content"],
@@ -555,16 +551,7 @@ class FileReaderApp(MDApp):
                         self.root.ids.file_reader_content_grid_layout.add_widget(label)
                     
                 # file_content_as_string = ''.join(file_content)
-                # label = Label(
-                #         text = file_content_as_string,
-                #         color = [0, 0, 0, 1],
-                #         size_hint = (None, None),
-                #         halign = "left",
-                #         valign = "top",
-                #         size = self.root.ids.file_reader_content_grid_layout.size
-                #     )
-                # label.bind(texture_size = label.setter("size"))
-                # self.root.ids.file_reader_content_grid_layout.add_widget(label)
+                # label = Label(text = file_content_as_string)
             
             elif file["file_format"] == "cbz": 
                 print("nice", file_content, type(file_content))
