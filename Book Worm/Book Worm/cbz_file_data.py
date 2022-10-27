@@ -6,11 +6,24 @@ def get_cbz_file_modified_time(file_path):
     unix_time = os.path.getmtime(file_path)
     return datetime.fromtimestamp(unix_time).strftime("%d/%m/%Y %H:%M:%S")
 
-def get_cbz_file_name(file_path):
-    return file_path
-#     with zipfile.ZipFile(file_path) as z:
-#         file_list = z.namelist()
-#         print(file_list)
+def get_cbz_file_title(file_path):
+    file_name = None
+    with zipfile.ZipFile(file_path) as z:
+        folder_list = [info.filename for info in z.infolist() if info.is_dir()]
+        if len(folder_list) == 1:
+            file_name = folder_list[0]
+            if file_name.endswith("/"):
+                file_name = file_name[:-1]
+        elif len(folder_list) == 0:
+            file_name = os.path.basename(file_path)
+        elif len(folder_list) > 1:
+            file_name = folder_list[0]
+            if file_name.endswith("/"):
+                file_name = file_name[:-1]
+    return file_name
+    
+def get_cbz_file_metadata(file_path):
+    pass
 
 def get_cbz_file_content(file_path):
     list_of_images = []

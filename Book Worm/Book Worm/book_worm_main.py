@@ -1,5 +1,6 @@
 from cProfile import label
 from logging import root
+from msilib.schema import File
 from kivy.config import Config
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'width', '800')
@@ -166,6 +167,18 @@ Screen:
                                 size_hint: (None, None)
                                 width: 100
                                 height: 30
+                            
+                            Slider:
+                                id: main_menu_file_widget_size_slider
+                                orientation: "horizontal"
+                                size_hint: (None, None)
+                                width: 300
+                                height: 30
+                                value: 0.5
+                                step: 0.01
+                                min: 0.1
+                                max: 1
+                                on_value: app.main_menu_file_widget_size(main_menu_file_widget_size_slider)
 
                         ScrollView:
                             id: main_menu_scroll_view
@@ -187,12 +200,12 @@ Screen:
                                 cols: 5
 
                 TabbedPanelItem:
-                    text: "Collections"
+                    text: "Authors"
                     Label:
                         text: "CCCC"    
 
                 TabbedPanelItem:
-                    text: "Authors"
+                    text: "Collections"
                     Label:
                         text: "XXXXX"    
      
@@ -374,8 +387,8 @@ class FileReaderApp(MDApp):
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
-                        height = 500,
-                        width = 300,
+                        height = app.main_menu_files_widgets_height,
+                        width = app.main_menu_files_widgets_width,
                         radius = [0, 0, 0, 0]
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
@@ -406,8 +419,8 @@ class FileReaderApp(MDApp):
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
-                        height = 500,
-                        width = 300,
+                        height = app.main_menu_files_widgets_height,
+                        width = app.main_menu_files_widgets_width,
                         radius = [0, 0, 0, 0]
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
@@ -466,14 +479,14 @@ class FileReaderApp(MDApp):
                 card.add_widget(file_author_button)
 
             elif file["file_format"] == "cbz":
-                file_title = file["file_name"]
+                file_title = cbz_file_data.get_cbz_file_title(file["absolute_file_path"])
                 file_author = file["file_author"]
                 file_cover = cbz_file_data.get_cbz_cover_image(file["absolute_file_path"])["file"]
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
-                        height = 500,
-                        width = 300,
+                        height = app.main_menu_files_widgets_height,
+                        width = app.main_menu_files_widgets_width,
                         radius = [0, 0, 0, 0]
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
@@ -518,12 +531,19 @@ class FileReaderApp(MDApp):
     currently_open_file = None 
     screen_currently_in_use :int = 0
     previous_screens_and_tabs_list = ["Main Menu"]
+    main_menu_files_widgets_height = None
+    main_menu_files_widgets_width = None
+
+    def main_menu_file_widget_size(self, id):
+        if id == self.root.ids.main_menu_file_widget_size_slider:
+            self.main_menu_files_widgets_height = 1000 * id.value
+            self.main_menu_files_widgets_width = 600 * id.value
+            # change widget sizes, how? add the widgets in array and then for each member of array, do this with id
 
     def load_file_read_screen(self, file):
         if self.currently_open_file != file:
             self.root.ids.file_reader_content_grid_layout.clear_widgets()
             file_content = self.get_file_contents(file)
-
             if file["file_format"] == "txt":
                 label = Label(
                         text = file_content,
@@ -535,7 +555,6 @@ class FileReaderApp(MDApp):
                     )
                 label.bind(texture_size = label.setter("size"))
                 self.root.ids.file_reader_content_grid_layout.add_widget(label)
-            
             elif file["file_format"] == "epub": 
                 for file in file_content:
                     if file["file_type"] == "html":
@@ -673,20 +692,48 @@ class FileReaderApp(MDApp):
             ) 
     
     def responsive_grid_layout(self, *args):
-        self.root.ids.main_menu_grid_layout.cols = int(self.root.ids.main_menu_grid_layout.width / (300 + 20))
+        self.root.ids.main_menu_grid_layout.cols = int(self.root.ids.main_menu_grid_layout.width / (self.main_menu_files_widgets_width + 20))
+
+    def set_main_menu_widget_sizes(self):
+        # this will be done after, and only if there are is no save file about this info
+        self.main_menu_files_widgets_height = 1000
+        self.main_menu_files_widgets_width = 600
+
+    def save_last_used_settings(self):
+        # here save save widget size, sort, sort order, filter and other settings
+        # seperate these settings per tab
+        pass
+
+    def set_main_menu_widget_sort(self):
+        # seperate these settings per tab
+        pass
+    
+    def set_main_menu_widget_sort_order(self):
+        # seperate these settings per tab
+        pass
+
+    def load_last_used_settings(self):
+        self.set_main_menu_widget_sizes()
+        self.set_main_menu_widget_sort()
+        self.set_main_menu_widget_sort_order()
 
     def build(self):
         self.title = "Book Reader"
-        return Builder.load_string(Kivy)
-    
-    def on_start(self):
-        self.responsive_grid_layout()
         Window.bind(on_resize = self.responsive_grid_layout)
         Window.bind(on_restore = self.responsive_grid_layout)
         Window.bind(on_maximize = self.responsive_grid_layout)
+        Window.bind(on_request_close = self.on_request_close)
+        return Builder.load_string(Kivy)
+    
+    def on_start(self):
+        self.load_last_used_settings()
+        self.responsive_grid_layout()
         self.create_local_folders_to_scan_expansion_panel()
         self.local_folders_and_files_scan()
-        
+
+    def on_request_close(self, *args):
+        self.save_last_used_settings()
+
     #     Window.bind(on_key_down = self.on_key_down)
 
     # def on_key_down(self, *args):

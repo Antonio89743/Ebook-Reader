@@ -1,6 +1,5 @@
 from asyncio.windows_events import NULL
 import glob, os, json, sys
-from pydoc import doc
 from array import array
 from collections import Counter
 from json.decoder import JSONDecodeError
@@ -41,7 +40,7 @@ def save_local_folders_array(folders_to_scan):
                 file.close()     
                 helper_file.close()
         except JSONDecodeError:
-            print("error saving save_local_folders_array")
+            print("Error doing save_local_folders_array func, scan_folders.py")
             if list_folders_to_scan == "":
                 folders_to_scan_list : list = []
                 folders_to_scan_list.append(folders_to_scan)
