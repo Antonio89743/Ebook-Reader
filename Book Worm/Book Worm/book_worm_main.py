@@ -145,7 +145,7 @@ Screen:
                                 height: 30
                             
                             Spinner: 
-                                id: main_menu_widget_sort_spinner
+                                id: main_menu_files_widget_sort_spinner
                                 text: "Release Date"
                                 values: ("Release Date", "File Name", "Author Name", "File Format")
                                 size_hint: (None, None)
@@ -155,7 +155,7 @@ Screen:
                                 on_text: app.add_main_menu_widgets()
                             
                             Button:
-                                id: main_menu_widget_order
+                                id: main_menu_files_widget_order
                                 text: "Ascending"
                                 size_hint: (None, None)
                                 width: 100
@@ -415,7 +415,7 @@ class FileReaderApp(MDApp):
             elif file["file_format"] == "epub":
                 file_title = file["file_name"]
                 file_author = file["file_author"]
-                file_cover = epub_file_data.get_epub_cover_image(file["absolute_file_path"])
+                file_cover = file["file_cover"]
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
@@ -477,10 +477,10 @@ class FileReaderApp(MDApp):
                     # width = 300,
                     ) 
                 card.add_widget(file_author_button)
-
             elif file["file_format"] == "cbz":
                 file_title = cbz_file_data.get_cbz_file_title(file["absolute_file_path"])
                 file_author = file["file_author"]
+                # file_cover = file["file_cover"].encode('utf-8', 'ignore')
                 file_cover = cbz_file_data.get_cbz_cover_image(file["absolute_file_path"])["file"]
                 card = MDCard(
                         orientation = "vertical",
@@ -538,7 +538,10 @@ class FileReaderApp(MDApp):
         if id == self.root.ids.main_menu_file_widget_size_slider:
             self.main_menu_files_widgets_height = 1000 * id.value
             self.main_menu_files_widgets_width = 600 * id.value
-            # change widget sizes, how? add the widgets in array and then for each member of array, do this with id
+            for child in self.root.ids.main_menu_grid_layout.children:
+                child.height = self.main_menu_files_widgets_height
+                child.width = self.main_menu_files_widgets_width
+            self.responsive_grid_layout()
 
     def load_file_read_screen(self, file):
         if self.currently_open_file != file:
@@ -616,16 +619,14 @@ class FileReaderApp(MDApp):
     
     def sort_file_list(self):
         def sort_release_year(list):
-            print(list["release_date"])
             return list["release_date"]
         def sort_file_format(list):
             return list["file_format"]
         def sort_file_name(list):
-            print(list["file_name"])
             return list["file_name"]
         def sort_author_name(list):
             return list["file_author"]
-        if self.root.ids.main_menu_widget_order.text == "Ascending":
+        if self.root.ids.main_menu_files_widget_order.text == "Ascending":
             reverse_bool = False
         else:
             reverse_bool = True
@@ -635,20 +636,20 @@ class FileReaderApp(MDApp):
         # also, both default options should be available in settings
         # problem if member of dict is none, solve this
 
-        if self.root.ids.main_menu_widget_sort_spinner.text == "File Name":
+        if self.root.ids.main_menu_files_widget_sort_spinner.text == "File Name":
             self.list_of_files.sort(key = sort_file_name, reverse = reverse_bool)
-        # elif self.root.ids.main_menu_widget_sort_spinner.text == "Author Name":
+        # elif self.root.ids.main_menu_files_widget_sort_spinner.text == "Author Name":
         #     self.list_of_files.sort(key = sort_author_name, reverse = reverse_bool)
-        # elif self.root.ids.main_menu_widget_sort_spinner.text == "Release Date":
+        # elif self.root.ids.main_menu_files_widget_sort_spinner.text == "Release Date":
         #     self.list_of_files.sort(key = sort_release_year, reverse = reverse_bool)
-        elif self.root.ids.main_menu_widget_sort_spinner.text == "File Format":
+        elif self.root.ids.main_menu_files_widget_sort_spinner.text == "File Format":
             self.list_of_files.sort(key = sort_file_format, reverse = reverse_bool)
     
     def sort_order_button_pressed(self):
-        if self.root.ids.main_menu_widget_order.text == "Ascending":
-            self.root.ids.main_menu_widget_order.text = "Descending"
+        if self.root.ids.main_menu_files_widget_order.text == "Ascending":
+            self.root.ids.main_menu_files_widget_order.text = "Descending"
         else:
-            self.root.ids.main_menu_widget_order.text = "Ascending"
+            self.root.ids.main_menu_files_widget_order.text = "Ascending"
         self.add_main_menu_widgets()
 
     def add_folder_to_scan_folder_selected(self, folder_selected):
@@ -694,28 +695,47 @@ class FileReaderApp(MDApp):
     def responsive_grid_layout(self, *args):
         self.root.ids.main_menu_grid_layout.cols = int(self.root.ids.main_menu_grid_layout.width / (self.main_menu_files_widgets_width + 20))
 
-    def set_main_menu_widget_sizes(self):
-        # this will be done after, and only if there are is no save file about this info
-        self.main_menu_files_widgets_height = 1000
-        self.main_menu_files_widgets_width = 600
+    def set_main_menu_widget_sizes(self, *args):
+        if type(args[0]) == dict:
+            self.root.ids.main_menu_file_widget_size_slider.value = args[0]["main_menu_file_widget_size_slider_value"]
+            self.main_menu_files_widgets_height = args[0]["main_menu_file_widget_height"]
+            self.main_menu_files_widgets_width = args[0]["main_menu_file_widget_width"]
+        else:
+            self.main_menu_files_widgets_height = 1000
+            self.main_menu_files_widgets_width = 600
 
     def save_last_used_settings(self):
-        # here save save widget size, sort, sort order, filter and other settings
-        # seperate these settings per tab
-        pass
+        save_app_data_dictionary = {
+            "main_menu_file_sort" : self.root.ids.main_menu_files_widget_sort_spinner.text,
+            "main_menu_file_sort_order" : self.root.ids.main_menu_files_widget_order.text,
+            "main_menu_file_widget_height" : self.main_menu_files_widgets_height,
+            "main_menu_file_widget_width" : self.main_menu_files_widgets_width,
+            "main_menu_file_widget_size_slider_value" : self.root.ids.main_menu_file_widget_size_slider.value,
+        }
 
-    def set_main_menu_widget_sort(self):
-        # seperate these settings per tab
-        pass
+        # data = json.dumps(save_app_data_dictionary)
+        file = open("Book Worm\Book Worm\saved_app_data_dictionary.json", "w")
+        # file.json.dumps()
+        file.write(json.dumps(save_app_data_dictionary))
+        file.close()
+
+    def set_main_menu_widget_sort(self, *args):
+        if type(args) == dict:
+            self.root.ids.main_menu_files_widget_sort_spinner.text = args["main_menu_file_sort"]
     
-    def set_main_menu_widget_sort_order(self):
-        # seperate these settings per tab
-        pass
+    def set_main_menu_widget_sort_order(self, *args):
+        if type(args) == dict:
+            self.root.ids.main_menu_files_widget_order.text = args["main_menu_file_sort_order"]
 
     def load_last_used_settings(self):
-        self.set_main_menu_widget_sizes()
-        self.set_main_menu_widget_sort()
-        self.set_main_menu_widget_sort_order()
+        saved_app_data_dictionary = None
+        if exists("Book Worm\Book Worm\saved_app_data_dictionary.json"):
+            file = open("Book Worm\Book Worm\saved_app_data_dictionary.json", "r")
+            saved_app_data_dictionary = json.load(file)
+            file.close()
+        self.set_main_menu_widget_sizes(saved_app_data_dictionary)
+        self.set_main_menu_widget_sort(saved_app_data_dictionary)
+        self.set_main_menu_widget_sort_order(saved_app_data_dictionary)
 
     def build(self):
         self.title = "Book Reader"
@@ -723,6 +743,7 @@ class FileReaderApp(MDApp):
         Window.bind(on_restore = self.responsive_grid_layout)
         Window.bind(on_maximize = self.responsive_grid_layout)
         Window.bind(on_request_close = self.on_request_close)
+        Window.bind(on_key_down = self.on_key_down)
         return Builder.load_string(Kivy)
     
     def on_start(self):
@@ -730,38 +751,21 @@ class FileReaderApp(MDApp):
         self.responsive_grid_layout()
         self.create_local_folders_to_scan_expansion_panel()
         self.local_folders_and_files_scan()
+        # print(Config.get('graphics', 'window_state'), Config.get("graphics", "fullscreen"))
+        # Config.set('graphics', 'window_state', 'hidden')
 
     def on_request_close(self, *args):
         self.save_last_used_settings()
 
-    #     Window.bind(on_key_down = self.on_key_down)
-
-    # def on_key_down(self, *args):
-    #     print(args, print(type(args)))
+    def on_key_down(self, *args):
+        print(args, print(type(args)))
     #     if args[3] == "Ĥ":
     #         if Config.get("graphics", "fullscreen") == "0":
-    #             Config.set("graphics", "fullscreen", 1)
+    #             Config.set("graphics", "fullscreen", "1")
+    #             Config.set("graphics", "window_state", "maximized")
     #         elif Config.get("graphics", "fullscreen") == "1":
-    #             Config.set("graphics", "fullscreen", 0)
-
-###########################################################################################################
-
-    #     self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
-    #     self._keyboard.bind(on_key_down=self._on_keyboard_down)
-
-    # def _keyboard_closed(self):
-    #     self._keyboard.unbind(on_key_down=self._on_keyboard_down)
-    #     self._keyboard = None
-
-    # def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-    #     if keycode[1] == "f11":
-    #         print("l")
-    #         if Config.get("graphics", "fullscreen"):
-    #             print("A")
-    #             Config.set("graphics", "fullscreen", 0)
-    #         elif Config.get("graphics", "fullscreen") == False:
-    #             print("B")
-    #             Config.set("graphics", "fullscreen", 1)
+    #             Config.set("graphics", "fullscreen", "0")
+    #             Config.set("graphics", "window_state", "visible")
 
 FileReaderApp().run()
 
