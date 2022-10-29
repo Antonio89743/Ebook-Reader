@@ -48,6 +48,7 @@ def save_local_folders_array(folders_to_scan):
                 file.close()     
 
 def save_local_files_dictionary(array_of_valid_files):
+    print("TTT", array_of_valid_files)
     data = json.dumps(array_of_valid_files)
     file = open(local_folders_to_scan_dictionary_file_path, 'w')
     file.write(data)
@@ -63,7 +64,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     file_title = epub_file_data.get_epub_book_title(absolute_path_to_file)
                     file_author = epub_file_data.get_epub_book_author(absolute_path_to_file)
-                    file_cover = epub_file_data.get_epub_cover_image(absolute_path_to_file) 
+                    file_cover = epub_file_data.get_epub_cover_image(absolute_path_to_file)
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
                         "file_format" : "epub", 
@@ -102,6 +103,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     file_title = cbz_file_data.get_cbz_file_title(absolute_path_to_file)
                     file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)["file"]
+                    print("XXX", file_cover)
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
                         "file_format" : "cbz", 
@@ -170,7 +172,10 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     file_title = epub_file_data.get_epub_book_title(absolute_path_to_file)
                     file_author = epub_file_data.get_epub_book_author(absolute_path_to_file)
-                    file_cover = epub_file_data.get_epub_cover_image(absolute_path_to_file)
+                    file_cover = epub_file_data.get_epub_cover_image(absolute_path_to_file).decode("utf-8")
+                    print(type(file_cover))
+                    print("YYYYYY", file_cover.encode("utf-8"))
+
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
                         "file_format" : "epub", 
@@ -208,13 +213,14 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 absolute_path_to_file = os.path.abspath(cbz_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     file_title = cbz_file_data.get_cbz_file_title(absolute_path_to_file)
-                    file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)["file"].decode("utf-8", "ignore")
+                    file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)["file"]
+                    print("ZZZ", file_cover.encode('base64'))
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
                         "file_format" : "cbz", 
                         "file_name" : file_title, 
                         "file_author" : None,
-                        "file_cover" : file_cover,
+                        "file_cover" : file_cover.encode('base64'),
                         "release_date" : None,
                         "date_added" : None,
                         "publisher" : None, 

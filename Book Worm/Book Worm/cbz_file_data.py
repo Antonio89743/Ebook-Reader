@@ -95,50 +95,53 @@ def get_cbz_file_content(file_path):
 
 def get_cbz_cover_image(file_path):
     list_of_images = get_cbz_file_content(file_path)
-    for image in list_of_images:
-        if image["file_format"] == "jpeg":
-            file_cover = image
-            break
-        if image["file_format"] == "jpg":
-            file_cover = image
-            break
-        elif image["file_format"] == "png":
-            file_cover = image
-            break
-        elif image["file_format"] == "gif":
-            file_cover = image
-            break
-        elif image["file_format"] == "xv":
-            file_cover = image
-            break
-        elif image["file_format"] == "xpm":
-            file_cover = image
-            break
-        elif image["file_format"] == "xcf":
-            file_cover = image
-            break
-        elif image["file_format"] == "tga":
-            file_cover = image
-            break
-        elif image["file_format"] == "webp":
-            file_cover = image
-            break
-        elif image["file_format"] == "pnm":
-            file_cover = image
-            break
-        elif image["file_format"] == "tiff":
-            file_cover = image
-            break
-        elif image["file_format"] == "bmp":
-            file_cover = image
-            break
-        elif image["file_format"] == "jpe":
-            file_cover = image
-            break
-        elif image["file_format"] == "lbm":
-            file_cover = image
-            break
-        elif image["file_format"] == "pcx":
-            file_cover = image
-            break
+    file_cover = list_of_images[0]
+    # for image in list_of_images:
+    #     if image["file_format"] == "jpeg":
+    #         file_cover = image
+    #         break
+    #     if image["file_format"] == "jpg":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "png":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "gif":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "xv":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "xpm":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "xcf":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "tga":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "webp":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "pnm":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "tiff":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "bmp":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "jpe":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "lbm":
+    #         file_cover = image
+    #         break
+    #     elif image["file_format"] == "pcx":
+    #         file_cover = image
+    #         break
+    # print(zipfile.ZipFile(file_path).read(file_cover))
+    # return zipfile.ZipFile(file_path).read(file_cover)
     return file_cover

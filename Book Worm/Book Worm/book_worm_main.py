@@ -415,7 +415,8 @@ class FileReaderApp(MDApp):
             elif file["file_format"] == "epub":
                 file_title = file["file_name"]
                 file_author = file["file_author"]
-                file_cover = file["file_cover"]
+                file_cover = bytes(file["file_cover"], "utf-8")
+                print(file_cover)
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
@@ -424,7 +425,7 @@ class FileReaderApp(MDApp):
                         radius = [0, 0, 0, 0]
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
-                cover_image = CoreImage(io.BytesIO(file_cover), ext="jpg")
+                cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                 if file_cover != None:
                     file_cover_button = Image(
                         texture = CoreImage(cover_image).texture,

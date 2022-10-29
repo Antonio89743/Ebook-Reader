@@ -5,6 +5,7 @@ from lxml import etree
 import html_file_data
 from datetime import datetime
 import os.path
+import base64
 
 namespaces = {
    "calibre":"http://calibre.kovidgoyal.net/2009/metadata",
@@ -30,7 +31,7 @@ def get_epub_cover_image(file_path):
             cover_path = cover_href
          else:
             cover_path = (os.path.dirname(rootfile_path) + "/" + cover_href)
-        return z.read(cover_path)
+        return base64.b64encode(z.read(cover_path))
 
 def get_epub_book_title(file_path):
     with zipfile.ZipFile(file_path) as z:
