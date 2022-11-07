@@ -6,6 +6,7 @@ import html_file_data
 from datetime import datetime
 import os.path
 import base64
+import io
 
 namespaces = {
    "calibre":"http://calibre.kovidgoyal.net/2009/metadata",
@@ -19,7 +20,7 @@ def get_epub_file_modified_time(file_path):
     unix_time = os.path.getmtime(file_path)
     return datetime.fromtimestamp(unix_time).strftime("%d/%m/%Y %H:%M:%S")
 
-def get_epub_cover_image(file_path):
+def get_epub_cover_image_path(file_path):
     with zipfile.ZipFile(file_path) as z:
         t = etree.fromstring(z.read("META-INF/container.xml"))
         rootfile_path =  t.xpath("/u:container/u:rootfiles/u:rootfile", namespaces=namespaces)[0].get("full-path")
@@ -30,8 +31,8 @@ def get_epub_cover_image(file_path):
          if os.path.dirname(rootfile_path) == "":
             cover_path = cover_href
          else:
-            cover_path = (os.path.dirname(rootfile_path) + "/" + cover_href)
-        return base64.b64encode(z.read(cover_path))
+            cover_path = os.path.dirname(rootfile_path) + "/" + cover_href
+        return cover_path
 
 def get_epub_book_title(file_path):
     with zipfile.ZipFile(file_path) as z:
