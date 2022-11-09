@@ -394,23 +394,23 @@ class FileReaderApp(MDApp):
                 app.root.ids.main_menu_grid_layout.add_widget(card)
                 if file_title != None:
                     file_title_button = KivyButton(
+                            on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                            text = file_title,
+                            color = (0, 0, 0, 1),
+                            size_hint = (1, None),
+                            height = 50,
+                            # width = 300,
+                        )
+                else:
+                    file_title_button = KivyButton(
                         on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
-                        text = file_title,
+                        text = "File Title Not Found",
                         color = (0, 0, 0, 1),
                         size_hint = (1, None),
                         height = 50,
                         # width = 300,
-                        )
-                else:
-                    file_title_button = KivyButton(
-                    on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
-                    text = "File Title Not Found",
-                    color = (0, 0, 0, 1),
-                    size_hint = (1, None),
-                    height = 50,
-                    # width = 300,
                     )
-                file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
+                file_title_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_title_button)   
             elif file["file_format"] == "epub":
                 file_title = file["file_name"]
@@ -424,21 +424,23 @@ class FileReaderApp(MDApp):
                         radius = [0, 0, 0, 0]
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
+
                 cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                 if file_cover != None:
                     file_cover_button = Image(
                         texture = CoreImage(cover_image).texture,
+                        # on_touch_down = lambda x: app.change_screen("Read Currently Open File Screen", False)
                     )
                 else:
                     file_cover_button = KivyButton(
-                    on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
-                    text = "File Cover Image Not Found",
-                    color = (0, 0, 0, 1),
-                    size_hint = (1, None),
-                    height = 50,
-                    # width = 300,
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                        text = "File Cover Image Not Found",
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
                     )
-                file_cover_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
+                file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_cover_button)                        
                 if file_title != None:
                     file_title_button = KivyButton(
@@ -448,7 +450,7 @@ class FileReaderApp(MDApp):
                         size_hint = (1, None),
                         height = 50,
                         # width = 300,
-                        )
+                    )
                 else:
                     file_title_button = KivyButton(
                     on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
@@ -458,7 +460,7 @@ class FileReaderApp(MDApp):
                     height = 50,
                     # width = 300,
                     )
-                file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
+                file_title_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_title_button)
                 if file_author != None:
                     file_author_button = KivyButton(
@@ -533,6 +535,9 @@ class FileReaderApp(MDApp):
     main_menu_files_widgets_height = None
     main_menu_files_widgets_width = None
 
+    def image_press(self, *args):
+        print("SSS")
+
     def main_menu_file_widget_size(self, id):
         if id == self.root.ids.main_menu_file_widget_size_slider:
             self.main_menu_files_widgets_height = 1000 * id.value
@@ -542,43 +547,67 @@ class FileReaderApp(MDApp):
                 child.width = self.main_menu_files_widgets_width
             self.responsive_grid_layout()
 
+    audio_file_formats = ["mp3", "wav", "ogg"] 
+
     def load_file_read_screen(self, file):
-        if self.currently_open_file != file:
+        if file["file_format"] != self.audio_file_formats:
+            if self.currently_open_file != file:
+                self.file_read_screen_mode(file)
+        else:
+            # here load screen for audio files
             self.root.ids.file_reader_content_grid_layout.clear_widgets()
-            file_content = self.get_file_contents(file)
-            if file["file_format"] == "txt":
-                label = Label(
-                        text = file_content,
-                        color = [0, 0, 0, 1],
-                        size_hint = (None, None),
-                        halign = "left",
-                        valign = "top",
-                        size = self.root.ids.file_reader_content_grid_layout.size
-                    )
-                label.bind(texture_size = label.setter("size"))
-                self.root.ids.file_reader_content_grid_layout.add_widget(label)
-            elif file["file_format"] == "epub": 
-                for file in file_content:
-                    if file["file_type"] == "html":
-                        label = Label(
-                        text = file["location_content"],
-                        color = [0, 0, 0, 1],
-                        size_hint = (None, None),
-                        halign = "left",
-                        valign = "top",
-                        size = self.root.ids.file_reader_content_grid_layout.size
-                            )
-                        label.bind(texture_size = label.setter("size"))
-                        self.root.ids.file_reader_content_grid_layout.add_widget(label)
-                    
-                # file_content_as_string = ''.join(file_content)
-                # label = Label(text = file_content_as_string)
+
+    def file_read_screen_mode(self, file, *args):
+        self.root.ids.file_reader_content_grid_layout.clear_widgets()
+        file_content = self.get_file_contents(file)
+
+        if args == ():
+            # there isn't a specified reading mode, so check defaults or previously used modes for this type or just previously used modes for any type
+            # file specific?, file type specific mode?
+            pass
+
+        if args:
+            if args[0] == "pageless infinite scroll":
+                if file["file_format"] == "txt":
+                    label = Label(
+                            text = file_content,
+                            color = [0, 0, 0, 1],
+                            size_hint = (None, None),
+                            halign = "left",
+                            valign = "top",
+                            size = self.root.ids.file_reader_content_grid_layout.size
+                        )
+                    label.bind(texture_size = label.setter("size"))
+                    self.root.ids.file_reader_content_grid_layout.add_widget(label)
+                elif file["file_format"] == "epub": 
+                    for file in file_content:
+                        if file["file_type"] == "html":
+                            label = Label(
+                            text = file["location_content"],
+                            color = [0, 0, 0, 1],
+                            size_hint = (None, None),
+                            halign = "left",
+                            valign = "top",
+                            size = self.root.ids.file_reader_content_grid_layout.size
+                                )
+                            label.bind(texture_size = label.setter("size"))
+                            self.root.ids.file_reader_content_grid_layout.add_widget(label)
+                    # file_content_as_string = ''.join(file_content)
+                    # label = Label(text = file_content_as_string)
+                elif file["file_format"] == "cbz": 
+                    # redirect to another value
+                    pass
+            elif args[0] == "pages and infinite scroll":
+                pass
+            elif args[0] == "book simulator":
+                pass
+
             
             elif file["file_format"] == "cbz": 
                 print("nice", file_content, type(file_content))
                 # how to show this?
 
-            self.currently_open_file = file
+        self.currently_open_file = file
 
     def get_file_contents(self, file):
         if file["file_format"] == "txt":
