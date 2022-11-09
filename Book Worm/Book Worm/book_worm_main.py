@@ -740,10 +740,7 @@ class FileReaderApp(MDApp):
             "main_menu_file_widget_width" : self.main_menu_files_widgets_width,
             "main_menu_file_widget_size_slider_value" : self.root.ids.main_menu_file_widget_size_slider.value,
         }
-
-        # data = json.dumps(save_app_data_dictionary)
         file = open("Book Worm\Book Worm\saved_app_data_dictionary.json", "w")
-        # file.json.dumps()
         file.write(json.dumps(save_app_data_dictionary))
         file.close()
 
@@ -761,6 +758,15 @@ class FileReaderApp(MDApp):
             file = open("Book Worm\Book Worm\saved_app_data_dictionary.json", "r")
             saved_app_data_dictionary = json.load(file)
             file.close()
+        else: 
+            saved_app_data_dictionary = {
+                "main_menu_file_sort": "Release Date", 
+                "main_menu_file_sort_order": "Ascending", 
+                "main_menu_file_widget_height": 840.0, 
+                "main_menu_file_widget_width": 504.0, 
+                "main_menu_file_widget_size_slider_value": 0.84
+                }
+            pass
         self.set_main_menu_widget_sizes(saved_app_data_dictionary)
         self.set_main_menu_widget_sort(saved_app_data_dictionary)
         self.set_main_menu_widget_sort_order(saved_app_data_dictionary)

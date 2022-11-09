@@ -48,7 +48,6 @@ def save_local_folders_array(folders_to_scan):
                 file.close()     
 
 def save_local_files_dictionary(array_of_valid_files):
-    print("TTT", array_of_valid_files)
     data = json.dumps(array_of_valid_files)
     file = open(local_folders_to_scan_dictionary_file_path, 'w')
     file.write(data)
@@ -102,8 +101,6 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 absolute_path_to_file = os.path.abspath(cbz_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     file_title = cbz_file_data.get_cbz_file_title(absolute_path_to_file)
-                    file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)["file"]
-                    print("XXX", file_cover)
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
                         "file_format" : "cbz", 
@@ -210,7 +207,6 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 absolute_path_to_file = os.path.abspath(cbz_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     file_title = cbz_file_data.get_cbz_file_title(absolute_path_to_file)
-                    file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)["file"]
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
                         "file_format" : "cbz", 
@@ -226,6 +222,26 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "language" : None,
                         "file_size" : None})
 
+            mp3_files = glob.glob(folders_to_scan + "/**/*.mp3", recursive = True)
+            for cbz_file in cbz_files:
+                absolute_path_to_file = os.path.abspath(cbz_file)
+                if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
+                    # file_title = cbz_file_data.get_cbz_file_title(absolute_path_to_file)
+                    # file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)["file"]
+                    array_of_valid_files.append({
+                        "absolute_file_path" : absolute_path_to_file, 
+                        "file_format" : "mp3", 
+                        # "file_name" : file_title, 
+                        "file_author" : None,
+                        "file_cover" : None,
+                        "release_date" : None,
+                        "date_added" : None,
+                        "publisher" : None, 
+                        "genre" : None, # this could be an list?
+                        "date_most_recently_opened" : None, 
+                        "country_of_origin" : None,
+                        "language" : None,
+                        "file_size" : None})
 
     #             absolute_path_to_file = os.path.abspath(epub_file)
     #             if array_or_epub_files.count(absolute_path_to_file) == 0 :
