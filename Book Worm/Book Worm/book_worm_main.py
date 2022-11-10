@@ -350,7 +350,7 @@ Screen:
 '''
 
 # see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
-# add widgets for folders in settings
+# navbar searchbar buton on press expand it to a full searchbar
 
 class LocalFolderPopUp(Popup):
     class DriveButton():
@@ -482,7 +482,7 @@ class FileReaderApp(MDApp):
             elif file["file_format"] == "cbz":
                 file_title = cbz_file_data.get_cbz_file_title(file["absolute_file_path"])
                 file_author = file["file_author"]
-                file_cover = cbz_file_data.get_cbz_cover_image(file["absolute_file_path"])["file"]
+                file_cover = zipfile.ZipFile(file["absolute_file_path"]).read(file["file_cover"])
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
@@ -552,7 +552,7 @@ class FileReaderApp(MDApp):
     def load_file_read_screen(self, file):
         if file["file_format"] != self.audio_file_formats:
             if self.currently_open_file != file:
-                self.file_read_screen_mode(file)
+                self.file_read_screen_mode(file, "pages and infinite scroll") #second arg is temporary
         else:
             # here load screen for audio files
             self.root.ids.file_reader_content_grid_layout.clear_widgets()
@@ -583,13 +583,13 @@ class FileReaderApp(MDApp):
                     for file in file_content:
                         if file["file_type"] == "html":
                             label = Label(
-                            text = file["location_content"],
-                            color = [0, 0, 0, 1],
-                            size_hint = (None, None),
-                            halign = "left",
-                            valign = "top",
-                            size = self.root.ids.file_reader_content_grid_layout.size
-                                )
+                                text = file["location_content"],
+                                color = [0, 0, 0, 1],
+                                size_hint = (None, None),
+                                halign = "left",
+                                valign = "top",
+                                size = self.root.ids.file_reader_content_grid_layout.size
+                            )
                             label.bind(texture_size = label.setter("size"))
                             self.root.ids.file_reader_content_grid_layout.add_widget(label)
                     # file_content_as_string = ''.join(file_content)
@@ -598,16 +598,32 @@ class FileReaderApp(MDApp):
                     # redirect to another value
                     pass
             elif args[0] == "pages and infinite scroll":
-                pass
+                if file["file_format"] == "cbz": 
+                    # print("nice", file_content, type(file_content))
+                    for file_item in file_content:
+                        if file_item["file_format"] in self.kivy_supported_image_files:
+
+                            cover_image = CoreImage(io.BytesIO(file_item["file"]), ext = "jpg")
+                            file_cover_button = Image(
+                                texture = CoreImage(cover_image).texture,
+                            )
+
+
+                            self.root.ids.file_reader_content_grid_layout.add_widget(file_cover_button)
+                            print(file_item)
+
             elif args[0] == "book simulator":
                 pass
 
             
-            elif file["file_format"] == "cbz": 
-                print("nice", file_content, type(file_content))
-                # how to show this?
+            # elif file["file_format"] == "cbz": 
+                
+            #     print("nice", file_content, type(file_content))
+            #     # how to show this?
 
         self.currently_open_file = file
+
+    kivy_supported_image_files = ["jpeg", "jpg", "png", "gif"]
 
     def get_file_contents(self, file):
         if file["file_format"] == "txt":
@@ -802,5 +818,3 @@ class FileReaderApp(MDApp):
     #             Config.set("graphics", "window_state", "visible")
 
 FileReaderApp().run()
-
-# navbar searchbar buton on press expand it to a full searchbar
