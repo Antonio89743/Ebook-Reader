@@ -94,6 +94,51 @@ def get_cbz_file_content(file_path):
     return list_of_images
 
 def get_cbz_cover_image(file_path):
-    list_of_images = get_cbz_file_content(file_path)
-    file_cover = list_of_images[0]
-    return file_cover
+    file_info = None
+    with zipfile.ZipFile(file_path) as z:
+        file_list = z.namelist()
+        while file_info == None:
+            for file in file_list:
+                if file.endswith(".jpeg"):
+                    file_info = {"file" : file, "file_format" : "jpeg"}
+                    break
+                elif file.endswith(".jpg"):
+                    file_info = {"file" : file, "file_format" : "jpg"}
+                    break
+                elif file.endswith(".png"):
+                    file_info = {"file" : file, "file_format" : "png"}
+                    break
+                elif file.endswith(".gif"):
+                    file_info = {"file" : file, "file_format" : "gif"}      
+                    break
+                elif file.endswith(".tiff"):
+                    file_info = {"file" : file, "file_format" : "tiff"}  
+                    break
+                elif file.endswith(".bmp"):
+                    file_info = {"file" : file, "file_format" : "bmp"} 
+                    break
+                elif file.endswith(".jpe"):
+                    file_info = {"file" : file, "file_format" : "jpe"}
+                    break
+                elif file.endswith(".lbm"):
+                    file_info = {"file" : file, "file_format" : "lbm"}
+                    break
+                elif file.endswith(".pcx"):
+                    file_info = {"file" : file, "file_format" : "pcx"} 
+                    break
+                elif file.endswith(".pnm"):
+                    file_info = {"file" : file, "file_format" : "pnm"}
+                    break
+                elif file.endswith(".webp"):
+                    file_info = {"file" : file, "file_format" : "webp"}
+                    break
+                elif file.endswith(".tga"):
+                    file_info = {"file" : file, "file_format" : "tga"}
+                    break
+                elif file.endswith(".xcf"):
+                    file_info = {"file" : file, "file_format" : "xcf"}
+                    break
+                elif file.endswith(".xpm"):
+                    file_info = {"file" : file, "file_format" : "xpm"}
+                    break  
+    return file_info["file"]

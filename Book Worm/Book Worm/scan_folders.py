@@ -101,12 +101,13 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 absolute_path_to_file = os.path.abspath(cbz_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     file_title = cbz_file_data.get_cbz_file_title(absolute_path_to_file)
+                    file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
                         "file_format" : "cbz", 
                         "file_name" : file_title, 
                         "file_author" : None,
-                        "file_cover" : None,
+                        "file_cover" : file_cover,
                         "release_date" : None,
                         "date_added" : None,
                         "publisher" : None, 
@@ -207,12 +208,13 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 absolute_path_to_file = os.path.abspath(cbz_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     file_title = cbz_file_data.get_cbz_file_title(absolute_path_to_file)
+                    file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
                         "file_format" : "cbz", 
                         "file_name" : file_title, 
                         "file_author" : None,
-                        "file_cover" : None,
+                        "file_cover" : file_cover,
                         "release_date" : None,
                         "date_added" : None,
                         "publisher" : None, 
@@ -223,8 +225,8 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "file_size" : None})
 
             mp3_files = glob.glob(folders_to_scan + "/**/*.mp3", recursive = True)
-            for cbz_file in cbz_files:
-                absolute_path_to_file = os.path.abspath(cbz_file)
+            for mp3_file in mp3_files:
+                absolute_path_to_file = os.path.abspath(mp3_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
                     # file_title = cbz_file_data.get_cbz_file_title(absolute_path_to_file)
                     # file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)["file"]

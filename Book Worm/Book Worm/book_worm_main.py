@@ -592,8 +592,7 @@ class FileReaderApp(MDApp):
                             )
                             label.bind(texture_size = label.setter("size"))
                             self.root.ids.file_reader_content_grid_layout.add_widget(label)
-                    # file_content_as_string = ''.join(file_content)
-                    # label = Label(text = file_content_as_string)
+                            # should there only be one widget? will that make it better for pages?
                 elif file["file_format"] == "cbz": 
                     # redirect to another value
                     pass
@@ -607,6 +606,8 @@ class FileReaderApp(MDApp):
                             file_cover_button = Image(
                                 texture = CoreImage(cover_image).texture,
                             )
+                            label = Label(text = "gdfgdfgdfhgfdgvhadfgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg")
+                            self.root.ids.file_reader_content_grid_layout.add_widget(label)
 
 
                             self.root.ids.file_reader_content_grid_layout.add_widget(file_cover_button)
@@ -614,12 +615,6 @@ class FileReaderApp(MDApp):
 
             elif args[0] == "book simulator":
                 pass
-
-            
-            # elif file["file_format"] == "cbz": 
-                
-            #     print("nice", file_content, type(file_content))
-            #     # how to show this?
 
         self.currently_open_file = file
 
@@ -657,9 +652,9 @@ class FileReaderApp(MDApp):
 
     def add_main_menu_widgets(self):
         self.root.ids.main_menu_grid_layout.clear_widgets()
-        self.sort_file_list()
         for file in self.list_of_files:
             self.File(self, file)
+        self.sort_file_list()
     
     def sort_file_list(self):
         def sort_release_year(list):
