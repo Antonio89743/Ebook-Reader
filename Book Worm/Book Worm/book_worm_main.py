@@ -652,9 +652,9 @@ class FileReaderApp(MDApp):
 
     def add_main_menu_widgets(self):
         self.root.ids.main_menu_grid_layout.clear_widgets()
+        self.sort_file_list()
         for file in self.list_of_files:
             self.File(self, file)
-        self.sort_file_list()
     
     def sort_file_list(self):
         def sort_release_year(list):
@@ -664,7 +664,10 @@ class FileReaderApp(MDApp):
         def sort_file_name(list):
             return list["file_name"]
         def sort_author_name(list):
-            return list["file_author"]
+            if list["file_author"] == None:
+                pass
+            else:
+                return list["file_author"]
         if self.root.ids.main_menu_files_widget_order.text == "Ascending":
             reverse_bool = False
         else:
@@ -673,12 +676,11 @@ class FileReaderApp(MDApp):
         # in another func, on open, get last used sort and save that in local var
         # do the same with reversed sort order, save it locally and get it on app opened
         # also, both default options should be available in settings
-        # problem if member of dict is none, solve this
 
         if self.root.ids.main_menu_files_widget_sort_spinner.text == "File Name":
             self.list_of_files.sort(key = sort_file_name, reverse = reverse_bool)
-        # elif self.root.ids.main_menu_files_widget_sort_spinner.text == "Author Name":
-        #     self.list_of_files.sort(key = sort_author_name, reverse = reverse_bool)
+        elif self.root.ids.main_menu_files_widget_sort_spinner.text == "Author Name":
+            self.list_of_files.sort(key = sort_author_name, reverse = reverse_bool)
         # elif self.root.ids.main_menu_files_widget_sort_spinner.text == "Release Date":
         #     self.list_of_files.sort(key = sort_release_year, reverse = reverse_bool)
         elif self.root.ids.main_menu_files_widget_sort_spinner.text == "File Format":

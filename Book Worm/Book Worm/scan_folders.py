@@ -228,12 +228,12 @@ def scan_folders(folders_to_scan, new_folder_bool):
             for mp3_file in mp3_files:
                 absolute_path_to_file = os.path.abspath(mp3_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
-                    # file_title = cbz_file_data.get_cbz_file_title(absolute_path_to_file)
+                    file_title = None
                     # file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)["file"]
                     array_of_valid_files.append({
                         "absolute_file_path" : absolute_path_to_file, 
                         "file_format" : "mp3", 
-                        # "file_name" : file_title, 
+                        "file_name" : file_title, 
                         "file_author" : None,
                         "file_cover" : None,
                         "release_date" : None,
