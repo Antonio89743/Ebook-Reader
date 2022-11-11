@@ -598,20 +598,22 @@ class FileReaderApp(MDApp):
                     pass
             elif args[0] == "pages and infinite scroll":
                 if file["file_format"] == "cbz": 
-                    # print("nice", file_content, type(file_content))
                     for file_item in file_content:
                         if file_item["file_format"] in self.kivy_supported_image_files:
 
-                            cover_image = CoreImage(io.BytesIO(file_item["file"]), ext = "jpg")
-                            file_cover_button = Image(
-                                texture = CoreImage(cover_image).texture,
+                            # this part of the code isn't working; sizes, size hints and such are issues
+                            image = CoreImage(io.BytesIO(file_item["file"]), ext = "jpg")
+                            file_image = Image(
+                                texture = CoreImage(image).texture,
+                                size_hint = (None, None),
+                                # height = 400,
+                                # width = 400,
+                                pos_hint = {"center_x": 0.5}
                             )
-                            label = Label(text = "gdfgdfgdfhgfdgvhadfgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg")
-                            self.root.ids.file_reader_content_grid_layout.add_widget(label)
-
-
-                            self.root.ids.file_reader_content_grid_layout.add_widget(file_cover_button)
-                            print(file_item)
+                            self.root.ids.file_reader_content_grid_layout.add_widget(file_image)
+                    self.root.ids.file_reader_content_grid_layout.size_hint = (None, 1)
+                    self.root.ids.file_reader_content_grid_layout.height = self.root.ids.file_reader_content_grid_layout.minimum_height
+                    self.root.ids.file_reader_content_grid_layout.size_hint_y = None
 
             elif args[0] == "book simulator":
                 pass
@@ -658,31 +660,37 @@ class FileReaderApp(MDApp):
     
     def sort_file_list(self):
         def sort_release_year(list):
-            return list["release_date"]
+            if list["release_date"] == None:
+                return ""
+            else:
+                return list["release_date"]
         def sort_file_format(list):
-            return list["file_format"]
+            if list["file_format"] == None:
+                return ""
+            else:
+                return list["file_format"]
         def sort_file_name(list):
-            return list["file_name"]
+            if list["file_name"] == None:
+                return ""
+            else:
+                return list["file_name"]
         def sort_author_name(list):
             if list["file_author"] == None:
-                pass
+                return ""
             else:
                 return list["file_author"]
+
         if self.root.ids.main_menu_files_widget_order.text == "Ascending":
             reverse_bool = False
         else:
             reverse_bool = True
 
-        # in another func, on open, get last used sort and save that in local var
-        # do the same with reversed sort order, save it locally and get it on app opened
-        # also, both default options should be available in settings
-
         if self.root.ids.main_menu_files_widget_sort_spinner.text == "File Name":
             self.list_of_files.sort(key = sort_file_name, reverse = reverse_bool)
         elif self.root.ids.main_menu_files_widget_sort_spinner.text == "Author Name":
             self.list_of_files.sort(key = sort_author_name, reverse = reverse_bool)
-        # elif self.root.ids.main_menu_files_widget_sort_spinner.text == "Release Date":
-        #     self.list_of_files.sort(key = sort_release_year, reverse = reverse_bool)
+        elif self.root.ids.main_menu_files_widget_sort_spinner.text == "Release Date":
+            self.list_of_files.sort(key = sort_release_year, reverse = reverse_bool)
         elif self.root.ids.main_menu_files_widget_sort_spinner.text == "File Format":
             self.list_of_files.sort(key = sort_file_format, reverse = reverse_bool)
     
