@@ -527,6 +527,8 @@ class FileReaderApp(MDApp):
                     )
                 file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_title_button)
+            elif file["file_format"] == "mp3_album":
+                print(file)
 
     list_of_files = None
     currently_open_file = None 
@@ -637,6 +639,8 @@ class FileReaderApp(MDApp):
             pass
         elif file["file_format"] == "cbz": 
             file_content = cbz_file_data.get_cbz_file_content(file["absolute_file_path"])
+        elif file["file_format"] == "mp3_album": 
+            pass
         return file_content
 
     def go_forward_to_next_tab_or_screen(self):

@@ -18,12 +18,13 @@ def get_mp3_file_release_year(file_path):
     file = music_tag.load_file(file_path)
     return file["year"]
 
-def get_mp3_file_album(file_path):
+def get_mp3_file_album_name(file_path):
     file = music_tag.load_file(file_path)
     return file["album"]
 
 def get_mp3_file_genre(file_path):
     file = music_tag.load_file(file_path)
+    #  what if there are multiple grenres, return a list of them?
     return file["genre"]
 
 def get_mp3_file_album_artist(file_path):
@@ -44,24 +45,23 @@ def get_mp3_file_total_discs(file_path):
 
 def get_mp3_file_total_tracks(file_path):
     file = music_tag.load_file(file_path)
-    return file["totaltracks"]   
+    return file["totaltracks"] 
+
+def get_mp3_file_artwork(file_path):
+    file = music_tag.load_file(file_path)
+    file_artwork = file["artwork"]
+
+    x = file_path + "/" + file_artwork.value.mime
+    return file_artwork.value.mime
+
+
+    # return file_path + "/" + file_artwork.value.mime
 
 # def get_mp3_file_length(file_path):
 #     file = music_tag.load_file(file_path)
 #     return file["length"]   
 
-# print(get_mp3_file_length(r"E:\Music\Black Pistol Fire\Black Pistol Fire - 2011 - Black Pistol Fire [FLAC]/01 - Cold Sun.flac"))
-
-
-# def get_mp3_file_artwork(file_path):
-#     file = music_tag.load_file(file_path)
-#     x = file["artwork"]
-#     print(x.value.data)
-
-# get_mp3_file_artwork(r"E:\Music\Black Pistol Fire\Black Pistol Fire - 2011 - Black Pistol Fire [FLAC]/01 - Cold Sun.flac")
-
-
-
+# print(get_mp3_file_artwork(r"E:\Music\Larkin Poe\Larkin Poe - Kindred Spirits (2020) - WEB FLAC/01. Hellhound On My Trail.flac"))
 
 # comment
 # compilation
