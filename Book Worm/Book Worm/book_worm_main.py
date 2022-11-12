@@ -21,6 +21,7 @@ from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import cbz_file_data
 import text_file_data
 import epub_file_data
+import mp3_file_data
 from kivy.core.window import Window
 import os, string
 from os.path import sep, expanduser, isdir, dirname, exists
@@ -424,9 +425,8 @@ class FileReaderApp(MDApp):
                         radius = [0, 0, 0, 0]
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
-
-                cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                 if file_cover != None:
+                    cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                     file_cover_button = Image(
                         texture = CoreImage(cover_image).texture,
                         # on_touch_down = lambda x: app.change_screen("Read Currently Open File Screen", False)
@@ -491,8 +491,8 @@ class FileReaderApp(MDApp):
                         radius = [0, 0, 0, 0]
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
-                cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                 if file_cover != None:
+                    cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                     file_cover_button = Image(
                         texture = CoreImage(cover_image).texture,
                     )
@@ -528,7 +528,75 @@ class FileReaderApp(MDApp):
                 file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_title_button)
             elif file["file_format"] == "mp3_album":
-                print(file)
+                album_title = file["file_name"]
+                album_author = file["file_author"]
+                file_cover = None
+                list_of_album_tracks_dictionary = file["album_tracks_dictionary"]
+                for item in list_of_album_tracks_dictionary:
+                    file_cover = mp3_file_data.get_mp3_file_artwork(item["absolute_file_path"])
+                    break
+                card = MDCard(
+                        orientation = "vertical",
+                        size_hint = (None, None),
+                        height = app.main_menu_files_widgets_height,
+                        width = app.main_menu_files_widgets_width,
+                        radius = [0, 0, 0, 0]
+                    )
+                app.root.ids.main_menu_grid_layout.add_widget(card)
+                if file_cover != None:
+                    cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
+                    file_cover_button = Image(
+                        texture = CoreImage(cover_image).texture,
+                        # on_touch_down = lambda x: app.change_screen("Read Currently Open File Screen", False)
+                    )
+                else:
+                    file_cover_button = KivyButton(
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                        text = "File Cover Image Not Found",
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
+                    )
+                file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
+                card.add_widget(file_cover_button)                        
+                if album_title != None:
+                    file_title_button = KivyButton(
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                        text = album_title,
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
+                    )
+                else:
+                    file_title_button = KivyButton(
+                    on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                    text = "File Title Not Found",
+                    color = (0, 0, 0, 1),
+                    size_hint = (1, None),
+                    height = 50,
+                    # width = 300,
+                    )
+                file_title_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
+                card.add_widget(file_title_button)
+                if album_author != None:
+                    file_author_button = KivyButton(
+                        text = album_author,
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
+                        )
+                else:
+                    file_author_button = KivyButton(
+                    text = "File Author Not Found",
+                    color = (0, 0, 0, 1),
+                    size_hint = (1, None),
+                    height = 50,
+                    # width = 300,
+                    ) 
+                card.add_widget(file_author_button)
 
     list_of_files = None
     currently_open_file = None 

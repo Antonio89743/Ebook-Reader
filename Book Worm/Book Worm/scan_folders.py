@@ -139,7 +139,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 track_number = mp3_file_data.get_mp3_file_track_number(absolute_path_to_file)
                 track_genre = mp3_file_data.get_mp3_file_genre(absolute_path_to_file)
                 track_dictionary = {
-                    "file_album_title" : file_album_title,
+                    "track_album_title" : file_album_title,
                     "file_album_artist" : file_album_artist,
                     "file_album_total_track_number" : file_album_total_track_number,
                     "file_album_total_disk_number" : file_album_total_disk_number,
@@ -148,9 +148,10 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     "track_artist" : track_artist,
                     "track_number" : track_number,
                     "track_genre" : track_genre,
-                    "absolute_file_path" : absolute_path_to_file}
+                    "absolute_file_path" : absolute_path_to_file,
+                    "file_format" : "mp3"}
                 list_of_tracks.append(track_dictionary)
-            list_of_unique_albums = [*set(list_of_albums)]
+            list_of_unique_albums = list(map(dict, set(tuple(sorted(sub.items())) for sub in list_of_albums)))
             for album in list_of_unique_albums:
                 album_tracks_dictionary = []
                 for track in list_of_tracks:
@@ -159,7 +160,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                             album_tracks_dictionary.append(track)
                 array_of_valid_files.append({
                     "absolute_file_path" : None, 
-                    "file_format" : "mp3", 
+                    "file_format" : "mp3_album", 
                     "file_name" : album["file_album_title"], 
                     "file_author" : album["file_album_artist"],
                     "file_cover" : None,
@@ -291,7 +292,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 track_number = mp3_file_data.get_mp3_file_track_number(absolute_path_to_file)
                 track_genre = mp3_file_data.get_mp3_file_genre(absolute_path_to_file)
                 track_dictionary = {
-                    "file_album_title" : file_album_title,
+                    "track_album_title" : file_album_title,
                     "file_album_artist" : file_album_artist,
                     "file_album_total_track_number" : file_album_total_track_number,
                     "file_album_total_disk_number" : file_album_total_disk_number,
@@ -303,8 +304,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     "absolute_file_path" : absolute_path_to_file,
                     "file_format" : "mp3"}
                 list_of_tracks.append(track_dictionary)
-            print(list_of_albums)
-            # list_of_unique_albums = [*set(list_of_albums)] #problem with this, getting rid of doubles in list of albums
+            list_of_unique_albums = list(map(dict, set(tuple(sorted(sub.items())) for sub in list_of_albums)))
             for album in list_of_unique_albums:
                 album_tracks_dictionary = []
                 for track in list_of_tracks:
@@ -327,8 +327,6 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     "language" : None,
                     "file_size" : None})
             
-
-
     #             absolute_path_to_file = os.path.abspath(epub_file)
     #             if array_or_epub_files.count(absolute_path_to_file) == 0 :
     #                 array_or_epub_files.append(absolute_path_to_file)
