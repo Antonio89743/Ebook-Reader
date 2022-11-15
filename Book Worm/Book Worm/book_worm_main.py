@@ -222,7 +222,6 @@ Screen:
                 width: 700
                 height: root.height
                 radius: [0, 0, 0, 0]
-
                 ScrollView:
                     id: file_reader_content_scroll_view
                     always_overscroll: False
@@ -246,6 +245,25 @@ Screen:
             MDLabel:
                 text: "File Details Screen"
                 halign: "center"
+        
+        Screen:
+            name: "Album Inspector Screen"
+            ScrollView:
+                id: album_inspector_scroll_view
+                always_overscroll: False
+                do_scroll_x: False
+                pos_hint: {"right": 1}
+                size_hint: (None, None)
+                width: file_reader_content_card.width
+                height: root.height
+                
+                BoxLayout:
+                    id: album_inspector_box_layout
+                    pos_hint: {"top": 1}
+                    size_hint: (None, None)
+                    width: album_inspector_scroll_view.width 
+                    height: self.minimum_height 
+                    orientation: 'vertical'
 
         Screen:
             name: "Settings Screen"
@@ -531,10 +549,7 @@ class FileReaderApp(MDApp):
                 album_title = file["file_name"]
                 album_author = file["file_author"]
                 file_cover = None
-                list_of_album_tracks_dictionary = file["album_tracks_dictionary"]
-                for item in list_of_album_tracks_dictionary:
-                    file_cover = mp3_file_data.get_mp3_file_artwork(item["absolute_file_path"])
-                    break
+                file_cover = mp3_file_data.get_mp3_file_artwork(file["album_tracks_dictionary"][0]["absolute_file_path"])
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
@@ -547,22 +562,22 @@ class FileReaderApp(MDApp):
                     cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                     file_cover_button = Image(
                         texture = CoreImage(cover_image).texture,
-                        # on_touch_down = lambda x: app.change_screen("Read Currently Open File Screen", False)
+                        # on_touch_down = lambda x: app.change_screen("Album Inspector Screen", False)
                     )
                 else:
                     file_cover_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
                         text = "File Cover Image Not Found",
                         color = (0, 0, 0, 1),
                         size_hint = (1, None),
                         height = 50,
                         # width = 300,
                     )
-                file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
+                file_cover_button.bind(on_press = lambda x: app.load_album_inspector_screen(file))  
                 card.add_widget(file_cover_button)                        
                 if album_title != None:
                     file_title_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
                         text = album_title,
                         color = (0, 0, 0, 1),
                         size_hint = (1, None),
@@ -571,14 +586,14 @@ class FileReaderApp(MDApp):
                     )
                 else:
                     file_title_button = KivyButton(
-                    on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                    on_press = lambda x: app.change_screen("Album Inspector Screen", False),
                     text = "File Title Not Found",
                     color = (0, 0, 0, 1),
                     size_hint = (1, None),
                     height = 50,
                     # width = 300,
                     )
-                file_title_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
+                file_title_button.bind(on_press = lambda x: app.load_album_inspector_screen(file))  
                 card.add_widget(file_title_button)
                 if album_author != None:
                     file_author_button = KivyButton(
@@ -607,6 +622,82 @@ class FileReaderApp(MDApp):
 
     def image_press(self, *args):
         print("SSS")
+
+    class Album_Track():
+        def __init__(self, app, file, album_track_list):
+            for album_track in file["album_tracks_dictionary"]:
+
+                card = MDCard(
+                    orientation = "horizontal",
+                    size_hint = (1, None),
+                    height = 30,
+                    radius = [0, 0, 0, 0]
+                )
+
+                track_number_label = Label(
+                    text = album_track["track_number"],
+                    size_hint = (None, 1),
+                    width = 30
+                )
+
+                track_title_label = Label(
+                    text = album_track["track_title"],
+                    size_hint = (None, 1),
+                    width = 100
+                )
+
+
+
+
+                track_artist_label = Label(
+                    text = album_track["track_artist"],
+                    size_hint = (None, 1),
+                    width = 100
+                )
+
+                card.add_widget(track_number_label)
+                card.add_widget(track_title_label)
+                card.add_widget(track_artist_label)
+                
+                album_track_list.add_widget(card)
+                print(album_track)
+
+    def load_album_inspector_screen(self, file):
+        
+        layout = BoxLayout(
+            orientation = "vertical",
+            size_hint = (1, 1),
+                            # width: scroll_view.width 
+                            # height: self.minimum_height 
+        )
+
+        header = BoxLayout(
+
+            )
+
+        h = Label(text="DASASASASASASASASASASASASASASASASASASAS")
+        album_track_list = BoxLayout(
+                orientation = "vertical",
+                size_hint = (1, 1)
+            )
+        
+        album_track_list.add_widget(h)
+        layout.add_widget(header)
+        # self.Album_Track(self, file, album_track_list)
+        layout.add_widget(album_track_list)
+        
+        self.root.ids.album_inspector_box_layout.add_widget(layout)
+
+        self.root.ids.album_inspector_box_layout.size_hint = (None, 1)
+        # self.root.ids.album_inspector_box_layout.height = self.root.ids.album_inspector_box_layout.minimum_height
+        # self.root.ids.album_inspector_box_layout.size_hint_y = None
+
+        print(self.root.ids.album_inspector_box_layout.size) #this is the issue
+        print(layout.size)
+        print(album_track_list.size)
+
+        
+
 
     def main_menu_file_widget_size(self, id):
         if id == self.root.ids.main_menu_file_widget_size_slider:
@@ -684,10 +775,8 @@ class FileReaderApp(MDApp):
                     self.root.ids.file_reader_content_grid_layout.size_hint = (None, 1)
                     self.root.ids.file_reader_content_grid_layout.height = self.root.ids.file_reader_content_grid_layout.minimum_height
                     self.root.ids.file_reader_content_grid_layout.size_hint_y = None
-
             elif args[0] == "book simulator":
                 pass
-
         self.currently_open_file = file
 
     kivy_supported_image_files = ["jpeg", "jpg", "png", "gif"]
