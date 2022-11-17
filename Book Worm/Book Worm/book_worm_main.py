@@ -248,14 +248,18 @@ Screen:
         
         Screen:
             name: "Album Inspector Screen"
+            on_enter: toolbar.size = (0, 0)
+            on_enter: self.remove_widget(toolbar)
+            on_enter: toolbar.disabled = True
+
             ScrollView:
                 id: album_inspector_scroll_view
                 always_overscroll: False
                 do_scroll_x: False
                 pos_hint: {"right": 1}
                 size_hint: (None, None)
-                width: file_reader_content_card.width
-                height: root.height
+                width: root.width - 70
+                height: root.height - 70
                 
                 BoxLayout:
                     id: album_inspector_box_layout
@@ -624,26 +628,27 @@ class FileReaderApp(MDApp):
         print("SSS")
 
     class Album_Track():
-        def __init__(self, app, file, album_track_list):
-            for album_track in file["album_tracks_dictionary"]:
+        def __init__(self, app, album_track, album_track_list):
 
                 card = MDCard(
                     orientation = "horizontal",
                     size_hint = (1, None),
-                    height = 30,
+                    height = 50,
                     radius = [0, 0, 0, 0]
                 )
 
                 track_number_label = Label(
                     text = album_track["track_number"],
                     size_hint = (None, 1),
-                    width = 30
+                    width = 30,
+                    color = (0, 0, 0, 1)
                 )
 
                 track_title_label = Label(
                     text = album_track["track_title"],
                     size_hint = (None, 1),
-                    width = 100
+                    width = 100,
+                    color = (0, 0, 0, 1)
                 )
 
 
@@ -652,7 +657,8 @@ class FileReaderApp(MDApp):
                 track_artist_label = Label(
                     text = album_track["track_artist"],
                     size_hint = (None, 1),
-                    width = 100
+                    width = 100,
+                    color = (0, 0, 0, 1)
                 )
 
                 card.add_widget(track_number_label)
@@ -666,38 +672,30 @@ class FileReaderApp(MDApp):
         
         layout = BoxLayout(
             orientation = "vertical",
-            size_hint = (1, 1),
+            size_hint = (1, None),
+            pos_hint = {"left" : 1}
                             # width: scroll_view.width 
                             # height: self.minimum_height 
         )
 
         header = BoxLayout(
-
+            size_hint = (1, None)
             )
 
-        h = Label(text="DASASASASASASASASASASASASASASASASASASAS")
+        
         album_track_list = BoxLayout(
                 orientation = "vertical",
-                size_hint = (1, 1)
+                size_hint = (1, None)
             )
-        
-        album_track_list.add_widget(h)
+
         layout.add_widget(header)
-        # self.Album_Track(self, file, album_track_list)
+        for album_track in file["album_tracks_dictionary"]:
+            self.Album_Track(self, album_track, album_track_list)
         layout.add_widget(album_track_list)
-        
         self.root.ids.album_inspector_box_layout.add_widget(layout)
-
-        self.root.ids.album_inspector_box_layout.size_hint = (None, 1)
-        # self.root.ids.album_inspector_box_layout.height = self.root.ids.album_inspector_box_layout.minimum_height
-        # self.root.ids.album_inspector_box_layout.size_hint_y = None
-
-        print(self.root.ids.album_inspector_box_layout.size) #this is the issue
-        print(layout.size)
-        print(album_track_list.size)
-
-        
-
+        album_track_list.bind(minimum_height = album_track_list.setter("height"))
+        layout.bind(minimum_height = layout.setter("height"))
+        self.root.ids.album_inspector_box_layout.bind(minimum_height = self.root.ids.album_inspector_box_layout.setter("height"))
 
     def main_menu_file_widget_size(self, id):
         if id == self.root.ids.main_menu_file_widget_size_slider:
