@@ -552,7 +552,6 @@ class FileReaderApp(MDApp):
             elif file["file_format"] == "mp3_album":
                 album_title = file["file_name"]
                 album_author = file["file_author"]
-                file_cover = None
                 file_cover = mp3_file_data.get_mp3_file_artwork(file["album_tracks_dictionary"][0]["absolute_file_path"])
                 card = MDCard(
                         orientation = "vertical",
@@ -617,9 +616,6 @@ class FileReaderApp(MDApp):
                     ) 
                 card.add_widget(file_author_button)
 
-    album_track_card_primary_color = (1, 1, 1, 1)
-    album_track_card_secondary_color = (0.9, 0.9, 0.9, 1)
-
     class Album_Track():
         def __init__(self, app, album_track, track_item_number, album_track_list):
             if (track_item_number % 2) == 0:
@@ -672,45 +668,80 @@ class FileReaderApp(MDApp):
             album_track_list.add_widget(card)
 
     list_of_files = None
-    currently_open_file = None 
+    currently_open_file = None
+    currently_open_album = None 
     screen_currently_in_use :int = 0
     previous_screens_and_tabs_list = ["Main Menu"]
     main_menu_files_widgets_height = None
     main_menu_files_widgets_width = None
+    album_track_card_primary_color = (1, 1, 1, 1)
+    album_track_card_secondary_color = (0.9, 0.9, 0.9, 1)
 
     def image_press(self, *args):
         print("SSS")
 
     def load_album_inspector_screen(self, file):
-        
-        layout = BoxLayout(
-            orientation = "vertical",
-            size_hint = (1, None),
-            pos_hint = {"left" : 1}
-                            # width: scroll_view.width 
-                            # height: self.minimum_height 
-        )
-
-        header = BoxLayout(
-            size_hint = (1, None)
-            )
-
-        
-        album_track_list = BoxLayout(
+        if self.currently_open_album != file:
+            self.root.ids.album_inspector_box_layout.clear_widgets()
+            layout = BoxLayout(
                 orientation = "vertical",
-                size_hint = (1, None)
+                size_hint = (1, None),
+                pos_hint = {"left" : 1}
+                                # width: scroll_view.width 
+                                # height: self.minimum_height 
             )
 
-        layout.add_widget(header)
-        track_item_number = 0
-        for album_track in file["album_tracks_dictionary"]:
-            self.Album_Track(self, album_track, track_item_number, album_track_list)
-            track_item_number += 1
-        layout.add_widget(album_track_list)
-        self.root.ids.album_inspector_box_layout.add_widget(layout)
-        album_track_list.bind(minimum_height = album_track_list.setter("height"))
-        layout.bind(minimum_height = layout.setter("height"))
-        self.root.ids.album_inspector_box_layout.bind(minimum_height = self.root.ids.album_inspector_box_layout.setter("height"))
+            header = BoxLayout(
+                size_hint = (1, None),
+                orientation = "horizontal"
+                )
+
+            file_cover = mp3_file_data.get_mp3_file_artwork(file["album_tracks_dictionary"][0]["absolute_file_path"])
+            if file_cover != None:
+
+                cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
+                header_cover = Image(
+                    texture = CoreImage(cover_image).texture
+                )
+                header.add_widget(header_cover)
+
+            header_info_layout = BoxLayout(
+                orientation = "vertical"
+            )
+            header.add_widget(header_info_layout)
+
+            header_album_title = Label(
+                text = file["file_name"],
+                color = (0, 0, 0, 1)
+            )
+            header_info_layout.add_widget(header_album_title)
+
+            header_album_author = KivyButton(
+                text = file["file_author"]
+            )
+            header_info_layout.add_widget(header_album_author)
+
+            header_album_release_year = Label(
+                text = file["release_date"],
+                color = (0, 0, 0, 1)
+            )
+            header_info_layout.add_widget(header_album_release_year)
+
+            album_track_list = BoxLayout(
+                    orientation = "vertical",
+                    size_hint = (1, None)
+                )
+
+            layout.add_widget(header)
+            track_item_number = 0
+            for album_track in file["album_tracks_dictionary"]:
+                self.Album_Track(self, album_track, track_item_number, album_track_list)
+                track_item_number += 1
+            layout.add_widget(album_track_list)
+            self.root.ids.album_inspector_box_layout.add_widget(layout)
+            album_track_list.bind(minimum_height = album_track_list.setter("height"))
+            layout.bind(minimum_height = layout.setter("height"))
+            self.root.ids.album_inspector_box_layout.bind(minimum_height = self.root.ids.album_inspector_box_layout.setter("height"))
 
     def main_menu_file_widget_size(self, id):
         if id == self.root.ids.main_menu_file_widget_size_slider:
@@ -724,8 +755,6 @@ class FileReaderApp(MDApp):
     def load_file_read_screen(self, file):
         if self.currently_open_file != file:
             self.file_read_screen_mode(file, "pages and infinite scroll") #second arg is temporary
-        else:
-            self.root.ids.file_reader_content_grid_layout.clear_widgets()
 
     def file_read_screen_mode(self, file, *args):
         self.root.ids.file_reader_content_grid_layout.clear_widgets()
