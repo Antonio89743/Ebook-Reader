@@ -8,60 +8,67 @@ def get_mp3_file_modified_time(file_path):
 
 def get_mp3_file_title(file_path):
     file = music_tag.load_file(file_path)
-    return file["title"]
+    return str(file["title"].values)[2:-2]
 
 def get_mp3_file_artist(file_path):
     file = music_tag.load_file(file_path)
-    return file["artist"]
+    return str(file["artist"].values)[2:-2] 
 
 def get_mp3_file_release_year(file_path):
     file = music_tag.load_file(file_path)
-    return file["year"]
+    return str(file["year"].values)[2:-2]
 
 def get_mp3_file_album_name(file_path):
     file = music_tag.load_file(file_path)
-    return file["album"]
+    return str(file["album"].values)[2:-2]
 
 def get_mp3_file_genre(file_path):
     file = music_tag.load_file(file_path)
     #  what if there are multiple grenres, return a list of them?
-    return file["genre"]
+    return str(file["genre"].values)[2:-2]
 
 def get_mp3_file_album_artist(file_path):
     file = music_tag.load_file(file_path)
-    return file["albumartist"]
+    return str(file["albumartist"].values)[2:-2]
 
 def get_mp3_file_track_title(file_path):
     file = music_tag.load_file(file_path)
-    return file["tracktitle"]
+    return str(file["tracktitle"].values)[2:-2]  
 
 def get_mp3_file_track_number(file_path):
     file = music_tag.load_file(file_path)
-    return file["tracknumber"]
+    return str(file["tracknumber"].values)[2:-2] 
 
 def get_mp3_file_total_discs(file_path):
     file = music_tag.load_file(file_path)
-    return file["totaldiscs"]
+    return str(file["totaldiscs"].values)[2:-2]  
 
 def get_mp3_file_total_tracks(file_path):
     file = music_tag.load_file(file_path)
-    return file["totaltracks"] 
+    return str(file["totaltracks"].values)[2:-2]
 
 def get_mp3_file_artwork(file_path):
     file = music_tag.load_file(file_path)
-    file_artwork = file["artwork"]
+    return file["artwork"].value.data
 
-    x = file_path + "/" + file_artwork.value.mime
-    return file_artwork.value.mime
+def get_mp3_file_length(file_path):
+    file = music_tag.load_file(file_path)
+    string_lenght = str(file["#length"].values)[1:-1]
+    seconds = float(string_lenght)
+    seconds = seconds % (24 * 3600)
+    hours = seconds // 3600
+    seconds %= 3600
+    minutes = seconds // 60
+    seconds %= 60
+    if hours > 0:
+        return "%d:%02d:%02d" % (hours, minutes, seconds)
+    else:
+        if minutes > 0:
+            return "%02d:%02d" % (minutes, seconds)
+        else:
+            return "%0d:%02d" % (minutes, seconds)
 
-
-    # return file_path + "/" + file_artwork.value.mime
-
-# def get_mp3_file_length(file_path):
-#     file = music_tag.load_file(file_path)
-#     return file["length"]   
-
-# print(get_mp3_file_artwork(r"E:\Music\Larkin Poe\Larkin Poe - Kindred Spirits (2020) - WEB FLAC/01. Hellhound On My Trail.flac"))
+# print(get_mp3_file_length(r"E:\Music\Larkin Poe\Larkin Poe - Kindred Spirits (2020) - WEB FLAC/01. Hellhound On My Trail.flac"))
 
 # comment
 # compilation
@@ -71,7 +78,6 @@ def get_mp3_file_artwork(file_path):
 # isrc
 # #bitrate (read only)
 # #codec (read only)
-# #length (read only)
 # #channels (read only)
 # #bitspersample (read only)
 # #samplerate (read only)

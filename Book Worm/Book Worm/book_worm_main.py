@@ -617,6 +617,60 @@ class FileReaderApp(MDApp):
                     ) 
                 card.add_widget(file_author_button)
 
+    album_track_card_primary_color = (1, 1, 1, 1)
+    album_track_card_secondary_color = (0.9, 0.9, 0.9, 1)
+
+    class Album_Track():
+        def __init__(self, app, album_track, track_item_number, album_track_list):
+            if (track_item_number % 2) == 0:
+                card_background_color = app.album_track_card_primary_color
+            else:
+                card_background_color = app.album_track_card_secondary_color
+            card = MDCard(
+                orientation = "horizontal",
+                size_hint = (1, None),
+                height = 50,
+                radius = [0, 0, 0, 0],
+                md_bg_color = card_background_color
+            )
+
+            track_number_label = Label(
+                size_hint = (None, 1),
+                width = 30,
+                color = (0, 0, 0, 1)
+            )
+            if album_track["track_number"] != "":
+                album_track.text = album_track["track_number"] + ".",
+            card.add_widget(track_number_label)
+                
+            track_title_label = Label(
+                text = album_track["track_title"],
+                halign = "left",
+                size_hint = (None, 1),
+                width = 300,
+                color = (0, 0, 0, 1)
+            )
+            card.add_widget(track_title_label)
+
+            track_artist_label = KivyButton(
+                text = album_track["track_artist"],
+                size_hint = (None, 1),
+                width = 300,
+                color = (0, 0, 0, 1)
+            )
+            card.add_widget(track_artist_label)
+            
+            track_lenght_label = Label(
+                text = album_track["track_lenght"],
+                size_hint = (None, 1),
+                width = 100,
+                color = (0, 0, 0, 1)
+            )
+            print(track_lenght_label.pos_hint)
+            card.add_widget(track_lenght_label)
+
+            album_track_list.add_widget(card)
+
     list_of_files = None
     currently_open_file = None 
     screen_currently_in_use :int = 0
@@ -626,47 +680,6 @@ class FileReaderApp(MDApp):
 
     def image_press(self, *args):
         print("SSS")
-
-    class Album_Track():
-        def __init__(self, app, album_track, album_track_list):
-
-                card = MDCard(
-                    orientation = "horizontal",
-                    size_hint = (1, None),
-                    height = 50,
-                    radius = [0, 0, 0, 0]
-                )
-
-                track_number_label = Label(
-                    text = album_track["track_number"],
-                    size_hint = (None, 1),
-                    width = 30,
-                    color = (0, 0, 0, 1)
-                )
-
-                track_title_label = Label(
-                    text = album_track["track_title"],
-                    size_hint = (None, 1),
-                    width = 100,
-                    color = (0, 0, 0, 1)
-                )
-
-
-
-
-                track_artist_label = Label(
-                    text = album_track["track_artist"],
-                    size_hint = (None, 1),
-                    width = 100,
-                    color = (0, 0, 0, 1)
-                )
-
-                card.add_widget(track_number_label)
-                card.add_widget(track_title_label)
-                card.add_widget(track_artist_label)
-                
-                album_track_list.add_widget(card)
-                print(album_track)
 
     def load_album_inspector_screen(self, file):
         
@@ -689,8 +702,10 @@ class FileReaderApp(MDApp):
             )
 
         layout.add_widget(header)
+        track_item_number = 0
         for album_track in file["album_tracks_dictionary"]:
-            self.Album_Track(self, album_track, album_track_list)
+            self.Album_Track(self, album_track, track_item_number, album_track_list)
+            track_item_number += 1
         layout.add_widget(album_track_list)
         self.root.ids.album_inspector_box_layout.add_widget(layout)
         album_track_list.bind(minimum_height = album_track_list.setter("height"))
@@ -706,14 +721,10 @@ class FileReaderApp(MDApp):
                 child.width = self.main_menu_files_widgets_width
             self.responsive_grid_layout()
 
-    audio_file_formats = ["mp3", "wav", "ogg"] 
-
     def load_file_read_screen(self, file):
-        if file["file_format"] != self.audio_file_formats:
-            if self.currently_open_file != file:
-                self.file_read_screen_mode(file, "pages and infinite scroll") #second arg is temporary
+        if self.currently_open_file != file:
+            self.file_read_screen_mode(file, "pages and infinite scroll") #second arg is temporary
         else:
-            # here load screen for audio files
             self.root.ids.file_reader_content_grid_layout.clear_widgets()
 
     def file_read_screen_mode(self, file, *args):

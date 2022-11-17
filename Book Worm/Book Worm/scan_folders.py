@@ -138,6 +138,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 track_artist = mp3_file_data.get_mp3_file_artist(absolute_path_to_file)
                 track_number = mp3_file_data.get_mp3_file_track_number(absolute_path_to_file)
                 track_genre = mp3_file_data.get_mp3_file_genre(absolute_path_to_file)
+                track_lenght = mp3_file_data.get_mp3_file_length(absolute_path_to_file)
                 track_dictionary = {
                     "track_album_title" : file_album_title,
                     "file_album_artist" : file_album_artist,
@@ -148,6 +149,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     "track_artist" : track_artist,
                     "track_number" : track_number,
                     "track_genre" : track_genre,
+                    "track_lenght" : track_lenght,
                     "absolute_file_path" : absolute_path_to_file,
                     "file_format" : "mp3"}
                 list_of_tracks.append(track_dictionary)
@@ -291,6 +293,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 track_artist = mp3_file_data.get_mp3_file_artist(absolute_path_to_file)
                 track_number = mp3_file_data.get_mp3_file_track_number(absolute_path_to_file)
                 track_genre = mp3_file_data.get_mp3_file_genre(absolute_path_to_file)
+                track_lenght = mp3_file_data.get_mp3_file_length(absolute_path_to_file)
                 track_dictionary = {
                     "track_album_title" : file_album_title,
                     "file_album_artist" : file_album_artist,
@@ -301,6 +304,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     "track_artist" : track_artist,
                     "track_number" : track_number,
                     "track_genre" : track_genre,
+                    "track_lenght" : track_lenght,
                     "absolute_file_path" : absolute_path_to_file,
                     "file_format" : "mp3"}
                 list_of_tracks.append(track_dictionary)
