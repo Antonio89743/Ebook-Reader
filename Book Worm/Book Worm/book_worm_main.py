@@ -13,6 +13,7 @@ from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivymd.uix.card import MDCard
+from kivy.core.audio import SoundLoader
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.button import MDIconButton
 from kivy.core.image import Image as CoreImage
@@ -106,13 +107,17 @@ Kivy = '''
         on_press: Factory.LocalFolderPopUp().open()
 
 Screen:
-    MDTopAppBar:
+    MDCard:
         id: toolbar
         size_hint: (None, None)
         pos_hint: {"right": 1, "top": 1}
         width: root.width - 70
-        elevation: 10
-        title: "Book Reader"
+        height: 70
+        card_background_color: (0, 0, 1, 1)
+        Label:
+            id: toolbar_label
+            text: "Book Reader"
+            color: (0, 0, 0, 1)
 
     ScreenManager:
         id: screen_manager
@@ -120,7 +125,7 @@ Screen:
         Screen:
             id: main_menu_screen
             name: "Main Menu"
-            on_enter: toolbar.title = "Main Menu"
+            on_enter: toolbar_label.text = "Main Menu"
             TabbedPanel:
                 do_default_tab: False
                 tab_pos: "top_left"
@@ -212,7 +217,7 @@ Screen:
      
         Screen:
             name: "Read Currently Open File Screen"
-            on_enter: toolbar.title = ""
+            on_enter: toolbar_label.text = ""
 
             MDCard:
                 id: file_reader_content_card
@@ -241,15 +246,14 @@ Screen:
 
         Screen:
             name: "File Details Screen"
-            on_enter: toolbar.title = "File Detail Screen"
+            on_enter: toolbar_label.text = "File Detail Screen"
             MDLabel:
                 text: "File Details Screen"
                 halign: "center"
         
         Screen:
             name: "Album Inspector Screen"
-            on_enter: toolbar.size = (0, 0)
-            on_enter: self.remove_widget(toolbar)
+
             on_enter: toolbar.disabled = True
 
             ScrollView:
@@ -271,7 +275,7 @@ Screen:
 
         Screen:
             name: "Settings Screen"
-            on_enter: toolbar.title = "Settings"
+            on_enter: toolbar_label.text = "Settings"
             TabbedPanel:
                 do_default_tab: False
                 tab_pos: "top_mid"
@@ -662,10 +666,17 @@ class FileReaderApp(MDApp):
                 width = 100,
                 color = (0, 0, 0, 1)
             )
-            print(track_lenght_label.pos_hint)
+            # print(track_lenght_label.pos_hint)
             card.add_widget(track_lenght_label)
 
             album_track_list.add_widget(card)
+
+    class Album_Genres():
+        def __init__(self, app, album_genre, header_genre_layout):
+            genre_button = KivyButton(
+                text = album_genre
+            )
+            header_genre_layout.add_widget(genre_button)
 
     list_of_files = None
     currently_open_file = None
@@ -676,9 +687,24 @@ class FileReaderApp(MDApp):
     main_menu_files_widgets_width = None
     album_track_card_primary_color = (1, 1, 1, 1)
     album_track_card_secondary_color = (0.9, 0.9, 0.9, 1)
+    kivy_supported_image_files = ["jpeg", "jpg", "png", "gif"]
 
     def image_press(self, *args):
         print("SSS")
+    
+    def play_audio_track(self, file):
+        if self.track_currently_playing_index <= len(file["album_tracks_dictionary"]):
+            kivy_music_loader = SoundLoader.load(file["album_tracks_dictionary"][self.track_currently_playing_index]["absolute_file_path"])
+            kivy_music_loader.bind(on_stop = self.on_kivy_music_loader_stop)
+            kivy_music_loader.play()
+
+    def on_kivy_music_loader_stop(self, dt):
+        self.track_currently_playing_index += 1
+        self.play_audio_track()
+
+    def play_album(self, file):
+        self.track_currently_playing_index = 0
+        self.play_audio_track(file)
 
     def load_album_inspector_screen(self, file):
         if self.currently_open_album != file:
@@ -687,24 +713,18 @@ class FileReaderApp(MDApp):
                 orientation = "vertical",
                 size_hint = (1, None),
                 pos_hint = {"left" : 1}
-                                # width: scroll_view.width 
-                                # height: self.minimum_height 
             )
-
             header = BoxLayout(
                 size_hint = (1, None),
                 orientation = "horizontal"
                 )
-
             file_cover = mp3_file_data.get_mp3_file_artwork(file["album_tracks_dictionary"][0]["absolute_file_path"])
             if file_cover != None:
-
                 cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                 header_cover = Image(
                     texture = CoreImage(cover_image).texture
                 )
                 header.add_widget(header_cover)
-
             header_info_layout = BoxLayout(
                 orientation = "vertical"
             )
@@ -715,23 +735,35 @@ class FileReaderApp(MDApp):
                 color = (0, 0, 0, 1)
             )
             header_info_layout.add_widget(header_album_title)
-
             header_album_author = KivyButton(
                 text = file["file_author"]
             )
             header_info_layout.add_widget(header_album_author)
-
             header_album_release_year = Label(
                 text = file["release_date"],
                 color = (0, 0, 0, 1)
             )
             header_info_layout.add_widget(header_album_release_year)
+            header_genre_layout = BoxLayout(
+                orientation = "horizontal"
+            )
+            header_info_layout.add_widget(header_genre_layout)
+            album_genres = file["album_genre"]
+            for album_genre in album_genres:
+                if album_genre[0] == "'":
+                    album_genre = album_genre[1:-1]
+                self.Album_Genres(self, album_genre, header_genre_layout)
+
+            header_play_album_button = KivyButton(
+                text = "Play Album",
+                on_press = lambda x: self.play_album(file)
+            )
+            header_info_layout.add_widget(header_play_album_button)
 
             album_track_list = BoxLayout(
                     orientation = "vertical",
                     size_hint = (1, None)
                 )
-
             layout.add_widget(header)
             track_item_number = 0
             for album_track in file["album_tracks_dictionary"]:
@@ -816,8 +848,6 @@ class FileReaderApp(MDApp):
             elif args[0] == "book simulator":
                 pass
         self.currently_open_file = file
-
-    kivy_supported_image_files = ["jpeg", "jpg", "png", "gif"]
 
     def get_file_contents(self, file):
         if file["file_format"] == "txt":
