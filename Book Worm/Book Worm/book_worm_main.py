@@ -16,11 +16,12 @@ from kivymd.uix.card import MDCard
 from kivy.core.audio import SoundLoader
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.button import MDIconButton
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.core.image import Image as CoreImage
 from kivy.uix.button import Button as KivyButton
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import cbz_file_data
-import text_file_data
+import text_file_data 
 import epub_file_data
 import mp3_file_data
 from kivy.core.window import Window
@@ -107,17 +108,23 @@ Kivy = '''
         on_press: Factory.LocalFolderPopUp().open()
 
 Screen:
+    id: root_screen
     MDCard:
         id: toolbar
         size_hint: (None, None)
         pos_hint: {"right": 1, "top": 1}
         width: root.width - 70
         height: 70
-        card_background_color: (0, 0, 1, 1)
+        md_bg_color: (0, 145, 255, 1)
+        radius: [0, 0, 0, 0]
         Label:
             id: toolbar_label
+            font_size: "25sp"
             text: "Book Reader"
             color: (0, 0, 0, 1)
+            text_size: self.size
+            halign: "left"
+            valign: "center"
 
     ScreenManager:
         id: screen_manager
@@ -217,7 +224,9 @@ Screen:
      
         Screen:
             name: "Read Currently Open File Screen"
+            on_pre_enter: root_screen.remove_widget(toolbar)
             on_enter: toolbar_label.text = ""
+            on_pre_leave: root_screen.add_widget(toolbar)
 
             MDCard:
                 id: file_reader_content_card
@@ -253,8 +262,9 @@ Screen:
         
         Screen:
             name: "Album Inspector Screen"
-
-            on_enter: toolbar.disabled = True
+            on_pre_enter: root_screen.remove_widget(toolbar)
+            on_enter: toolbar_label.text = ""
+            on_pre_leave: root_screen.add_widget(toolbar)
 
             ScrollView:
                 id: album_inspector_scroll_view
@@ -263,7 +273,7 @@ Screen:
                 pos_hint: {"right": 1}
                 size_hint: (None, None)
                 width: root.width - 70
-                height: root.height - 70
+                height: root.height
                 
                 BoxLayout:
                     id: album_inspector_box_layout
@@ -359,6 +369,13 @@ Screen:
             height: 70
             color : [1.0, 1.0, 1.0, 1.0]
             on_press: app.change_screen("Read Currently Open File Screen", False)
+
+        MDIconButton:
+            pos_hint: {"y": 1}
+            width: 70
+            height: 70
+            color : [1.0, 1.0, 1.0, 1.0]
+            on_press: app.change_screen("Album Inspector Screen", False)
 
         BoxLayout:
             id: nav_bar_settings
@@ -567,10 +584,92 @@ class FileReaderApp(MDApp):
                 app.root.ids.main_menu_grid_layout.add_widget(card)
                 if file_cover != None:
                     cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
-                    file_cover_button = Image(
+                    file_cover_button = KivyButton(
+                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
+                        background_color = (0, 0, 0, 0)
+                        )
+                    file_cover_image = Image(
                         texture = CoreImage(cover_image).texture,
-                        # on_touch_down = lambda x: app.change_screen("Album Inspector Screen", False)
-                    )
+                        # size_hint = (None, None),
+                        # pos_hint = {"center_x": file_cover_button.center_x, "center_y": file_cover_button.center_y},
+                        # pos = (0, 700)
+                        # stretch = True
+                        allow_stretch = True,
+                        keep_ratio = True,
+                        pos_hint = {"bottom": 1}
+                        # y = file_cover_button.y
+                        
+                        
+
+
+
+
+
+
+
+
+
+
+                        # on_press = lambda x: app.change_screen("Album Inspector Screen", False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        )
+                    
+                    # print(file_cover_button.setter("pos"))
+                    # print(file_cover_image.parent.getter("center_x"))
+                    # file_cover_image.bind(center_x = file_cover_image.parent.center_x)  
+
+
+                    # file_cover_image.bind(center_x = file_cover_button.setter("center_x"))
+                    # file_cover_image.bind(center_y = file_cover_button.setter("center_y"))
+
+
+                    # file_cover_image.bind(size = file_cover_image.image_size)
+                    # file_cover_image.bind(pos = (file_cover_button.setter("pos")))
+                    # print(file_cover_button.pos, file_cover_button.pos_hint, file_cover_button.center_x)
+                    # file_cover_image.pos = file_cover_button.pos
+                    # file_cover_image.center_x = file_cover_button.center_x
+                    # file_cover_image.center_y = file_cover_button.center_y
+                    # file_cover_image.pos_hint = file_cover_button.pos_hint                  
+                    # print(file_cover_image.center_x, file_cover_image.center_y)
+                    # print(file_cover_image.center_x)
+                    # print(file_cover_button.width, file_cover_button.height)
+                    # print(file_cover_image.pos_hint, file_cover_image.size)
+
+
+                    # print(file_cover_image.parent.pos_hint)
+                    # file_cover_image.pos = (file_cover_button.width, card.height/2)
+
+                    # file_cover_image.bind(pos = file_cover_button.setter("pos"))
+                    # file_cover_button.bind(height = file_cover_image.setter("height"))
+                    # file_cover_image.bind(width = file_cover_button.setter("width"))
+                    # file_cover_button.bind(width = file_cover_image.setter("width"))
+                    # file_cover_button.bind(pos_hint = file_cover_image.setter("pos_hint"))
+                    card.bind(size = file_cover_image.setter("size")) ########## this line is good?, adjusts size
+                    card.bind(x = file_cover_image.setter("x"))########## this line is good?
+                    # card.bind(center_y = file_cover_image.setter("center_y"))
+                    # file_cover_image.y = file_cover_button.y
+                    # card.bind(x = file_cover_image.x)
+                    file_cover_button.add_widget(file_cover_image)
+                    # file_cover_image.center_x = file_cover_image.parent.center_x
+                    # file_cover_image.center_y = file_cover_image.parent.center_y
+                    # file_cover_button.bind(width = file_cover_image.setter("width"))
+                    # file_cover_button.bind(height = file_cover_image.setter("height"))
+                    # file_cover_button.bind(pos = file_cover_image.setter("pos"))
+                    # file_cover_button.bind(width = file_cover_image.setter("width"))
                 else:
                     file_cover_button = KivyButton(
                         on_press = lambda x: app.change_screen("Album Inspector Screen", False),
@@ -633,7 +732,13 @@ class FileReaderApp(MDApp):
                 radius = [0, 0, 0, 0],
                 md_bg_color = card_background_color
             )
-
+            play_button = KivyButton(
+                text = "Play",
+                size_hint = (None, 1),
+                width = 50,
+                on_press = lambda x: app.play_album_track(album_track)
+            )
+            card.add_widget(play_button)
             track_number_label = Label(
                 size_hint = (None, 1),
                 width = 30,
@@ -642,7 +747,6 @@ class FileReaderApp(MDApp):
             if album_track["track_number"] != "":
                 album_track.text = album_track["track_number"] + ".",
             card.add_widget(track_number_label)
-                
             track_title_label = Label(
                 text = album_track["track_title"],
                 halign = "left",
@@ -651,7 +755,6 @@ class FileReaderApp(MDApp):
                 color = (0, 0, 0, 1)
             )
             card.add_widget(track_title_label)
-
             track_artist_label = KivyButton(
                 text = album_track["track_artist"],
                 size_hint = (None, 1),
@@ -659,16 +762,15 @@ class FileReaderApp(MDApp):
                 color = (0, 0, 0, 1)
             )
             card.add_widget(track_artist_label)
-            
             track_lenght_label = Label(
                 text = album_track["track_lenght"],
                 size_hint = (None, 1),
                 width = 100,
-                color = (0, 0, 0, 1)
+                color = (0, 0, 0, 1),
+                halign = "right"
             )
-            # print(track_lenght_label.pos_hint)
+            track_lenght_label.bind(texture_size = track_lenght_label.setter("size"))
             card.add_widget(track_lenght_label)
-
             album_track_list.add_widget(card)
 
     class Album_Genres():
@@ -688,23 +790,29 @@ class FileReaderApp(MDApp):
     album_track_card_primary_color = (1, 1, 1, 1)
     album_track_card_secondary_color = (0.9, 0.9, 0.9, 1)
     kivy_supported_image_files = ["jpeg", "jpg", "png", "gif"]
+    kivy_music_loader = None
 
     def image_press(self, *args):
         print("SSS")
     
-    def play_audio_track(self, file):
+    def play_album_track(self, track):
+        print(track["absolute_file_path"])
+        self.kivy_music_loader = SoundLoader.load(track["absolute_file_path"])
+        self.kivy_music_loader.play()
+
+    def play_full_album_track(self, file):
         if self.track_currently_playing_index <= len(file["album_tracks_dictionary"]):
-            kivy_music_loader = SoundLoader.load(file["album_tracks_dictionary"][self.track_currently_playing_index]["absolute_file_path"])
-            kivy_music_loader.bind(on_stop = self.on_kivy_music_loader_stop)
-            kivy_music_loader.play()
+            self.kivy_music_loader = SoundLoader.load(file["album_tracks_dictionary"][self.track_currently_playing_index]["absolute_file_path"])
+            self.kivy_music_loader.bind(on_stop = self.on_kivy_music_loader_stop)
+            self.kivy_music_loader.play()
 
     def on_kivy_music_loader_stop(self, dt):
         self.track_currently_playing_index += 1
-        self.play_audio_track()
+        self.play_full_album_track()
 
     def play_album(self, file):
         self.track_currently_playing_index = 0
-        self.play_audio_track(file)
+        self.play_full_album_track(file)
 
     def load_album_inspector_screen(self, file):
         if self.currently_open_album != file:
@@ -774,6 +882,7 @@ class FileReaderApp(MDApp):
             album_track_list.bind(minimum_height = album_track_list.setter("height"))
             layout.bind(minimum_height = layout.setter("height"))
             self.root.ids.album_inspector_box_layout.bind(minimum_height = self.root.ids.album_inspector_box_layout.setter("height"))
+            self.currently_open_album = file
 
     def main_menu_file_widget_size(self, id):
         if id == self.root.ids.main_menu_file_widget_size_slider:
@@ -876,6 +985,7 @@ class FileReaderApp(MDApp):
         self.screen_currently_in_use -= 1
 
     def change_screen(self, screen, using_return_bool):
+        print(screen, self.root.ids.screen_manager)
         self.root.ids.screen_manager.current = screen
         self.previous_screens_and_tabs_list.append(screen)
         if using_return_bool == False:
