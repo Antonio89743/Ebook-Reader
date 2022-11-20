@@ -747,7 +747,8 @@ class FileReaderApp(MDApp):
                 text = "Play",
                 size_hint = (None, 1),
                 width = 50,
-                on_press = lambda x: app.play_album_track(album_track)
+                # on_press = lambda x: app.play_album_track(album_track)
+                on_press = lambda x: app.play_audio_file_list(album_track, False, True)
             )
             card.add_widget(play_button)
             track_number_label = Label(
@@ -804,60 +805,42 @@ class FileReaderApp(MDApp):
     kivy_music_loader = None
 
     track_currently_playing_index = 0
-    list_of_audio_files_to_play = []
+    list_of_audio_files_to_play = [None]
+    about_to_play_another_track_bool = None
 
     def play_audio_file_list(self, track_or_album_file, play_full_album_bool, play_now_bool):
         if play_full_album_bool == True:
-
             # this is always a play now?
-
-
-            # len(play_full_album_bool["album_tracks_dictionary"])
-
-
-            # insert every track into the list
-
-
-
+            track_currently_playing_index = self.track_currently_playing_index
+            for track in track_or_album_file["album_tracks_dictionary"]:
+                self.list_of_audio_files_to_play.insert(track_currently_playing_index + 1, track)
+                track_currently_playing_index += 1
             self.track_currently_playing_index += 1
-            
-            # call func for the actual sound loader
-            
-
-
-
+            self.about_to_play_another_track_bool = True
+            self.set_sound_loader_file()
         else: 
             if play_now_bool == True:
-                self.list_of_audio_files_to_play.insert(self.track_currently_playing_index + 1, track_or_album_file["absolute_file_path"])
+                self.list_of_audio_files_to_play.insert(self.track_currently_playing_index + 1, track_or_album_file)
                 self.track_currently_playing_index += 1
-
-                # call func for the actual sound loader
-
-
+                self.about_to_play_another_track_bool = True
+                self.set_sound_loader_file()
             else:
-                self.list_of_audio_files_to_play.insert(self.track_currently_playing_index + 1, track_or_album_file["absolute_file_path"])
+                self.list_of_audio_files_to_play.insert(self.track_currently_playing_index + 1, track_or_album_file)
 
-                # call func for the actual sound loader
-
-     
-
-    def play_album_track(self, track):
-        self.kivy_music_loader = SoundLoader.load(track["absolute_file_path"])
+    def set_sound_loader_file(self):
+        if self.kivy_music_loader != None:
+            self.kivy_music_loader.stop()
+        self.kivy_music_loader = SoundLoader.load(self.list_of_audio_files_to_play[self.track_currently_playing_index]["absolute_file_path"])
         self.kivy_music_loader.play()
-
-    def play_full_album_track(self, file):
-        if self.track_currently_playing_index <= len(file["album_tracks_dictionary"]):
-            self.kivy_music_loader = SoundLoader.load(file["album_tracks_dictionary"][self.track_currently_playing_index]["absolute_file_path"])
-            self.kivy_music_loader.bind(on_stop = self.on_kivy_music_loader_stop)
-            self.kivy_music_loader.play()
+        self.kivy_music_loader.bind(on_stop = self.on_kivy_music_loader_stop)
 
     def on_kivy_music_loader_stop(self, dt):
-        self.track_currently_playing_index += 1
-        self.play_full_album_track()
-
-    def play_album(self, file):
-        self.track_currently_playing_index = 0
-        self.play_full_album_track(file)
+        if self.about_to_play_another_track_bool == True:
+            self.about_to_play_another_track_bool = None
+        else:
+            self.track_currently_playing_index += 1
+            if len(self.list_of_audio_files_to_play) > self.track_currently_playing_index + 1:
+                self.set_sound_loader_file()
 
     def load_album_inspector_screen(self, file):
         if self.currently_open_album != file:
@@ -866,7 +849,7 @@ class FileReaderApp(MDApp):
                 orientation = "vertical",
                 size_hint = (1, None),
                 pos_hint = {"left" : 1}
-            )
+                )
             header = BoxLayout(
                 size_hint = (1, None),
                 orientation = "horizontal"
@@ -882,7 +865,6 @@ class FileReaderApp(MDApp):
                 orientation = "vertical"
             )
             header.add_widget(header_info_layout)
-
             header_album_title = Label(
                 text = file["file_name"],
                 color = (0, 0, 0, 1)
@@ -906,13 +888,12 @@ class FileReaderApp(MDApp):
                 if album_genre[0] == "'":
                     album_genre = album_genre[1:-1]
                 self.Album_Genres(self, album_genre, header_genre_layout)
-
             header_play_album_button = KivyButton(
                 text = "Play Album",
-                on_press = lambda x: self.play_album(file)
+                # on_press = lambda x: self.play_album(file)
+                on_press = lambda x: self.play_audio_file_list(file, True, True)
             )
             header_info_layout.add_widget(header_play_album_button)
-
             album_track_list = BoxLayout(
                     orientation = "vertical",
                     size_hint = (1, None)
@@ -1030,7 +1011,6 @@ class FileReaderApp(MDApp):
         self.screen_currently_in_use -= 1
 
     def change_screen(self, screen, using_return_bool):
-        print(screen, self.root.ids.screen_manager)
         self.root.ids.screen_manager.current = screen
         self.previous_screens_and_tabs_list.append(screen)
         if using_return_bool == False:
@@ -1063,12 +1043,10 @@ class FileReaderApp(MDApp):
                 return ""
             else:
                 return list["file_author"]
-
         if self.root.ids.main_menu_files_widget_order.text == "Ascending":
             reverse_bool = False
         else:
             reverse_bool = True
-
         if self.root.ids.main_menu_files_widget_sort_spinner.text == "File Name":
             self.list_of_files.sort(key = sort_file_name, reverse = reverse_bool)
         elif self.root.ids.main_menu_files_widget_sort_spinner.text == "Author Name":
