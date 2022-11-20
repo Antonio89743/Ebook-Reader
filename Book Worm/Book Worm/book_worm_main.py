@@ -108,7 +108,6 @@ Kivy = '''
         on_press: Factory.LocalFolderPopUp().open()
 
 Screen:
-    id: root_screen
     MDCard:
         id: toolbar
         size_hint: (None, None)
@@ -125,7 +124,66 @@ Screen:
             text_size: self.size
             halign: "left"
             valign: "center"
+    
+    MDCard:
+        id: audio_player_card
+        size_hint: (None, None)
+        pos_hint: {"right": 1, "bottom": 1}
+        width: root.width - 70
+        height: 70
+        md_bg_color: (1, 1, 1, 1)
+        radius: [0, 0, 0, 0]
 
+        BoxLayout:
+            orientation: "horizontal"
+
+            Button:
+                id: audio_player_card_file_viewer_button
+
+                BoxLayout:
+                    orientation: "horizontal"
+
+                    Image:
+                        id: audio_player_card_cover_image
+
+                BoxLayout:
+                    orientation: "vertical"
+
+                    Label:
+                        id: audio_player_card_file_title_label
+                    
+                    Label:
+                        id: audio_player_card_file_author_label
+
+
+            BoxLayout:
+                orientation: "vertical"
+                
+                BoxLayout:
+                    orientation: "horizontal"
+                    
+                    Button:
+                        # play previous item
+
+                    Button:
+                        # play/pause item
+
+                    Button:
+                        # play next item
+                                                                        
+
+                BoxLayout:
+                    orientation: "horizontal"
+
+                    # time current
+
+                    # timeline
+
+                    # full lenght
+
+                    Label:
+                        id: audio_player_card_file_lenght_label
+ 
     ScreenManager:
         id: screen_manager
 
@@ -224,9 +282,9 @@ Screen:
      
         Screen:
             name: "Read Currently Open File Screen"
-            on_pre_enter: root_screen.remove_widget(toolbar)
+            on_pre_enter: toolbar.opacity = 0
             on_enter: toolbar_label.text = ""
-            on_pre_leave: root_screen.add_widget(toolbar)
+            on_pre_leave: toolbar.opacity = 1
 
             MDCard:
                 id: file_reader_content_card
@@ -262,9 +320,9 @@ Screen:
         
         Screen:
             name: "Album Inspector Screen"
-            on_pre_enter: root_screen.remove_widget(toolbar)
+            on_pre_enter: toolbar.opacity = 0
             on_enter: toolbar_label.text = ""
-            on_pre_leave: root_screen.add_widget(toolbar)
+            on_pre_leave: toolbar.opacity = 1
 
             ScrollView:
                 id: album_inspector_scroll_view
@@ -389,12 +447,12 @@ Screen:
                 md_bg_color : [1.0, 1.0, 1.0, 1.0]
                 icon: "icons and images\icons8-settings-500.png" 
                 on_press: app.change_screen("Settings Screen", False)
-                # add onperss that will add in element to array for previous frames
 
 '''
 
 # see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
 # navbar searchbar buton on press expand it to a full searchbar
+# audio file module for playing audio files
 
 class LocalFolderPopUp(Popup):
     class DriveButton():
@@ -425,14 +483,6 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
 
 class FileReaderApp(MDApp):
     class File():
-        class CoverButton():
-            def __init__(self, app, cover_image_path, card):
-                # should the button be created here? -> yup
-
-                # create button
-                # create kivy image from the image loader thing
-                # bind image size & pos
-                pass
         def __init__(self, app, file):
             if file["file_format"] == "txt":
                 file_title = file["file_name"]
@@ -441,7 +491,8 @@ class FileReaderApp(MDApp):
                         size_hint = (None, None),
                         height = app.main_menu_files_widgets_height,
                         width = app.main_menu_files_widgets_width,
-                        radius = [0, 0, 0, 0]
+                        radius = [0, 0, 0, 0],
+                        md_bg_color = (0, 0, 0, 0)
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
                 if file_title != None:
@@ -473,7 +524,8 @@ class FileReaderApp(MDApp):
                         size_hint = (None, None),
                         height = app.main_menu_files_widgets_height,
                         width = app.main_menu_files_widgets_width,
-                        radius = [0, 0, 0, 0]
+                        radius = [0, 0, 0, 0],
+                        md_bg_color = (0, 0, 0, 0)
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
                 if file_cover != None:
@@ -494,15 +546,15 @@ class FileReaderApp(MDApp):
                     file_cover_button.add_widget(file_cover_image)
                 else:
                     file_cover_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
                         text = "File Cover Image Not Found",
                         color = (0, 0, 0, 1),
                         size_hint = (1, None),
                         height = 50,
                         # width = 300,
                     )
-                file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
-                card.add_widget(file_cover_button)                        
+                file_cover_button.bind(on_press = lambda x: app.load_album_inspector_screen(file))  
+                card.add_widget(file_cover_button)                         
                 if file_title != None:
                     file_title_button = KivyButton(
                         on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
@@ -549,25 +601,37 @@ class FileReaderApp(MDApp):
                         size_hint = (None, None),
                         height = app.main_menu_files_widgets_height,
                         width = app.main_menu_files_widgets_width,
-                        radius = [0, 0, 0, 0]
+                        radius = [0, 0, 0, 0],
+                        md_bg_color = (0, 0, 0, 0)
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
                 if file_cover != None:
                     cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
-                    file_cover_button = Image(
+                    file_cover_button = KivyButton(
+                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
+                        background_color = (0, 0, 0, 0),
+                        pos_hint = {"bottom": 1}
+                        )
+                    file_cover_image = Image(
                         texture = CoreImage(cover_image).texture,
-                    )
+                        allow_stretch = True,
+                        keep_ratio = True,
+                        pos_hint = {"bottom": 1},
+                        )
+                    file_cover_button.bind(size = file_cover_image.setter("size"))
+                    file_cover_button.bind(pos = file_cover_image.setter("pos"))
+                    file_cover_button.add_widget(file_cover_image)
                 else:
                     file_cover_button = KivyButton(
-                    on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
-                    text = "File Cover Image Not Found",
-                    color = (0, 0, 0, 1),
-                    size_hint = (1, None),
-                    height = 50,
-                    # width = 300,
+                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
+                        text = "File Cover Image Not Found",
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
                     )
-                file_cover_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
-                card.add_widget(file_cover_button)                        
+                file_cover_button.bind(on_press = lambda x: app.load_album_inspector_screen(file))  
+                card.add_widget(file_cover_button)                       
                 if file_title != None:
                     file_title_button = KivyButton(
                         on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
@@ -739,11 +803,45 @@ class FileReaderApp(MDApp):
     kivy_supported_image_files = ["jpeg", "jpg", "png", "gif"]
     kivy_music_loader = None
 
-    def image_press(self, *args):
-        print("SSS")
-    
+    track_currently_playing_index = 0
+    list_of_audio_files_to_play = []
+
+    def play_audio_file_list(self, track_or_album_file, play_full_album_bool, play_now_bool):
+        if play_full_album_bool == True:
+
+            # this is always a play now?
+
+
+            # len(play_full_album_bool["album_tracks_dictionary"])
+
+
+            # insert every track into the list
+
+
+
+            self.track_currently_playing_index += 1
+            
+            # call func for the actual sound loader
+            
+
+
+
+        else: 
+            if play_now_bool == True:
+                self.list_of_audio_files_to_play.insert(self.track_currently_playing_index + 1, track_or_album_file["absolute_file_path"])
+                self.track_currently_playing_index += 1
+
+                # call func for the actual sound loader
+
+
+            else:
+                self.list_of_audio_files_to_play.insert(self.track_currently_playing_index + 1, track_or_album_file["absolute_file_path"])
+
+                # call func for the actual sound loader
+
+     
+
     def play_album_track(self, track):
-        print(track["absolute_file_path"])
         self.kivy_music_loader = SoundLoader.load(track["absolute_file_path"])
         self.kivy_music_loader.play()
 
