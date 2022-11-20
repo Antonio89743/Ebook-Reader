@@ -155,11 +155,14 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 list_of_tracks.append(track_dictionary)
             list_of_unique_albums = list(map(dict, set(tuple(sorted(sub.items())) for sub in list_of_albums)))
             for album in list_of_unique_albums:
+                album_genres = []
                 album_tracks_dictionary = []
                 for track in list_of_tracks:
                     if album["file_album_title"] == track["track_album_title"] and album["file_album_artist"] == track["file_album_artist"]:
                         if album["file_album_total_track_number"] == track["file_album_total_track_number"] and album["file_album_total_disk_number"] == track["file_album_total_disk_number"]:
                             album_tracks_dictionary.append(track)
+                            album_genres.append(track["track_genre"])
+                            album_genres = [*set(album_genres)]
                 array_of_valid_files.append({
                     "absolute_file_path" : None, 
                     "file_format" : "mp3_album", 
@@ -170,7 +173,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     "album_tracks_dictionary" : album_tracks_dictionary,
                     "date_added" : None,
                     "publisher" : None, 
-                    "genre" : None, # this could be an list?
+                    "album_genre" : album_genres,
                     "date_most_recently_opened" : None, 
                     "country_of_origin" : None,
                     "language" : None,
@@ -310,11 +313,14 @@ def scan_folders(folders_to_scan, new_folder_bool):
                 list_of_tracks.append(track_dictionary)
             list_of_unique_albums = list(map(dict, set(tuple(sorted(sub.items())) for sub in list_of_albums)))
             for album in list_of_unique_albums:
+                album_genres = []
                 album_tracks_dictionary = []
                 for track in list_of_tracks:
                     if album["file_album_title"] == track["track_album_title"] and album["file_album_artist"] == track["file_album_artist"]:
                         if album["file_album_total_track_number"] == track["file_album_total_track_number"] and album["file_album_total_disk_number"] == track["file_album_total_disk_number"]:
                             album_tracks_dictionary.append(track)
+                            album_genres.append(track["track_genre"])
+                            album_genres = [*set(album_genres)]
                 array_of_valid_files.append({
                     "absolute_file_path" : None, 
                     "file_format" : "mp3_album", 
@@ -325,7 +331,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     "album_tracks_dictionary" : album_tracks_dictionary,
                     "date_added" : None,
                     "publisher" : None, 
-                    "genre" : None, # this could be an list?
+                    "album_genre" : album_genres,
                     "date_most_recently_opened" : None, 
                     "country_of_origin" : None,
                     "language" : None,

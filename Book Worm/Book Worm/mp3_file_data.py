@@ -16,7 +16,18 @@ def get_mp3_file_artist(file_path):
 
 def get_mp3_file_release_year(file_path):
     file = music_tag.load_file(file_path)
-    return str(file["year"].values)[2:-2]
+    file_release_year = file["year"].values
+    if type(file_release_year) == list:
+        if len(file_release_year) > 1:
+            if str(file_release_year[1])[0] == "[":
+                return str(file_release_year[1])[1:-1]
+            else: 
+                return str(file_release_year[1])
+        else:
+            return str(file_release_year)[1:-1]
+    else:
+        if str(file_release_year)[0] == "[":
+            return str(file_release_year)[1:-1]
 
 def get_mp3_file_album_name(file_path):
     file = music_tag.load_file(file_path)
@@ -24,8 +35,23 @@ def get_mp3_file_album_name(file_path):
 
 def get_mp3_file_genre(file_path):
     file = music_tag.load_file(file_path)
-    #  what if there are multiple grenres, return a list of them?
-    return str(file["genre"].values)[2:-2]
+    file_genere = file["genre"].values
+    if type(file_genere) == list:
+        if str(file_genere)[0] == "[":
+            if len(str(file_genere)) > 2:
+                return str(file_genere)[1:-1]
+            elif str(file_genere)[1] == "]":
+                return ""
+        else:
+            return str(file_genere)
+    else:
+        if str(file_genere)[0] == "[":
+            if len(str(file_genere)) > 2:
+                return str(file_genere)[1:-1]
+            elif str(file_genere)[1] == "]":
+                return ""
+        else:
+            return str(file_genere)
 
 def get_mp3_file_album_artist(file_path):
     file = music_tag.load_file(file_path)
@@ -49,7 +75,10 @@ def get_mp3_file_total_tracks(file_path):
 
 def get_mp3_file_artwork(file_path):
     file = music_tag.load_file(file_path)
-    return file["artwork"].value.data
+    try:
+        return file["artwork"].value.data
+    except ValueError:
+        pass
 
 def get_mp3_file_length(file_path):
     file = music_tag.load_file(file_path)
@@ -68,7 +97,7 @@ def get_mp3_file_length(file_path):
         else:
             return "%0d:%02d" % (minutes, seconds)
 
-# print(get_mp3_file_length(r"E:\Music\Larkin Poe\Larkin Poe - Kindred Spirits (2020) - WEB FLAC/01. Hellhound On My Trail.flac"))
+# print(get_mp3_file_genre(r"E:\Music\Larkin Poe\Larkin Poe - Kindred Spirits (2020) - WEB FLAC/01. Hellhound On My Trail.flac"))
 
 # comment
 # compilation

@@ -425,6 +425,14 @@ class LocalFoldersExpansionPanelContent(BoxLayout):
 
 class FileReaderApp(MDApp):
     class File():
+        class CoverButton():
+            def __init__(self, app, cover_image_path, card):
+                # should the button be created here? -> yup
+
+                # create button
+                # create kivy image from the image loader thing
+                # bind image size & pos
+                pass
         def __init__(self, app, file):
             if file["file_format"] == "txt":
                 file_title = file["file_name"]
@@ -470,10 +478,20 @@ class FileReaderApp(MDApp):
                 app.root.ids.main_menu_grid_layout.add_widget(card)
                 if file_cover != None:
                     cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
-                    file_cover_button = Image(
+                    file_cover_button = KivyButton(
+                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
+                        background_color = (0, 0, 0, 0),
+                        pos_hint = {"bottom": 1}
+                        )
+                    file_cover_image = Image(
                         texture = CoreImage(cover_image).texture,
-                        # on_touch_down = lambda x: app.change_screen("Read Currently Open File Screen", False)
-                    )
+                        allow_stretch = True,
+                        keep_ratio = True,
+                        pos_hint = {"bottom": 1},
+                        )
+                    file_cover_button.bind(size = file_cover_image.setter("size"))
+                    file_cover_button.bind(pos = file_cover_image.setter("pos"))
+                    file_cover_button.add_widget(file_cover_image)
                 else:
                     file_cover_button = KivyButton(
                         on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
@@ -579,97 +597,26 @@ class FileReaderApp(MDApp):
                         size_hint = (None, None),
                         height = app.main_menu_files_widgets_height,
                         width = app.main_menu_files_widgets_width,
-                        radius = [0, 0, 0, 0]
+                        radius = [0, 0, 0, 0],
+                        md_bg_color = (0, 0, 0, 0)
                     )
                 app.root.ids.main_menu_grid_layout.add_widget(card)
                 if file_cover != None:
                     cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                     file_cover_button = KivyButton(
                         on_press = lambda x: app.change_screen("Album Inspector Screen", False),
-                        background_color = (0, 0, 0, 0)
+                        background_color = (0, 0, 0, 0),
+                        pos_hint = {"bottom": 1}
                         )
                     file_cover_image = Image(
                         texture = CoreImage(cover_image).texture,
-                        # size_hint = (None, None),
-                        # pos_hint = {"center_x": file_cover_button.center_x, "center_y": file_cover_button.center_y},
-                        # pos = (0, 700)
-                        # stretch = True
                         allow_stretch = True,
                         keep_ratio = True,
-                        pos_hint = {"bottom": 1}
-                        # y = file_cover_button.y
-                        
-                        
-
-
-
-
-
-
-
-
-
-
-                        # on_press = lambda x: app.change_screen("Album Inspector Screen", False)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                        pos_hint = {"bottom": 1},
                         )
-                    
-                    # print(file_cover_button.setter("pos"))
-                    # print(file_cover_image.parent.getter("center_x"))
-                    # file_cover_image.bind(center_x = file_cover_image.parent.center_x)  
-
-
-                    # file_cover_image.bind(center_x = file_cover_button.setter("center_x"))
-                    # file_cover_image.bind(center_y = file_cover_button.setter("center_y"))
-
-
-                    # file_cover_image.bind(size = file_cover_image.image_size)
-                    # file_cover_image.bind(pos = (file_cover_button.setter("pos")))
-                    # print(file_cover_button.pos, file_cover_button.pos_hint, file_cover_button.center_x)
-                    # file_cover_image.pos = file_cover_button.pos
-                    # file_cover_image.center_x = file_cover_button.center_x
-                    # file_cover_image.center_y = file_cover_button.center_y
-                    # file_cover_image.pos_hint = file_cover_button.pos_hint                  
-                    # print(file_cover_image.center_x, file_cover_image.center_y)
-                    # print(file_cover_image.center_x)
-                    # print(file_cover_button.width, file_cover_button.height)
-                    # print(file_cover_image.pos_hint, file_cover_image.size)
-
-
-                    # print(file_cover_image.parent.pos_hint)
-                    # file_cover_image.pos = (file_cover_button.width, card.height/2)
-
-                    # file_cover_image.bind(pos = file_cover_button.setter("pos"))
-                    # file_cover_button.bind(height = file_cover_image.setter("height"))
-                    # file_cover_image.bind(width = file_cover_button.setter("width"))
-                    # file_cover_button.bind(width = file_cover_image.setter("width"))
-                    # file_cover_button.bind(pos_hint = file_cover_image.setter("pos_hint"))
-                    card.bind(size = file_cover_image.setter("size")) ########## this line is good?, adjusts size
-                    card.bind(x = file_cover_image.setter("x"))########## this line is good?
-                    # card.bind(center_y = file_cover_image.setter("center_y"))
-                    # file_cover_image.y = file_cover_button.y
-                    # card.bind(x = file_cover_image.x)
+                    file_cover_button.bind(size = file_cover_image.setter("size"))
+                    file_cover_button.bind(pos = file_cover_image.setter("pos"))
                     file_cover_button.add_widget(file_cover_image)
-                    # file_cover_image.center_x = file_cover_image.parent.center_x
-                    # file_cover_image.center_y = file_cover_image.parent.center_y
-                    # file_cover_button.bind(width = file_cover_image.setter("width"))
-                    # file_cover_button.bind(height = file_cover_image.setter("height"))
-                    # file_cover_button.bind(pos = file_cover_image.setter("pos"))
-                    # file_cover_button.bind(width = file_cover_image.setter("width"))
                 else:
                     file_cover_button = KivyButton(
                         on_press = lambda x: app.change_screen("Album Inspector Screen", False),
