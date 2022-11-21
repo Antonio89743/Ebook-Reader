@@ -108,345 +108,345 @@ Kivy = '''
         on_press: Factory.LocalFolderPopUp().open()
 
 Screen:
-    MDCard:
-        id: toolbar
-        size_hint: (None, None)
-        pos_hint: {"right": 1, "top": 1}
-        width: root.width - 70
-        height: 70
-        md_bg_color: (0, 145, 255, 1)
-        radius: [0, 0, 0, 0]
-        Label:
-            id: toolbar_label
-            font_size: "25sp"
-            text: "Book Reader"
-            color: (0, 0, 0, 1)
-            text_size: self.size
-            halign: "left"
-            valign: "center"
-    
-    MDCard:
-        id: audio_player_card
-        size_hint: (None, None)
-        pos_hint: {"right": 1, "bottom": 1}
-        width: root.width - 70
-        height: 70
-        md_bg_color: (1, 1, 1, 1)
-        radius: [0, 0, 0, 0]
-
-        BoxLayout:
-            orientation: "horizontal"
-
-            Button:
-                id: audio_player_card_file_viewer_button
-
-                BoxLayout:
-                    orientation: "horizontal"
-
-                    Image:
-                        id: audio_player_card_cover_image
-
-                BoxLayout:
-                    orientation: "vertical"
-
-                    Label:
-                        id: audio_player_card_file_title_label
-                    
-                    Label:
-                        id: audio_player_card_file_author_label
-
-
+    BoxLayout:
+        id: root_screen_horizontal_box_layout
+        orientation: "horizontal"
+        MDCard:
+            id: navbar
+            size_hint: (None, 1)
+            width: 70
+            pos_hint: {"left": 0, "y": 0}
             BoxLayout:
-                orientation: "vertical"
-                
+                padding: [10, 10, 10, 10]
+                spacing: 20
+                id: nav_bar
+                orientation: 'vertical'
+                pos_hint: {"left": 0, "y": 0}
+                MDIconButton:
+                    pos_hint: {"y": 1}
+                    width: 70
+                    height: 70
+                    icon: "icons and images\go back.png"
+                    on_press: app.return_to_previous_tab_or_screen()
+                MDIconButton:
+                    pos_hint: {"center_y": 1}
+                    width: 70
+                    height: 70
+                    color : [1.0, 1.0, 1.0, 1.0]
+                    icon: "icons and images\search.png"
+                MDIconButton:
+                    pos_hint: {"center_y": 1}
+                    width: 70
+                    height: 70
+                    color : [1.0, 1.0, 1.0, 1.0]
+                    icon: "icons and images\Home-icon.svg.png" 
+                    on_press: app.change_screen("Main Menu", False)
+                MDIconButton:
+                    pos_hint: {"y": 1}
+                    width: 70
+                    height: 70
+                    color : [1.0, 1.0, 1.0, 1.0]
+                    on_press: app.change_screen("Read Currently Open File Screen", False)
+                MDIconButton:
+                    pos_hint: {"y": 1}
+                    width: 70
+                    height: 70
+                    color : [1.0, 1.0, 1.0, 1.0]
+                    on_press: app.change_screen("Album Inspector Screen", False)
                 BoxLayout:
-                    orientation: "horizontal"
-                    
-                    Button:
-                        # play previous item
+                    id: nav_bar_settings
+                    orientation: 'vertical'
+                    pos_hint: {"left": 0, "y": 0}
+                    MDIconButton:
+                        width: 70
+                        height: 70
+                        pos_hint: {"y": 0}
+                        md_bg_color : [1.0, 1.0, 1.0, 1.0]
+                        icon: "icons and images\icons8-settings-500.png" 
+                        on_press: app.change_screen("Settings Screen", False)
+        BoxLayout:
+            id: root_screen_vertical_box_layout
+            orientation: "vertical"
+            size_hint: (None, None)
+            height: root.height
+            width: root.width - 70
 
-                    Button:
-                        # play/pause item
-
-                    Button:
-                        # play next item
-                                                                        
-
-                BoxLayout:
-                    orientation: "horizontal"
-
-                    # time current
-
-                    # timeline
-
-                    # full lenght
-
-                    Label:
-                        id: audio_player_card_file_lenght_label
- 
-    ScreenManager:
-        id: screen_manager
-
-        Screen:
-            id: main_menu_screen
-            name: "Main Menu"
-            on_enter: toolbar_label.text = "Main Menu"
-            TabbedPanel:
-                do_default_tab: False
-                tab_pos: "top_left"
+            MDCard:
+                id: toolbar
                 size_hint: (None, None)
-                tab_width: 150
-                pos_hint: {"right": 1}
+                height: 70
                 width: root.width - 70
-                height: root.height - 70
-                
-                TabbedPanelItem:
-                    text: "Files"
+                pos_hint: {"right": 1, "top": 1}
+                md_bg_color: (0, 145, 255, 1)
+                radius: [0, 0, 0, 0]
+                Label:
+                    id: toolbar_label
+                    font_size: "25sp"
+                    text: "Book Reader"
+                    color: (0, 0, 0, 1)
+                    text_size: self.size
+                    halign: "left"
+                    valign: "center"
+    
+            ScreenManager:
+                id: screen_manager
+                Screen:
+                    id: main_menu_screen
+                    name: "Main Menu"
+                    on_enter: toolbar_label.text = "Main Menu"
+                    TabbedPanel:
+                        do_default_tab: False
+                        tab_pos: "top_left"
+                        size_hint: (None, None)
+                        height: root.height - 70 - 70 + 5
+                        width: root.width - 70
+                        tab_width: 150
+                        pos_hint: {"right": 1}
 
-                    BoxLayout:
-                        orientation: "vertical"
+                        TabbedPanelItem:
+                            text: "Files"
 
-                        BoxLayout:
-                            orientation: "horizontal"
+                            BoxLayout:
+                                orientation: "vertical"
 
+                                BoxLayout:
+                                    orientation: "horizontal"
+
+                                    Label:
+                                        text: "Sort by: "
+                                        size_hint: (None, None)
+                                        width: 100
+                                        height: 30
+                                    
+                                    Spinner: 
+                                        id: main_menu_files_widget_sort_spinner
+                                        text: "Release Date"
+                                        values: ("Release Date", "File Name", "Author Name", "File Format")
+                                        size_hint: (None, None)
+                                        sync_height: True
+                                        width: 100
+                                        height: 30
+                                        on_text: app.add_main_menu_widgets()
+                                    
+                                    Button:
+                                        id: main_menu_files_widget_order
+                                        text: "Ascending"
+                                        size_hint: (None, None)
+                                        width: 100
+                                        height: 30
+                                        on_press: app.sort_order_button_pressed()
+
+                                    Button:
+                                        text: "Filter"
+                                        size_hint: (None, None)
+                                        width: 100
+                                        height: 30
+                                    
+                                    Slider:
+                                        id: main_menu_file_widget_size_slider
+                                        orientation: "horizontal"
+                                        size_hint: (None, None)
+                                        width: 300
+                                        height: 30
+                                        value: 0.5
+                                        step: 0.01
+                                        min: 0.1
+                                        max: 1
+                                        on_value: app.main_menu_file_widget_size(main_menu_file_widget_size_slider)
+
+                                ScrollView:
+                                    id: main_menu_scroll_view
+                                    always_overscroll: False
+                                    do_scroll_x: False
+                                    pos_hint: {"right": 1}
+                                    size_hint: (None, None)
+                                    width: root.width - 70
+                                    height: root.height - 70 - 40 - 5 - 30 - 70
+
+                                    GridLayout:
+                                        id: main_menu_grid_layout
+                                        pos_hint: {"top": 1}
+                                        size_hint: (None, None)
+                                        width: main_menu_scroll_view.width 
+                                        height: self.minimum_height 
+                                        padding: [20, 20, 20, 20]
+                                        spacing: 20
+                                        cols: 5
+
+                        TabbedPanelItem:
+                            text: "Authors"
                             Label:
-                                text: "Sort by: "
-                                size_hint: (None, None)
-                                width: 100
-                                height: 30
-                            
-                            Spinner: 
-                                id: main_menu_files_widget_sort_spinner
-                                text: "Release Date"
-                                values: ("Release Date", "File Name", "Author Name", "File Format")
-                                size_hint: (None, None)
-                                sync_height: True
-                                width: 100
-                                height: 30
-                                on_text: app.add_main_menu_widgets()
-                            
-                            Button:
-                                id: main_menu_files_widget_order
-                                text: "Ascending"
-                                size_hint: (None, None)
-                                width: 100
-                                height: 30
-                                on_press: app.sort_order_button_pressed()
+                                text: "CCCC"    
 
-                            Button:
-                                text: "Filter"
-                                size_hint: (None, None)
-                                width: 100
-                                height: 30
-                            
-                            Slider:
-                                id: main_menu_file_widget_size_slider
-                                orientation: "horizontal"
-                                size_hint: (None, None)
-                                width: 300
-                                height: 30
-                                value: 0.5
-                                step: 0.01
-                                min: 0.1
-                                max: 1
-                                on_value: app.main_menu_file_widget_size(main_menu_file_widget_size_slider)
+                        TabbedPanelItem:
+                            text: "Collections"
+                            Label:
+                                text: "XXXXX"    
+            
+                Screen:
+                    name: "Read Currently Open File Screen"
+                    on_pre_enter: toolbar.opacity = 0
+                    on_enter: toolbar_label.text = ""
+                    on_pre_leave: toolbar.opacity = 1
 
+                    MDCard:
+                        id: file_reader_content_card
+                        orientation: "vertical"
+                        size_hint: (None, None)
+                        pos_hint: {"center_x": 0.5}
+                        width: 700
+                        height: root.height
+                        radius: [0, 0, 0, 0]
                         ScrollView:
-                            id: main_menu_scroll_view
+                            id: file_reader_content_scroll_view
                             always_overscroll: False
                             do_scroll_x: False
                             pos_hint: {"right": 1}
                             size_hint: (None, None)
-                            width: root.width - 70
-                            height: root.height - 70 - 40 - 5 - 30
-
-                            GridLayout:
-                                id: main_menu_grid_layout
+                            width: file_reader_content_card.width
+                            height: root.height
+                            
+                            BoxLayout:
+                                id: file_reader_content_grid_layout
                                 pos_hint: {"top": 1}
                                 size_hint: (None, None)
-                                width: main_menu_scroll_view.width 
+                                width: file_reader_content_scroll_view.width 
                                 height: self.minimum_height 
-                                padding: [20, 20, 20, 20]
-                                spacing: 20
-                                cols: 5
+                                orientation: 'vertical'
 
-                TabbedPanelItem:
-                    text: "Authors"
-                    Label:
-                        text: "CCCC"    
-
-                TabbedPanelItem:
-                    text: "Collections"
-                    Label:
-                        text: "XXXXX"    
-     
-        Screen:
-            name: "Read Currently Open File Screen"
-            on_pre_enter: toolbar.opacity = 0
-            on_enter: toolbar_label.text = ""
-            on_pre_leave: toolbar.opacity = 1
-
-            MDCard:
-                id: file_reader_content_card
-                orientation: "vertical"
-                size_hint: (None, None)
-                pos_hint: {"center_x": 0.5}
-                width: 700
-                height: root.height
-                radius: [0, 0, 0, 0]
-                ScrollView:
-                    id: file_reader_content_scroll_view
-                    always_overscroll: False
-                    do_scroll_x: False
-                    pos_hint: {"right": 1}
-                    size_hint: (None, None)
-                    width: file_reader_content_card.width
-                    height: root.height
-                    
-                    BoxLayout:
-                        id: file_reader_content_grid_layout
-                        pos_hint: {"top": 1}
-                        size_hint: (None, None)
-                        width: file_reader_content_scroll_view.width 
-                        height: self.minimum_height 
-                        orientation: 'vertical'
-
-        Screen:
-            name: "File Details Screen"
-            on_enter: toolbar_label.text = "File Detail Screen"
-            MDLabel:
-                text: "File Details Screen"
-                halign: "center"
-        
-        Screen:
-            name: "Album Inspector Screen"
-            on_pre_enter: toolbar.opacity = 0
-            on_enter: toolbar_label.text = ""
-            on_pre_leave: toolbar.opacity = 1
-
-            ScrollView:
-                id: album_inspector_scroll_view
-                always_overscroll: False
-                do_scroll_x: False
-                pos_hint: {"right": 1}
-                size_hint: (None, None)
-                width: root.width - 70
-                height: root.height
+                Screen:
+                    name: "File Details Screen"
+                    on_enter: toolbar_label.text = "File Detail Screen"
+                    MDLabel:
+                        text: "File Details Screen"
+                        halign: "center"
                 
-                BoxLayout:
-                    id: album_inspector_box_layout
-                    pos_hint: {"top": 1}
-                    size_hint: (None, None)
-                    width: album_inspector_scroll_view.width 
-                    height: self.minimum_height 
-                    orientation: 'vertical'
-
-        Screen:
-            name: "Settings Screen"
-            on_enter: toolbar_label.text = "Settings"
-            TabbedPanel:
-                do_default_tab: False
-                tab_pos: "top_mid"
-                size_hint: (None, None)
-                tab_width: 200
-                pos_hint: {"right": 1}
-                width: root.width - 70
-                height: root.height - 70
-
-                TabbedPanelItem:
-                    text: "Themes & Preferences"
-                    Label:
-                        text: "CCCC"    
-                
-                TabbedPanelItem:
-                    text: "Scanning Folders"
-
+                Screen:
+                    name: "Album Inspector Screen"
+                    on_pre_enter: toolbar.opacity = 0
+                    on_pre_enter: toolbar.height = 0
+                    on_enter: toolbar_label.text = ""
+                    on_pre_leave: toolbar.opacity = 1
+                    on_pre_leave: toolbar.height = 70
                     ScrollView:
-                        id: scroll_view
+                        id: album_inspector_scroll_view
                         always_overscroll: False
                         do_scroll_x: False
                         pos_hint: {"right": 1}
                         size_hint: (None, None)
                         width: root.width - 70
-                        height: root.height - 70 - 40
-
+                        height: root.height - 70
                         BoxLayout:
-                            id: settings_scanning_local_folders_box_layout
+                            id: album_inspector_box_layout
                             pos_hint: {"top": 1}
                             size_hint: (None, None)
-                            width: scroll_view.width 
+                            width: album_inspector_scroll_view.width 
                             height: self.minimum_height 
                             orientation: 'vertical'
 
+                Screen:
+                    name: "Settings Screen"
+                    on_enter: toolbar_label.text = "Settings"
+                    TabbedPanel:
+                        do_default_tab: False
+                        tab_pos: "top_mid"
+                        size_hint: (None, None)
+                        tab_width: 200
+                        pos_hint: {"right": 1}
+                        width: root.width - 70
+                        height: root.height - 70
+
+                        TabbedPanelItem:
+                            text: "Themes & Preferences"
                             Label:
-                                text: "Local Folders To Scan"
-                                font_size: 20
-                                halign: "left"
+                                text: "CCCC"    
+                        
+                        TabbedPanelItem:
+                            text: "Scanning Folders"
+
+                            ScrollView:
+                                id: scroll_view
+                                always_overscroll: False
+                                do_scroll_x: False
+                                pos_hint: {"right": 1}
                                 size_hint: (None, None)
-                                pos_hint: {"left": 1, "top": 1}
-                                width: 250
-                                height: 50
+                                width: root.width - 70
+                                height: root.height - 70 - 40
 
-                TabbedPanelItem:
-                    text: "About"
-                    Label:
-                        text: "cxzczxc"
+                                BoxLayout:
+                                    id: settings_scanning_local_folders_box_layout
+                                    pos_hint: {"top": 1}
+                                    size_hint: (None, None)
+                                    width: scroll_view.width 
+                                    height: self.minimum_height 
+                                    orientation: 'vertical'
 
-    BoxLayout:
-        padding: [10, 10, 10, 10]
-        spacing: 20
-        id: nav_bar
-        orientation: 'vertical'
-        pos_hint: {"left": 0, "y": 0}
+                                    Label:
+                                        text: "Local Folders To Scan"
+                                        font_size: 20
+                                        halign: "left"
+                                        size_hint: (None, None)
+                                        pos_hint: {"left": 1, "top": 1}
+                                        width: 250
+                                        height: 50
 
-        MDIconButton:
-            pos_hint: {"y": 1}
-            width: 70
-            height: 70
-            icon: "icons and images\go back.png"
-            on_press: app.return_to_previous_tab_or_screen()
-        
-        MDIconButton:
-            pos_hint: {"center_y": 1}
-            width: 70
-            height: 70
-            color : [1.0, 1.0, 1.0, 1.0]
-            icon: "icons and images\search.png"
+                        TabbedPanelItem:
+                            text: "About"
+                            Label:
+                                text: "cxzczxc"
 
-        MDIconButton:
-            pos_hint: {"center_y": 1}
-            width: 70
-            height: 70
-            color : [1.0, 1.0, 1.0, 1.0]
-            icon: "icons and images\Home-icon.svg.png" 
-            on_press: app.change_screen("Main Menu", False)
-
-        MDIconButton:
-            pos_hint: {"y": 1}
-            width: 70
-            height: 70
-            color : [1.0, 1.0, 1.0, 1.0]
-            on_press: app.change_screen("Read Currently Open File Screen", False)
-
-        MDIconButton:
-            pos_hint: {"y": 1}
-            width: 70
-            height: 70
-            color : [1.0, 1.0, 1.0, 1.0]
-            on_press: app.change_screen("Album Inspector Screen", False)
-
-        BoxLayout:
-            id: nav_bar_settings
-            orientation: 'vertical'
-            pos_hint: {"left": 0, "y": 0}
-
-            MDIconButton:
-                width: 70
+            MDCard:
+                id: audio_player_card
+                size_hint: (None, None)
                 height: 70
-                pos_hint: {"y": 0}
-                md_bg_color : [1.0, 1.0, 1.0, 1.0]
-                icon: "icons and images\icons8-settings-500.png" 
-                on_press: app.change_screen("Settings Screen", False)
+                width: root.width - 70
+                pos_hint: {"right": 1, "bottom": 0}
+                md_bg_color: (1, 1, 1, 1)
+                radius: [0, 0, 0, 0]
+                BoxLayout:
+                    orientation: "horizontal"
+                    width: root.width - 70
+                    Button:
+                        id: audio_player_card_file_viewer_button
+                        BoxLayout:
+                            orientation: "horizontal"
+                            Image:
+                                id: audio_player_card_cover_image
+                        BoxLayout:
+                            orientation: "vertical"
+                            Label:
+                                id: audio_player_card_file_title_label
+                            Label:
+                                id: audio_player_card_file_author_label
+                    BoxLayout:
+                        orientation: "vertical"
+                        BoxLayout:
+                            orientation: "horizontal"
+                            Button:
+                                id: audio_player_card_play_previous_track_button
+                                on_press: app.on_play_previous_audio_file_button_pressed()
+                                text: "<"
+                            Button:
+                                id: audio_player_card_pause_resume_button
+                                on_press: app.on_pause_resume_audio_file_button_pressed()
+                                text: "||"
+                            Button:
+                                id: audio_player_card_play_next_track_button                     
+                                on_press: app.on_play_next_audio_file_button_pressed()
+                                text: ">"
+                        BoxLayout:
+                            orientation: "horizontal"
+
+                            # time current
+
+                            # timeline
+
+                            # full lenght
+
+                            Label:
+                                id: audio_player_card_file_lenght_label
+
+        
 
 '''
 
@@ -531,7 +531,7 @@ class FileReaderApp(MDApp):
                 if file_cover != None:
                     cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                     file_cover_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
                         background_color = (0, 0, 0, 0),
                         pos_hint = {"bottom": 1}
                         )
@@ -546,14 +546,14 @@ class FileReaderApp(MDApp):
                     file_cover_button.add_widget(file_cover_image)
                 else:
                     file_cover_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
                         text = "File Cover Image Not Found",
                         color = (0, 0, 0, 1),
                         size_hint = (1, None),
                         height = 50,
                         # width = 300,
                     )
-                file_cover_button.bind(on_press = lambda x: app.load_album_inspector_screen(file))  
+                file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_cover_button)                         
                 if file_title != None:
                     file_title_button = KivyButton(
@@ -608,7 +608,7 @@ class FileReaderApp(MDApp):
                 if file_cover != None:
                     cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                     file_cover_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
                         background_color = (0, 0, 0, 0),
                         pos_hint = {"bottom": 1}
                         )
@@ -623,14 +623,14 @@ class FileReaderApp(MDApp):
                     file_cover_button.add_widget(file_cover_image)
                 else:
                     file_cover_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
                         text = "File Cover Image Not Found",
                         color = (0, 0, 0, 1),
                         size_hint = (1, None),
                         height = 50,
                         # width = 300,
                     )
-                file_cover_button.bind(on_press = lambda x: app.load_album_inspector_screen(file))  
+                file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_cover_button)                       
                 if file_title != None:
                     file_title_button = KivyButton(
@@ -803,10 +803,26 @@ class FileReaderApp(MDApp):
     album_track_card_secondary_color = (0.9, 0.9, 0.9, 1)
     kivy_supported_image_files = ["jpeg", "jpg", "png", "gif"]
     kivy_music_loader = None
-
     track_currently_playing_index = 0
     list_of_audio_files_to_play = [None]
     about_to_play_another_track_bool = None
+
+    # currently playing bool
+    def on_pause_resume_audio_file_button_pressed(self):
+        # check currently playing bool
+        pass
+
+    def on_play_next_audio_file_button_pressed(self):
+        if len(self.list_of_audio_files_to_play) - self.track_currently_playing_index > self.track_currently_playing_index + 1:
+            self.track_currently_playing_index += 1
+            self.about_to_play_another_track_bool = True
+            self.set_sound_loader_file()
+
+    def on_play_previous_audio_file_button_pressed(self):
+        if self.track_currently_playing_index >= 2:
+            self.track_currently_playing_index -= 1
+            self.about_to_play_another_track_bool = True
+            self.set_sound_loader_file()
 
     def play_audio_file_list(self, track_or_album_file, play_full_album_bool, play_now_bool):
         if play_full_album_bool == True:
@@ -815,15 +831,11 @@ class FileReaderApp(MDApp):
             for track in track_or_album_file["album_tracks_dictionary"]:
                 self.list_of_audio_files_to_play.insert(track_currently_playing_index + 1, track)
                 track_currently_playing_index += 1
-            self.track_currently_playing_index += 1
-            self.about_to_play_another_track_bool = True
-            self.set_sound_loader_file()
+            self.on_play_next_audio_file_button_pressed()
         else: 
             if play_now_bool == True:
                 self.list_of_audio_files_to_play.insert(self.track_currently_playing_index + 1, track_or_album_file)
-                self.track_currently_playing_index += 1
-                self.about_to_play_another_track_bool = True
-                self.set_sound_loader_file()
+                self.on_play_next_audio_file_button_pressed()
             else:
                 self.list_of_audio_files_to_play.insert(self.track_currently_playing_index + 1, track_or_album_file)
 
@@ -833,13 +845,33 @@ class FileReaderApp(MDApp):
         self.kivy_music_loader = SoundLoader.load(self.list_of_audio_files_to_play[self.track_currently_playing_index]["absolute_file_path"])
         self.kivy_music_loader.play()
         self.kivy_music_loader.bind(on_stop = self.on_kivy_music_loader_stop)
+        self.set_audio_player_card_widgets()
+
+# check that there aren't 2 same tracks in a row?
+
+    def set_audio_player_card_widgets(self):
+        file_currently_playing = self.list_of_audio_files_to_play[self.track_currently_playing_index]
+        currently_playing_file_title = self.list_of_audio_files_to_play[self.track_currently_playing_index]["track_title"]
+        currently_playing_file_author = self.list_of_audio_files_to_play[self.track_currently_playing_index]["track_artist"]
+        currently_playing_file_path = self.list_of_audio_files_to_play[self.track_currently_playing_index]["absolute_file_path"]
+        currently_playing_file_lenght = self.list_of_audio_files_to_play[self.track_currently_playing_index]["track_lenght"]
+        currently_playing_file_cover = mp3_file_data.get_mp3_file_artwork(currently_playing_file_path)
+        if currently_playing_file_cover != None:
+            cover_image = CoreImage(io.BytesIO(currently_playing_file_cover), ext = "jpg")
+            self.root.ids.audio_player_card_cover_image.texture = CoreImage(io.BytesIO(currently_playing_file_cover), ext = "jpg").texture
+        self.root.ids.audio_player_card_file_title_label.text = currently_playing_file_title
+        self.root.ids.audio_player_card_file_author_label.text = currently_playing_file_author
+        self.root.ids.audio_player_card_file_lenght_label.text = currently_playing_file_lenght
+
+# current position on 'lenght' label, how to implement?, how to implement the timeline?
 
     def on_kivy_music_loader_stop(self, dt):
         if self.about_to_play_another_track_bool == True:
             self.about_to_play_another_track_bool = None
         else:
-            self.track_currently_playing_index += 1
+            # should you check if the leghts has been reached?
             if len(self.list_of_audio_files_to_play) > self.track_currently_playing_index + 1:
+                self.track_currently_playing_index += 1
                 self.set_sound_loader_file()
 
     def load_album_inspector_screen(self, file):
