@@ -116,6 +116,8 @@ Screen:
             size_hint: (None, 1)
             width: 70
             pos_hint: {"left": 0, "y": 0}
+            md_bg_color: (0, 0, 1, 1)
+            radius: [0, 0, 0, 0]
             BoxLayout:
                 padding: [10, 10, 10, 10]
                 spacing: 20
@@ -342,8 +344,7 @@ Screen:
                             size_hint: (None, None)
                             width: album_inspector_scroll_view.width 
                             height: self.minimum_height 
-                            orientation: 'vertical'
-
+                            orientation: "vertical"
                 Screen:
                     name: "Settings Screen"
                     on_enter: toolbar_label.text = "Settings"
@@ -354,16 +355,13 @@ Screen:
                         tab_width: 200
                         pos_hint: {"right": 1}
                         width: root.width - 70
-                        height: root.height - 70
-
+                        height: root.height - 70 - 70
                         TabbedPanelItem:
                             text: "Themes & Preferences"
                             Label:
                                 text: "CCCC"    
-                        
                         TabbedPanelItem:
                             text: "Scanning Folders"
-
                             ScrollView:
                                 id: scroll_view
                                 always_overscroll: False
@@ -372,15 +370,13 @@ Screen:
                                 size_hint: (None, None)
                                 width: root.width - 70
                                 height: root.height - 70 - 40
-
                                 BoxLayout:
                                     id: settings_scanning_local_folders_box_layout
                                     pos_hint: {"top": 1}
                                     size_hint: (None, None)
                                     width: scroll_view.width 
                                     height: self.minimum_height 
-                                    orientation: 'vertical'
-
+                                    orientation: "vertical"
                                     Label:
                                         text: "Local Folders To Scan"
                                         font_size: 20
@@ -389,12 +385,10 @@ Screen:
                                         pos_hint: {"left": 1, "top": 1}
                                         width: 250
                                         height: 50
-
                         TabbedPanelItem:
                             text: "About"
                             Label:
                                 text: "cxzczxc"
-
             MDCard:
                 id: audio_player_card
                 size_hint: (None, None)
@@ -408,12 +402,26 @@ Screen:
                     width: root.width - 70
                     Button:
                         id: audio_player_card_file_viewer_button
+                        pos_hint: {"bottom": 1}
+                        width: 100
                         BoxLayout:
                             orientation: "horizontal"
+                            pos_hint: {"bottom": 1, "left": 1}
+                            size_hint: (None, None)
+                            pos: audio_player_card_file_viewer_button.pos
+                            height: audio_player_card_file_viewer_button.height
                             Image:
                                 id: audio_player_card_cover_image
+                                allow_stretch: True
+                                keep_ratio: True
+                                pos_hint: {"bottom": 1, "left": 1}
                         BoxLayout:
                             orientation: "vertical"
+                            pos_hint: {"bottom": 1, "right": 1}
+                            size_hint: (None, None)
+                            pos: audio_player_card_file_viewer_button.pos
+                            x: audio_player_card_cover_image.x + audio_player_card_cover_image.width + 10
+                            height: audio_player_card_file_viewer_button.height
                             Label:
                                 id: audio_player_card_file_title_label
                             Label:
@@ -440,13 +448,8 @@ Screen:
                             # time current
 
                             # timeline
-
-                            # full lenght
-
                             Label:
-                                id: audio_player_card_file_lenght_label
-
-        
+                                id: audio_player_card_file_lenght_label 
 
 '''
 
@@ -677,6 +680,7 @@ class FileReaderApp(MDApp):
                         allow_stretch = True,
                         keep_ratio = True,
                         pos_hint = {"bottom": 1},
+                        y = 0
                         )
                     file_cover_button.bind(size = file_cover_image.setter("size"))
                     file_cover_button.bind(pos = file_cover_image.setter("pos"))
@@ -806,11 +810,16 @@ class FileReaderApp(MDApp):
     track_currently_playing_index = 0
     list_of_audio_files_to_play = [None]
     about_to_play_another_track_bool = None
+    kivy_music_loader_position_at_track_paused = None
 
-    # currently playing bool
     def on_pause_resume_audio_file_button_pressed(self):
-        # check currently playing bool
-        pass
+        if self.kivy_music_loader != None:
+            if self.kivy_music_loader.state == "stop" and self.kivy_music_loader_position_at_track_paused != None:
+                self.kivy_music_loader.play()
+                self.kivy_music_loader.seek(self.kivy_music_loader_position_at_track_paused)
+            else:
+                self.kivy_music_loader_position_at_track_paused = self.kivy_music_loader.get_pos()
+                self.kivy_music_loader.stop()
 
     def on_play_next_audio_file_button_pressed(self):
         if len(self.list_of_audio_files_to_play) - self.track_currently_playing_index > self.track_currently_playing_index + 1:

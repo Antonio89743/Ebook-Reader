@@ -98,6 +98,9 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "language" : None,
                         "file_size" : None})     
             cbz_files = glob.glob(folders_to_scan + "/**/*.cbz", recursive = True)
+            cbr_files = glob.glob(folders_to_scan + "/**/*.cbr", recursive = True)
+            cb_files = {"cbz_files" : cbz_files, "cbr_files" : cbr_files}
+            print(cb_files)
             for cbz_file in cbz_files:
                 absolute_path_to_file = os.path.abspath(cbz_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
@@ -256,6 +259,11 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "language" : None,
                         "file_size" : None})
             cbz_files = glob.glob(folders_to_scan + "/**/*.cbz", recursive = True)
+            cbr_files = glob.glob(folders_to_scan + "/**/*.cbr", recursive = True)
+            cb_files = {"cbz_files" : cbz_files, "cbr_files" : cbr_files}
+            # print(cb_files)
+            for file in cb_files:
+                print(file, ":", cb_files[file])
             for cbz_file in cbz_files:
                 absolute_path_to_file = os.path.abspath(cbz_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
