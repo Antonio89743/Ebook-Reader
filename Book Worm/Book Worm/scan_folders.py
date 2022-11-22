@@ -4,6 +4,7 @@ from array import array
 from collections import Counter
 from json.decoder import JSONDecodeError
 import cbz_file_data
+import cbr_file_data
 import text_file_data
 import epub_file_data
 import mp3_file_data
@@ -100,7 +101,6 @@ def scan_folders(folders_to_scan, new_folder_bool):
             cbz_files = glob.glob(folders_to_scan + "/**/*.cbz", recursive = True)
             cbr_files = glob.glob(folders_to_scan + "/**/*.cbr", recursive = True)
             cb_files = {"cbz_files" : cbz_files, "cbr_files" : cbr_files}
-            print(cb_files)
             for cbz_file in cbz_files:
                 absolute_path_to_file = os.path.abspath(cbz_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
@@ -258,12 +258,10 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "country_of_origin" : None,
                         "language" : None,
                         "file_size" : None})
+            cb7_files = glob.glob(folders_to_scan + "/**/*.cb7", recursive = True)
+            cba_files = glob.glob(folders_to_scan + "/**/*.cba", recursive = True)
+            cbt_files = glob.glob(folders_to_scan + "/**/*.cbt", recursive = True)          
             cbz_files = glob.glob(folders_to_scan + "/**/*.cbz", recursive = True)
-            cbr_files = glob.glob(folders_to_scan + "/**/*.cbr", recursive = True)
-            cb_files = {"cbz_files" : cbz_files, "cbr_files" : cbr_files}
-            # print(cb_files)
-            for file in cb_files:
-                print(file, ":", cb_files[file])
             for cbz_file in cbz_files:
                 absolute_path_to_file = os.path.abspath(cbz_file)
                 if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
@@ -283,6 +281,26 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "country_of_origin" : None,
                         "language" : None,
                         "file_size" : None})
+            cbr_files = glob.glob(folders_to_scan + "/**/*.cbr", recursive = True)
+            for cbr_file in cbr_files:
+                absolute_path_to_file = os.path.abspath(cbr_file)
+                if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
+                    file_title = cbr_file_data.get_cbr_file_title(absolute_path_to_file)
+                    file_cover = cbr_file_data.get_cbr_cover_image(absolute_path_to_file)
+                    array_of_valid_files.append({
+                        "absolute_file_path" : absolute_path_to_file, 
+                        "file_format" : "cbr", 
+                        "file_name" : file_title, 
+                        "file_author" : None,
+                        "file_cover" : file_cover,
+                        "release_date" : None,
+                        "date_added" : None,
+                        "publisher" : None, 
+                        "genre" : None, # this could be an list?
+                        "date_most_recently_opened" : None, 
+                        "country_of_origin" : None,
+                        "language" : None,
+                        "file_size" : None})        
             mp3_files = glob.glob(folders_to_scan + "/**/*.mp3", recursive = True)
             list_of_albums = []
             list_of_tracks = []

@@ -2,17 +2,18 @@ from cProfile import label
 from logging import root
 from msilib.schema import File
 from kivy.config import Config
-Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
-Config.set('graphics', 'width', '800')
-Config.set('graphics', 'height', '800')
-Config.set('graphics', 'minimum_width', '700')
-Config.set('graphics', 'minimum_height', '400')
+Config.set("input", "mouse", "mouse,multitouch_on_demand")
+Config.set("graphics", "width", "800")
+Config.set("graphics", "height", "800")
+Config.set("graphics", "minimum_width", "700")
+Config.set("graphics", "minimum_height", "400")
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivymd.uix.card import MDCard
+from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.button import MDIconButton
@@ -21,6 +22,7 @@ from kivy.core.image import Image as CoreImage
 from kivy.uix.button import Button as KivyButton
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import cbz_file_data
+import cbr_file_data
 import text_file_data 
 import epub_file_data
 import mp3_file_data
@@ -36,6 +38,7 @@ import sys
 from zipfile import ZipFile
 import io
 import zipfile
+import rarfile
 from itertools import cycle
 
 Kivy = '''
@@ -49,43 +52,36 @@ Kivy = '''
     size_hint: (0.8, 0.8)
     pos_hint: {"center_x": 0.5}
     on_open: root.add_drives()
-
     BoxLayout:
         size: root.size
         pos: root.pos
         orientation: "horizontal"
-
         ScrollView:
-            id: scroll_view
+            id: local_folder_popup_scroll_view
             always_overscroll: False
             do_scroll_x: False
             size_hint: (None, 1)
             pos_hint: {"left": 1}
             width: 70
-
             BoxLayout:
                 id: folder_chooser_box_layout_vertical
-                width: scroll_view.width 
+                width: local_folder_popup_scroll_view.width 
                 height: self.minimum_height 
                 orientation: "vertical"
-
         BoxLayout:
             size: root.size
             pos: root.pos
             orientation: "vertical"
-
             FileChooserListView:
                 id: folder_chooser
                 dirselect: True   
                 rootpath: "E:"
-
             BoxLayout:
                 size_hint_y: None
                 height: 30
                 Button:
                     text: "Close"
                     on_release: root.dismiss()
-
                 Button:
                     text: "Add Folder"
                     on_release: app.add_folder_to_scan_folder_selected(folder_chooser.selection)
@@ -108,77 +104,93 @@ Kivy = '''
         on_press: Factory.LocalFolderPopUp().open()
 
 Screen:
-    BoxLayout:
+    GridLayout:
         id: root_screen_horizontal_box_layout
-        orientation: "horizontal"
+        cols: 2
+        width: self.minimum_width
+        size_hint: (None, 1)
         MDCard:
             id: navbar
             size_hint: (None, 1)
-            width: 70
+            width: 50
             pos_hint: {"left": 0, "y": 0}
             md_bg_color: (0, 0, 1, 1)
             radius: [0, 0, 0, 0]
-            BoxLayout:
-                padding: [10, 10, 10, 10]
-                spacing: 20
-                id: nav_bar
-                orientation: 'vertical'
-                pos_hint: {"left": 0, "y": 0}
-                MDIconButton:
-                    pos_hint: {"y": 1}
-                    width: 70
-                    height: 70
-                    icon: "icons and images\go back.png"
-                    on_press: app.return_to_previous_tab_or_screen()
-                MDIconButton:
-                    pos_hint: {"center_y": 1}
-                    width: 70
-                    height: 70
-                    color : [1.0, 1.0, 1.0, 1.0]
-                    icon: "icons and images\search.png"
-                MDIconButton:
-                    pos_hint: {"center_y": 1}
-                    width: 70
-                    height: 70
-                    color : [1.0, 1.0, 1.0, 1.0]
-                    icon: "icons and images\Home-icon.svg.png" 
-                    on_press: app.change_screen("Main Menu", False)
-                MDIconButton:
-                    pos_hint: {"y": 1}
-                    width: 70
-                    height: 70
-                    color : [1.0, 1.0, 1.0, 1.0]
-                    on_press: app.change_screen("Read Currently Open File Screen", False)
-                MDIconButton:
-                    pos_hint: {"y": 1}
-                    width: 70
-                    height: 70
-                    color : [1.0, 1.0, 1.0, 1.0]
-                    on_press: app.change_screen("Album Inspector Screen", False)
+            ScrollView:
+                id: navbar_scroll_view
+                always_overscroll: False
+                do_scroll_x: False
+                pos_hint: {"right": 1}
+                size_hint: (None, None)
+                width: 50
+                height: root.height
                 BoxLayout:
-                    id: nav_bar_settings
-                    orientation: 'vertical'
+                    id: nav_bar
+                    padding: [10, 10, 10, 10]
+                    spacing: 20    
+                    orientation: "vertical"
                     pos_hint: {"left": 0, "y": 0}
+                    size_hint_x: None
+                    width: navbar.width
+                    height: self.minimum_height
                     MDIconButton:
-                        width: 70
-                        height: 70
-                        pos_hint: {"y": 0}
-                        md_bg_color : [1.0, 1.0, 1.0, 1.0]
-                        icon: "icons and images\icons8-settings-500.png" 
-                        on_press: app.change_screen("Settings Screen", False)
-        BoxLayout:
+                        pos_hint: {"y": 1}
+                        width: navbar.width
+                        height: navbar.width
+                        icon: "icons and images\go back.png"
+                        icon_size: 5
+                        on_press: app.return_to_previous_tab_or_screen()
+                    MDIconButton:
+                        pos_hint: {"center_y": 1}
+                        width: navbar.width
+                        height: navbar.width
+                        color : [1.0, 1.0, 1.0, 1.0]      
+                        icon: "icons and images\search.png"
+                        icon_size: 5
+                    MDIconButton:
+                        pos_hint: {"center_y": 1}
+                        width: navbar.width
+                        height: navbar.width
+                        color : [1.0, 1.0, 1.0, 1.0]
+                        icon: "icons and images\Home-icon.svg.png" 
+                        icon_size: 5
+                        on_press: app.change_screen("Main Menu", False)
+                    MDIconButton:
+                        pos_hint: {"y": 1}
+                        width: navbar.width
+                        height: navbar.width
+                        color : [1.0, 1.0, 1.0, 1.0]
+                        icon_size: 5
+                        on_press: app.change_screen("Read Currently Open File Screen", False)
+                    MDIconButton:
+                        pos_hint: {"y": 1}
+                        width: navbar.width
+                        height: navbar.width
+                        color : [1.0, 1.0, 1.0, 1.0]
+                        icon_size: 5
+                        on_press: app.change_screen("Album Inspector Screen", False)
+                    BoxLayout:
+                        id: nav_bar_settings
+                        orientation: "vertical"
+                        pos_hint: {"left": 0, "y": 0}
+                        MDIconButton:
+                            width: navbar.width
+                            height: navbar.width
+                            pos_hint: {"y": 0}
+                            md_bg_color : [1.0, 1.0, 1.0, 1.0]
+                            icon: "icons and images\icons8-settings-500.png" 
+                            icon_size: 5
+                            on_press: app.change_screen("Settings Screen", False)
+        GridLayout:
             id: root_screen_vertical_box_layout
-            orientation: "vertical"
             size_hint: (None, None)
+            width: root.width - navbar.width
             height: root.height
-            width: root.width - 70
-
+            rows: 3
             MDCard:
                 id: toolbar
-                size_hint: (None, None)
-                height: 70
-                width: root.width - 70
-                pos_hint: {"right": 1, "top": 1}
+                size_hint: (1, None)
+                height: 50
                 md_bg_color: (0, 145, 255, 1)
                 radius: [0, 0, 0, 0]
                 Label:
@@ -189,21 +201,27 @@ Screen:
                     text_size: self.size
                     halign: "left"
                     valign: "center"
-    
             ScreenManager:
                 id: screen_manager
+                
                 Screen:
                     id: main_menu_screen
                     name: "Main Menu"
                     on_enter: toolbar_label.text = "Main Menu"
+                    size_hint: (None, None)
+                    width: root.width - navbar.width
+                    height: root_screen_vertical_box_layout.height - audio_player_card.height - toolbar.height
+                    y: 0
+
                     TabbedPanel:
                         do_default_tab: False
                         tab_pos: "top_left"
                         size_hint: (None, None)
-                        height: root.height - 70 - 70 + 5
-                        width: root.width - 70
+                        width: root.width - navbar.width
+                        height: root_screen_vertical_box_layout.height - audio_player_card.height - toolbar.height
                         tab_width: 150
-                        pos_hint: {"right": 1}
+                        pos_y: 0
+                        y: 0
 
                         TabbedPanelItem:
                             text: "Files"
@@ -262,8 +280,8 @@ Screen:
                                     do_scroll_x: False
                                     pos_hint: {"right": 1}
                                     size_hint: (None, None)
-                                    width: root.width - 70
-                                    height: root.height - 70 - 40 - 5 - 30 - 70
+                                    width: root.width - navbar.width
+                                    height: root.height - toolbar.height - 40 - 5 - 30 - audio_player_card.height
 
                                     GridLayout:
                                         id: main_menu_grid_layout
@@ -287,17 +305,18 @@ Screen:
             
                 Screen:
                     name: "Read Currently Open File Screen"
-                    on_pre_enter: toolbar.opacity = 0
+                    on_pre_enter: app.change_widget_height(toolbar, 0)
+                    on_pre_enter: app.change_widget_opacity(toolbar, 0)
                     on_enter: toolbar_label.text = ""
-                    on_pre_leave: toolbar.opacity = 1
-
+                    on_pre_leave: app.change_widget_opacity(toolbar, 1)
+                    on_pre_leave: app.change_widget_height(toolbar, 70)
                     MDCard:
                         id: file_reader_content_card
                         orientation: "vertical"
                         size_hint: (None, None)
                         pos_hint: {"center_x": 0.5}
                         width: 700
-                        height: root.height
+                        height: root.height - audio_player_card.height - toolbar.height
                         radius: [0, 0, 0, 0]
                         ScrollView:
                             id: file_reader_content_scroll_view
@@ -306,8 +325,7 @@ Screen:
                             pos_hint: {"right": 1}
                             size_hint: (None, None)
                             width: file_reader_content_card.width
-                            height: root.height
-                            
+                            height: file_reader_content_card.height
                             BoxLayout:
                                 id: file_reader_content_grid_layout
                                 pos_hint: {"top": 1}
@@ -315,29 +333,27 @@ Screen:
                                 width: file_reader_content_scroll_view.width 
                                 height: self.minimum_height 
                                 orientation: 'vertical'
-
                 Screen:
                     name: "File Details Screen"
                     on_enter: toolbar_label.text = "File Detail Screen"
                     MDLabel:
                         text: "File Details Screen"
                         halign: "center"
-                
                 Screen:
                     name: "Album Inspector Screen"
-                    on_pre_enter: toolbar.opacity = 0
-                    on_pre_enter: toolbar.height = 0
+                    on_pre_enter: app.change_widget_height(toolbar, 0)
+                    on_pre_enter: app.change_widget_opacity(toolbar, 0)
                     on_enter: toolbar_label.text = ""
-                    on_pre_leave: toolbar.opacity = 1
-                    on_pre_leave: toolbar.height = 70
+                    on_pre_leave: app.change_widget_opacity(toolbar, 1)
+                    on_pre_leave: app.change_widget_height(toolbar, 70)
                     ScrollView:
                         id: album_inspector_scroll_view
                         always_overscroll: False
                         do_scroll_x: False
                         pos_hint: {"right": 1}
                         size_hint: (None, None)
-                        width: root.width - 70
-                        height: root.height - 70
+                        width: root.width - navbar.width
+                        height: root.height - audio_player_card.height
                         BoxLayout:
                             id: album_inspector_box_layout
                             pos_hint: {"top": 1}
@@ -354,8 +370,8 @@ Screen:
                         size_hint: (None, None)
                         tab_width: 200
                         pos_hint: {"right": 1}
-                        width: root.width - 70
-                        height: root.height - 70 - 70
+                        width: root.width - navbar.width
+                        height: root.height - audio_player_card.height - toolbar.height
                         TabbedPanelItem:
                             text: "Themes & Preferences"
                             Label:
@@ -368,7 +384,7 @@ Screen:
                                 do_scroll_x: False
                                 pos_hint: {"right": 1}
                                 size_hint: (None, None)
-                                width: root.width - 70
+                                width: root.width - navbar.width
                                 height: root.height - 70 - 40
                                 BoxLayout:
                                     id: settings_scanning_local_folders_box_layout
@@ -399,11 +415,12 @@ Screen:
                 radius: [0, 0, 0, 0]
                 BoxLayout:
                     orientation: "horizontal"
-                    width: root.width - 70
+                    width: root.width - navbar.width
                     Button:
                         id: audio_player_card_file_viewer_button
                         pos_hint: {"bottom": 1}
-                        width: 100
+                        size_hint: (None, 1)
+                        width: 300
                         BoxLayout:
                             orientation: "horizontal"
                             pos_hint: {"bottom": 1, "left": 1}
@@ -434,14 +451,20 @@ Screen:
                                 id: audio_player_card_play_previous_track_button
                                 on_press: app.on_play_previous_audio_file_button_pressed()
                                 text: "<"
+                                size_hint: (None, 1)
+                                width: 60
                             Button:
                                 id: audio_player_card_pause_resume_button
                                 on_press: app.on_pause_resume_audio_file_button_pressed()
                                 text: "||"
+                                size_hint: (None, 1)
+                                width: 60
                             Button:
                                 id: audio_player_card_play_next_track_button                     
                                 on_press: app.on_play_next_audio_file_button_pressed()
                                 text: ">"
+                                size_hint: (None, 1)
+                                width: 60
                         BoxLayout:
                             orientation: "horizontal"
 
@@ -655,6 +678,71 @@ class FileReaderApp(MDApp):
                     )
                 file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_title_button)
+            elif file["file_format"] == "cbr":
+                file_title = cbr_file_data.get_cbr_file_title(file["absolute_file_path"])
+                print(file_title)
+                file_author = file["file_author"]
+                print(file["file_cover"], type(file["file_cover"]))
+                # cbr_file_data.get_cbr_file_content(file["absolute_file_path"])
+                # file_cover = rarfile.RarFile(file["absolute_file_path"])
+                # file_cover.read(file["file_cover"])
+                print(file_cover, type(file_cover))
+                card = MDCard(
+                        orientation = "vertical",
+                        size_hint = (None, None),
+                        height = app.main_menu_files_widgets_height,
+                        width = app.main_menu_files_widgets_width,
+                        radius = [0, 0, 0, 0],
+                        md_bg_color = (0, 0, 0, 0)
+                    )
+                app.root.ids.main_menu_grid_layout.add_widget(card)
+                if file_cover != None:
+                    cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
+                    file_cover_button = KivyButton(
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                        background_color = (0, 0, 0, 0),
+                        pos_hint = {"bottom": 1}
+                        )
+                    file_cover_image = Image(
+                        texture = CoreImage(cover_image).texture,
+                        allow_stretch = True,
+                        keep_ratio = True,
+                        pos_hint = {"bottom": 1},
+                        )
+                    file_cover_button.bind(size = file_cover_image.setter("size"))
+                    file_cover_button.bind(pos = file_cover_image.setter("pos"))
+                    file_cover_button.add_widget(file_cover_image)
+                else:
+                    file_cover_button = KivyButton(
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                        text = "File Cover Image Not Found",
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
+                    )
+                file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
+                card.add_widget(file_cover_button)                       
+                if file_title != None:
+                    file_title_button = KivyButton(
+                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                        text = file_title,
+                        color = (0, 0, 0, 1),
+                        size_hint = (1, None),
+                        height = 50,
+                        # width = 300,
+                        )
+                else:
+                    file_title_button = KivyButton(
+                    on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
+                    text = "File Title Not Found",
+                    color = (0, 0, 0, 1),
+                    size_hint = (1, None),
+                    height = 50,
+                    # width = 300,
+                    )
+                file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
+                card.add_widget(file_title_button)
             elif file["file_format"] == "mp3_album":
                 album_title = file["file_name"]
                 album_author = file["file_author"]
@@ -812,6 +900,16 @@ class FileReaderApp(MDApp):
     about_to_play_another_track_bool = None
     kivy_music_loader_position_at_track_paused = None
 
+    def change_widget_height(self, widget_id, new_value):
+        animation = Animation(height = new_value)
+        if widget_id == self.root.ids.toolbar:
+            animation.start(self.root.ids.toolbar)
+
+    def change_widget_opacity(self, widget_id, new_value):
+        animation = Animation(opacity = new_value)
+        if widget_id == self.root.ids.toolbar:
+            animation.start(self.root.ids.toolbar)
+
     def on_pause_resume_audio_file_button_pressed(self):
         if self.kivy_music_loader != None:
             if self.kivy_music_loader.state == "stop" and self.kivy_music_loader_position_at_track_paused != None:
@@ -851,6 +949,12 @@ class FileReaderApp(MDApp):
     def set_sound_loader_file(self):
         if self.kivy_music_loader != None:
             self.kivy_music_loader.stop()
+        else:
+            for child in self.root.ids.audio_player_card.children:
+                child.opacity = 1
+            animation = Animation(height = 70, opacity = 1)
+            # animation &= Animation(x=100, y=100)
+            animation.start(self.root.ids.audio_player_card)
         self.kivy_music_loader = SoundLoader.load(self.list_of_audio_files_to_play[self.track_currently_playing_index]["absolute_file_path"])
         self.kivy_music_loader.play()
         self.kivy_music_loader.bind(on_stop = self.on_kivy_music_loader_stop)
@@ -866,13 +970,10 @@ class FileReaderApp(MDApp):
         currently_playing_file_lenght = self.list_of_audio_files_to_play[self.track_currently_playing_index]["track_lenght"]
         currently_playing_file_cover = mp3_file_data.get_mp3_file_artwork(currently_playing_file_path)
         if currently_playing_file_cover != None:
-            cover_image = CoreImage(io.BytesIO(currently_playing_file_cover), ext = "jpg")
             self.root.ids.audio_player_card_cover_image.texture = CoreImage(io.BytesIO(currently_playing_file_cover), ext = "jpg").texture
         self.root.ids.audio_player_card_file_title_label.text = currently_playing_file_title
         self.root.ids.audio_player_card_file_author_label.text = currently_playing_file_author
         self.root.ids.audio_player_card_file_lenght_label.text = currently_playing_file_lenght
-
-# current position on 'lenght' label, how to implement?, how to implement the timeline?
 
     def on_kivy_music_loader_stop(self, dt):
         if self.about_to_play_another_track_bool == True:
@@ -1175,7 +1276,13 @@ class FileReaderApp(MDApp):
     def set_main_menu_widget_sort_order(self, *args):
         if type(args) == dict:
             self.root.ids.main_menu_files_widget_order.text = args["main_menu_file_sort_order"]
-
+    
+    def set_audio_player_card_height(self):
+        if self.kivy_music_loader == None:
+            self.root.ids.audio_player_card.height = 0
+            for child in self.root.ids.audio_player_card.children:
+                child.opacity = 0
+            
     def load_last_used_settings(self):
         saved_app_data_dictionary = None
         if exists("Book Worm\Book Worm\saved_app_data_dictionary.json"):
@@ -1190,10 +1297,10 @@ class FileReaderApp(MDApp):
                 "main_menu_file_widget_width": 504.0, 
                 "main_menu_file_widget_size_slider_value": 0.84
                 }
-            pass
         self.set_main_menu_widget_sizes(saved_app_data_dictionary)
         self.set_main_menu_widget_sort(saved_app_data_dictionary)
         self.set_main_menu_widget_sort_order(saved_app_data_dictionary)
+        self.set_audio_player_card_height()
 
     def build(self):
         self.title = "Book Reader"
