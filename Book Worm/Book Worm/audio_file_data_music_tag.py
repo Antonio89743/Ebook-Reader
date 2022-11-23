@@ -2,19 +2,19 @@ import os
 import music_tag
 from datetime import datetime
 
-def get_mp3_file_modified_time(file_path):
+def get_audio_file_data_music_tag_modified_time(file_path):
     unix_time = os.path.getmtime(file_path)
     return datetime.fromtimestamp(unix_time).strftime("%d/%m/%Y %H:%M:%S")
 
-def get_mp3_file_title(file_path):
+def get_audio_file_data_music_tag_title(file_path):
     file = music_tag.load_file(file_path)
     return str(file["title"].values)[2:-2]
 
-def get_mp3_file_artist(file_path):
+def get_audio_file_data_music_tag_artist(file_path):
     file = music_tag.load_file(file_path)
     return str(file["artist"].values)[2:-2] 
 
-def get_mp3_file_release_year(file_path):
+def get_audio_file_data_music_tag_release_year(file_path):
     file = music_tag.load_file(file_path)
     file_release_year = file["year"].values
     if type(file_release_year) == list:
@@ -29,11 +29,11 @@ def get_mp3_file_release_year(file_path):
         if str(file_release_year)[0] == "[":
             return str(file_release_year)[1:-1]
 
-def get_mp3_file_album_name(file_path):
+def get_audio_file_data_music_tag_album_name(file_path):
     file = music_tag.load_file(file_path)
     return str(file["album"].values)[2:-2]
 
-def get_mp3_file_genre(file_path):
+def get_audio_file_data_music_tag_genre(file_path):
     file = music_tag.load_file(file_path)
     file_genere = file["genre"].values
     if type(file_genere) == list:
@@ -53,34 +53,37 @@ def get_mp3_file_genre(file_path):
         else:
             return str(file_genere)
 
-def get_mp3_file_album_artist(file_path):
+def get_audio_file_data_music_tag_album_artist(file_path):
     file = music_tag.load_file(file_path)
-    return str(file["albumartist"].values)[2:-2]
+    artist = str(file["albumartist"].values)[2:-2]
+    if artist == "":
+        artist = get_audio_file_data_music_tag_artist(file_path)
+    return artist
 
-def get_mp3_file_track_title(file_path):
+def get_audio_file_data_music_tag_track_title(file_path):
     file = music_tag.load_file(file_path)
     return str(file["tracktitle"].values)[2:-2]  
 
-def get_mp3_file_track_number(file_path):
+def get_audio_file_data_music_tag_track_number(file_path):
     file = music_tag.load_file(file_path)
     return str(file["tracknumber"].values)[2:-2] 
 
-def get_mp3_file_total_discs(file_path):
+def get_audio_file_data_music_tag_total_discs(file_path):
     file = music_tag.load_file(file_path)
     return str(file["totaldiscs"].values)[2:-2]  
 
-def get_mp3_file_total_tracks(file_path):
+def get_audio_file_data_music_tag_total_tracks(file_path):
     file = music_tag.load_file(file_path)
     return str(file["totaltracks"].values)[2:-2]
 
-def get_mp3_file_artwork(file_path):
+def get_audio_file_data_music_tag_artwork(file_path):
     file = music_tag.load_file(file_path)
     try:
         return file["artwork"].value.data
     except ValueError:
         pass
 
-def get_mp3_file_length(file_path):
+def get_audio_file_data_music_tag_length(file_path):
     file = music_tag.load_file(file_path)
     string_lenght = str(file["#length"].values)[1:-1]
     seconds = float(string_lenght)
@@ -97,7 +100,7 @@ def get_mp3_file_length(file_path):
         else:
             return "%0d:%02d" % (minutes, seconds)
 
-# print(get_mp3_file_genre(r"E:\Music\Larkin Poe\Larkin Poe - Kindred Spirits (2020) - WEB FLAC/01. Hellhound On My Trail.flac"))
+# print(get_audio_file_data_music_tag_genre(r"E:\Music\Larkin Poe\Larkin Poe - Kindred Spirits (2020) - WEB FLAC/01. Hellhound On My Trail.flac"))
 
 # comment
 # compilation

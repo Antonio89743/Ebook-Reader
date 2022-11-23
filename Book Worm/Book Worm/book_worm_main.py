@@ -25,7 +25,7 @@ import cbz_file_data
 import cbr_file_data
 import text_file_data 
 import epub_file_data
-import mp3_file_data
+import audio_file_data_music_tag
 from kivy.core.window import Window
 import os, string
 from os.path import sep, expanduser, isdir, dirname, exists
@@ -207,7 +207,7 @@ Screen:
                 Screen:
                     id: main_menu_screen
                     name: "Main Menu"
-                    on_pre_enter: app.change_widget_height(toolbar, 70)
+                    on_pre_enter: app.change_widget_height(toolbar, 50)
                     on_pre_enter: app.change_widget_opacity(toolbar, 1)
                     on_enter: toolbar_label.text = "Main Menu"
                     size_hint: (None, None)
@@ -335,9 +335,9 @@ Screen:
                                 orientation: 'vertical'
                 Screen:
                     name: "File Details Screen"
-                    on_enter: toolbar_label.text = "File Detail Screen"
-                    on_pre_enter: app.change_widget_height(toolbar, 70)
+                    on_pre_enter: app.change_widget_height(toolbar, 50)
                     on_pre_enter: app.change_widget_opacity(toolbar, 1)
+                    on_enter: toolbar_label.text = "File Detail Screen"
                     MDLabel:
                         text: "File Details Screen"
                         halign: "center"
@@ -363,7 +363,7 @@ Screen:
                             orientation: "vertical"
                 Screen:
                     name: "Settings Screen"
-                    on_pre_enter: app.change_widget_height(toolbar, 70)
+                    on_pre_enter: app.change_widget_height(toolbar, 50)
                     on_pre_enter: app.change_widget_opacity(toolbar, 1)
                     on_enter: toolbar_label.text = "Settings"
                     TabbedPanel:
@@ -481,6 +481,7 @@ Screen:
 # see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
 # navbar searchbar buton on press expand it to a full searchbar
 # audio file module for playing audio files
+# in the future check if file that gets to sound loader is compatible with sound loader
 
 class LocalFolderPopUp(Popup):
     class DriveButton():
@@ -746,10 +747,10 @@ class FileReaderApp(MDApp):
                     )
                 file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_title_button)
-            elif file["file_format"] == "mp3_album":
+            elif (file["file_format"] in app.music_tag_compatible_file_formats):
                 album_title = file["file_name"]
                 album_author = file["file_author"]
-                file_cover = mp3_file_data.get_mp3_file_artwork(file["album_tracks_dictionary"][0]["absolute_file_path"])
+                file_cover = audio_file_data_music_tag.get_audio_file_data_music_tag_artwork(file["album_tracks_dictionary"][0]["absolute_file_path"])
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
@@ -896,7 +897,8 @@ class FileReaderApp(MDApp):
     main_menu_files_widgets_width = None
     album_track_card_primary_color = (1, 1, 1, 1)
     album_track_card_secondary_color = (0.9, 0.9, 0.9, 1)
-    kivy_supported_image_files = ["jpeg", "jpg", "png", "gif"]
+    kivy_compatible_image_files = ["jpeg", "jpg", "png", "gif"]
+    music_tag_compatible_file_formats = ["wav_album", "ogg_album", "mp3_album", "aac_album", "flac_album", "wv_album", "m4a_album", "opus_album", "dsf_album", "aiff_album"]
     kivy_music_loader = None
     track_currently_playing_index = 0
     list_of_audio_files_to_play = [None]
@@ -973,7 +975,7 @@ class FileReaderApp(MDApp):
         currently_playing_file_author = self.list_of_audio_files_to_play[self.track_currently_playing_index]["track_artist"]
         currently_playing_file_path = self.list_of_audio_files_to_play[self.track_currently_playing_index]["absolute_file_path"]
         currently_playing_file_lenght = self.list_of_audio_files_to_play[self.track_currently_playing_index]["track_lenght"]
-        currently_playing_file_cover = mp3_file_data.get_mp3_file_artwork(currently_playing_file_path)
+        currently_playing_file_cover = audio_file_data_music_tag.get_audio_file_data_music_tag_artwork(currently_playing_file_path)
         if currently_playing_file_cover != None:
             self.root.ids.audio_player_card_cover_image.texture = CoreImage(io.BytesIO(currently_playing_file_cover), ext = "jpg").texture
         self.root.ids.audio_player_card_file_title_label.text = currently_playing_file_title
@@ -995,13 +997,13 @@ class FileReaderApp(MDApp):
             layout = BoxLayout(
                 orientation = "vertical",
                 size_hint = (1, None),
-                pos_hint = {"left" : 1}
+                pos_hint = {"left": 1}
                 )
             header = BoxLayout(
                 size_hint = (1, None),
                 orientation = "horizontal"
                 )
-            file_cover = mp3_file_data.get_mp3_file_artwork(file["album_tracks_dictionary"][0]["absolute_file_path"])
+            file_cover = audio_file_data_music_tag.get_audio_file_data_music_tag_artwork(file["album_tracks_dictionary"][0]["absolute_file_path"])
             if file_cover != None:
                 cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                 header_cover = Image(
@@ -1112,7 +1114,7 @@ class FileReaderApp(MDApp):
             elif args[0] == "pages and infinite scroll":
                 if file["file_format"] == "cbz": 
                     for file_item in file_content:
-                        if file_item["file_format"] in self.kivy_supported_image_files:
+                        if file_item["file_format"] in self.kivy_compatible_image_files:
 
                             # this part of the code isn't working; sizes, size hints and such are issues
                             image = CoreImage(io.BytesIO(file_item["file"]), ext = "jpg")

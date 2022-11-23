@@ -94,9 +94,11 @@ def get_epub_file_content(file_path): # return the entire book (combine htmls, p
             # file_contents.append(spine_item_location[spine_item_file])
 
             if spine_item_location[spine_item_file].endswith(".html"):
-                location_content = html_file_data.get_html_text(z.read(spine_item_location[spine_item_file]).decode("utf-8"))
-                file_contents.append({"location_content" : location_content, "file_type" : "html"})
-
+                try:
+                    location_content = html_file_data.get_html_text(z.read(spine_item_location[spine_item_file]).decode("utf-8"))
+                    file_contents.append({"location_content" : location_content, "file_type" : "html"})
+                except KeyError:
+                    pass
             elif spine_item_location[spine_item_file].endswith(".xhtml"):
                 pass
 

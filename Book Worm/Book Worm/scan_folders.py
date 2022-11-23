@@ -7,7 +7,7 @@ import cbz_file_data
 import cbr_file_data
 import text_file_data
 import epub_file_data
-import mp3_file_data
+import audio_file_data_music_tag
 
 local_folders_to_scan_json_file_path = "Book Worm\Book Worm\local_folders_to_scan.json"
 local_folders_to_scan_dictionary_file_path = "Book Worm\Book Worm\local_folders_to_scan_dictonary.json"
@@ -121,15 +121,35 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "language" : None,
                         "file_size" : None})
             mp3_files = glob.glob(folders_to_scan + "/**/*.mp3", recursive = True)
+            wav_files = glob.glob(folders_to_scan + "/**/*.wav", recursive = True)
+            ogg_files = glob.glob(folders_to_scan + "/**/*.ogg", recursive = True)
+            aac_files = glob.glob(folders_to_scan + "/**/*.aac", recursive = True)
+            flac_files = glob.glob(folders_to_scan + "/**/*.flac", recursive = True)
+            music_tag_compatible_audio_files = []
+            music_tag_compatible_audio_files.extend(mp3_files)
+            music_tag_compatible_audio_files.extend(wav_files)
+            music_tag_compatible_audio_files.extend(ogg_files)
+            music_tag_compatible_audio_files.extend(aac_files)
+            music_tag_compatible_audio_files.extend(flac_files)
             list_of_albums = []
             list_of_tracks = []
-            for mp3_file in mp3_files:
-                absolute_path_to_file = os.path.abspath(mp3_file)
-                file_album_title = mp3_file_data.get_mp3_file_album_name(absolute_path_to_file)
-                file_album_artist = mp3_file_data.get_mp3_file_album_artist(absolute_path_to_file)
-                file_album_total_track_number = mp3_file_data.get_mp3_file_total_tracks(absolute_path_to_file)
-                file_album_total_disk_number = mp3_file_data.get_mp3_file_total_discs(absolute_path_to_file)
-                file_album_release_year = mp3_file_data.get_mp3_file_release_year(absolute_path_to_file)
+            for music_tag_compatible_audio_file in music_tag_compatible_audio_files:
+                absolute_path_to_file = os.path.abspath(music_tag_compatible_audio_file)
+                if absolute_path_to_file.endswith(".mp3"):
+                    file_format = "mp3"
+                elif absolute_path_to_file.endswith(".wav"):
+                    file_format = "wav"
+                elif absolute_path_to_file.endswith(".ogg"):
+                    file_format = "ogg"
+                elif absolute_path_to_file.endswith(".aac"):
+                    file_format = "aac"
+                elif absolute_path_to_file.endswith(".flac"):
+                    file_format = "flac"
+                file_album_title = audio_file_data_music_tag.get_audio_file_data_music_tag_album_name(absolute_path_to_file)
+                file_album_artist = audio_file_data_music_tag.get_audio_file_data_music_tag_album_artist(absolute_path_to_file)
+                file_album_total_track_number = audio_file_data_music_tag.get_audio_file_data_music_tag_total_tracks(absolute_path_to_file)
+                file_album_total_disk_number = audio_file_data_music_tag.get_audio_file_data_music_tag_total_discs(absolute_path_to_file)
+                file_album_release_year = audio_file_data_music_tag.get_audio_file_data_music_tag_release_year(absolute_path_to_file)
                 album_dictionary = {
                     "file_album_title" : file_album_title,
                     "file_album_artist" : file_album_artist,
@@ -137,11 +157,11 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     "file_album_total_disk_number" : file_album_total_disk_number,
                     "file_album_release_year" : file_album_release_year}
                 list_of_albums.append(album_dictionary)
-                track_title = mp3_file_data.get_mp3_file_title(absolute_path_to_file)
-                track_artist = mp3_file_data.get_mp3_file_artist(absolute_path_to_file)
-                track_number = mp3_file_data.get_mp3_file_track_number(absolute_path_to_file)
-                track_genre = mp3_file_data.get_mp3_file_genre(absolute_path_to_file)
-                track_lenght = mp3_file_data.get_mp3_file_length(absolute_path_to_file)
+                track_title = audio_file_data_music_tag.get_audio_file_data_music_tag_title(absolute_path_to_file)
+                track_artist = audio_file_data_music_tag.get_audio_file_data_music_tag_artist(absolute_path_to_file)
+                track_number = audio_file_data_music_tag.get_audio_file_data_music_tag_track_number(absolute_path_to_file)
+                track_genre = audio_file_data_music_tag.get_audio_file_data_music_tag_genre(absolute_path_to_file)
+                track_lenght = audio_file_data_music_tag.get_audio_file_data_music_tag_length(absolute_path_to_file)
                 track_dictionary = {
                     "track_album_title" : file_album_title,
                     "file_album_artist" : file_album_artist,
@@ -154,7 +174,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     "track_genre" : track_genre,
                     "track_lenght" : track_lenght,
                     "absolute_file_path" : absolute_path_to_file,
-                    "file_format" : "mp3"}
+                    "file_format" : file_format}
                 list_of_tracks.append(track_dictionary)
             list_of_unique_albums = list(map(dict, set(tuple(sorted(sub.items())) for sub in list_of_albums)))
             for album in list_of_unique_albums:
@@ -166,9 +186,10 @@ def scan_folders(folders_to_scan, new_folder_bool):
                             album_tracks_dictionary.append(track)
                             album_genres.append(track["track_genre"])
                             album_genres = [*set(album_genres)]
+                            album_file_format = track["file_format"] + "_album"
                 array_of_valid_files.append({
                     "absolute_file_path" : None, 
-                    "file_format" : "mp3_album", 
+                    "file_format" : album_file_format,
                     "file_name" : album["file_album_title"], 
                     "file_author" : album["file_album_artist"],
                     "file_cover" : None,
@@ -302,15 +323,35 @@ def scan_folders(folders_to_scan, new_folder_bool):
                         "language" : None,
                         "file_size" : None})        
             mp3_files = glob.glob(folders_to_scan + "/**/*.mp3", recursive = True)
+            wav_files = glob.glob(folders_to_scan + "/**/*.wav", recursive = True)
+            ogg_files = glob.glob(folders_to_scan + "/**/*.ogg", recursive = True)
+            aac_files = glob.glob(folders_to_scan + "/**/*.aac", recursive = True)
+            flac_files = glob.glob(folders_to_scan + "/**/*.flac", recursive = True)
+            music_tag_compatible_audio_files = []
+            music_tag_compatible_audio_files.extend(mp3_files)
+            music_tag_compatible_audio_files.extend(wav_files)
+            music_tag_compatible_audio_files.extend(ogg_files)
+            music_tag_compatible_audio_files.extend(aac_files)
+            music_tag_compatible_audio_files.extend(flac_files)
             list_of_albums = []
             list_of_tracks = []
-            for mp3_file in mp3_files:
-                absolute_path_to_file = os.path.abspath(mp3_file)
-                file_album_title = mp3_file_data.get_mp3_file_album_name(absolute_path_to_file)
-                file_album_artist = mp3_file_data.get_mp3_file_album_artist(absolute_path_to_file)
-                file_album_total_track_number = mp3_file_data.get_mp3_file_total_tracks(absolute_path_to_file)
-                file_album_total_disk_number = mp3_file_data.get_mp3_file_total_discs(absolute_path_to_file)
-                file_album_release_year = mp3_file_data.get_mp3_file_release_year(absolute_path_to_file)
+            for music_tag_compatible_audio_file in music_tag_compatible_audio_files:
+                absolute_path_to_file = os.path.abspath(music_tag_compatible_audio_file)
+                if absolute_path_to_file.endswith(".mp3"):
+                    file_format = "mp3"
+                elif absolute_path_to_file.endswith(".wav"):
+                    file_format = "wav"
+                elif absolute_path_to_file.endswith(".ogg"):
+                    file_format = "ogg"
+                elif absolute_path_to_file.endswith(".aac"):
+                    file_format = "aac"
+                elif absolute_path_to_file.endswith(".flac"):
+                    file_format = "flac"
+                file_album_title = audio_file_data_music_tag.get_audio_file_data_music_tag_album_name(absolute_path_to_file)
+                file_album_artist = audio_file_data_music_tag.get_audio_file_data_music_tag_album_artist(absolute_path_to_file)
+                file_album_total_track_number = audio_file_data_music_tag.get_audio_file_data_music_tag_total_tracks(absolute_path_to_file)
+                file_album_total_disk_number = audio_file_data_music_tag.get_audio_file_data_music_tag_total_discs(absolute_path_to_file)
+                file_album_release_year = audio_file_data_music_tag.get_audio_file_data_music_tag_release_year(absolute_path_to_file)
                 album_dictionary = {
                     "file_album_title" : file_album_title,
                     "file_album_artist" : file_album_artist,
@@ -318,11 +359,11 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     "file_album_total_disk_number" : file_album_total_disk_number,
                     "file_album_release_year" : file_album_release_year}
                 list_of_albums.append(album_dictionary)
-                track_title = mp3_file_data.get_mp3_file_title(absolute_path_to_file)
-                track_artist = mp3_file_data.get_mp3_file_artist(absolute_path_to_file)
-                track_number = mp3_file_data.get_mp3_file_track_number(absolute_path_to_file)
-                track_genre = mp3_file_data.get_mp3_file_genre(absolute_path_to_file)
-                track_lenght = mp3_file_data.get_mp3_file_length(absolute_path_to_file)
+                track_title = audio_file_data_music_tag.get_audio_file_data_music_tag_title(absolute_path_to_file)
+                track_artist = audio_file_data_music_tag.get_audio_file_data_music_tag_artist(absolute_path_to_file)
+                track_number = audio_file_data_music_tag.get_audio_file_data_music_tag_track_number(absolute_path_to_file)
+                track_genre = audio_file_data_music_tag.get_audio_file_data_music_tag_genre(absolute_path_to_file)
+                track_lenght = audio_file_data_music_tag.get_audio_file_data_music_tag_length(absolute_path_to_file)
                 track_dictionary = {
                     "track_album_title" : file_album_title,
                     "file_album_artist" : file_album_artist,
@@ -335,7 +376,7 @@ def scan_folders(folders_to_scan, new_folder_bool):
                     "track_genre" : track_genre,
                     "track_lenght" : track_lenght,
                     "absolute_file_path" : absolute_path_to_file,
-                    "file_format" : "mp3"}
+                    "file_format" : file_format}
                 list_of_tracks.append(track_dictionary)
             list_of_unique_albums = list(map(dict, set(tuple(sorted(sub.items())) for sub in list_of_albums)))
             for album in list_of_unique_albums:
@@ -347,9 +388,10 @@ def scan_folders(folders_to_scan, new_folder_bool):
                             album_tracks_dictionary.append(track)
                             album_genres.append(track["track_genre"])
                             album_genres = [*set(album_genres)]
+                            album_file_format = track["file_format"] + "_album"
                 array_of_valid_files.append({
                     "absolute_file_path" : None, 
-                    "file_format" : "mp3_album", 
+                    "file_format" : album_file_format,
                     "file_name" : album["file_album_title"], 
                     "file_author" : album["file_album_artist"],
                     "file_cover" : None,
