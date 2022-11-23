@@ -3,8 +3,6 @@ from logging import root
 from msilib.schema import File
 from kivy.config import Config
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
-Config.set("graphics", "width", "800")
-Config.set("graphics", "height", "800")
 Config.set("graphics", "minimum_width", "700")
 Config.set("graphics", "minimum_height", "400")
 from kivy.lang import Builder
@@ -216,6 +214,7 @@ Screen:
                     y: 0
 
                     TabbedPanel:
+                        id: main_menu_tabbed_panel
                         do_default_tab: False
                         tab_pos: "top_left"
                         size_hint: (None, None)
@@ -226,6 +225,7 @@ Screen:
                         y: 0
 
                         TabbedPanelItem:
+                            id: main_menu_files_tab
                             text: "Files"
 
                             BoxLayout:
@@ -296,11 +296,13 @@ Screen:
                                         cols: 5
 
                         TabbedPanelItem:
+                            id: main_menu_authors_tab
                             text: "Authors"
                             Label:
                                 text: "CCCC"    
 
                         TabbedPanelItem:
+                            id: main_menu_collections_tab
                             text: "Collections"
                             Label:
                                 text: "XXXXX"    
@@ -1175,25 +1177,37 @@ class FileReaderApp(MDApp):
     
     def sort_file_list(self):
         def sort_release_year(list):
-            if list["release_date"] == None:
-                return ""
-            else:
-                return list["release_date"]
+            try:
+                if list["release_date"] == None:
+                    return ""
+                else:
+                    return list["release_date"]
+            except TypeError:
+                pass
         def sort_file_format(list):
-            if list["file_format"] == None:
-                return ""
-            else:
-                return list["file_format"]
+            try:
+                if list["file_format"] == None:
+                    return ""
+                else:
+                    return list["file_format"]
+            except TypeError:
+                    pass
         def sort_file_name(list):
-            if list["file_name"] == None:
-                return ""
-            else:
-                return list["file_name"]
+            try:
+                if list["file_name"] == None:
+                    return ""
+                else:
+                    return list["file_name"]
+            except TypeError:
+                    pass
         def sort_author_name(list):
-            if list["file_author"] == None:
-                return ""
-            else:
-                return list["file_author"]
+            try:
+                if list["file_author"] == None:
+                    return ""
+                else:
+                    return list["file_author"]
+            except TypeError:
+                    pass
         if self.root.ids.main_menu_files_widget_order.text == "Ascending":
             reverse_bool = False
         else:
@@ -1215,7 +1229,7 @@ class FileReaderApp(MDApp):
         self.add_main_menu_widgets()
 
     def add_folder_to_scan_folder_selected(self, folder_selected):
-        self.list_of_files = scan_folders.scan_folders(str(folder_selected), True)
+        self.list_of_files.append(scan_folders.scan_folders(str(folder_selected), True))
         self.add_main_menu_widgets()
     
     def full_scan(self):
@@ -1224,7 +1238,7 @@ class FileReaderApp(MDApp):
             json_file_data = file.read()
             file.close()
             if json_file_data != "":
-                self.list_of_files = scan_folders.scan_folders(json_file_data.split(","), False)
+                self.list_of_files.append(scan_folders.scan_folders(json_file_data.split(","), False))
                 self.add_main_menu_widgets()
 
     def local_folders_and_files_scan(self): 
@@ -1233,7 +1247,7 @@ class FileReaderApp(MDApp):
             json_file_data = file.read()
             file.close()
             if json_file_data != "":
-                self.list_of_files = scan_folders.scan_folders(json_file_data, False)
+                self.list_of_files.append(scan_folders.scan_folders(json_file_data, False))
                 self.add_main_menu_widgets()
         elif exists("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") == False:
             open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "a").close()
@@ -1267,12 +1281,19 @@ class FileReaderApp(MDApp):
             self.main_menu_files_widgets_width = 600
 
     def save_last_used_settings(self):
+        if Config.get("graphics", "window_state") == "maximized":
+            window_state = "maximized"
+        else:
+            window_state = "visible"
         save_app_data_dictionary = {
-            "main_menu_file_sort" : self.root.ids.main_menu_files_widget_sort_spinner.text,
-            "main_menu_file_sort_order" : self.root.ids.main_menu_files_widget_order.text,
-            "main_menu_file_widget_height" : self.main_menu_files_widgets_height,
-            "main_menu_file_widget_width" : self.main_menu_files_widgets_width,
-            "main_menu_file_widget_size_slider_value" : self.root.ids.main_menu_file_widget_size_slider.value,
+            "main_menu_file_sort": self.root.ids.main_menu_files_widget_sort_spinner.text,
+            "main_menu_file_sort_order": self.root.ids.main_menu_files_widget_order.text,
+            "main_menu_file_widget_height": self.main_menu_files_widgets_height,
+            "main_menu_file_widget_width": self.main_menu_files_widgets_width,
+            "main_menu_file_widget_size_slider_value": self.root.ids.main_menu_file_widget_size_slider.value,
+            "window_size": Window.size,
+            "window_state": window_state,
+            "main_menu_current_tab": self.root.ids.main_menu_tabbed_panel.current_tab.text,
         }
         file = open("Book Worm\Book Worm\saved_app_data_dictionary.json", "w")
         file.write(json.dumps(save_app_data_dictionary))
@@ -1291,7 +1312,19 @@ class FileReaderApp(MDApp):
             self.root.ids.audio_player_card.height = 0
             for child in self.root.ids.audio_player_card.children:
                 child.opacity = 0
-            
+
+    def set_window_size(self, saved_app_data_dictionary):
+        if Config.get("graphics", "window_state") != "maximized":
+            Window.size = saved_app_data_dictionary["window_size"] 
+
+    def set_main_menu_current_tab(self, saved_app_data_dictionary):
+        for tab in self.root.ids.main_menu_tabbed_panel.tab_list:
+            if tab.text == saved_app_data_dictionary["main_menu_current_tab"]:
+                self.root.ids.main_menu_tabbed_panel.switch_to(tab) # tab will automatically switch to files after this, for some reason
+    
+    def set_window_state(self, saved_app_data_dictionary):
+        Config.set("graphics", "window_state", saved_app_data_dictionary["window_state"])
+
     def load_last_used_settings(self):
         saved_app_data_dictionary = None
         if exists("Book Worm\Book Worm\saved_app_data_dictionary.json"):
@@ -1304,12 +1337,18 @@ class FileReaderApp(MDApp):
                 "main_menu_file_sort_order": "Ascending", 
                 "main_menu_file_widget_height": 840.0, 
                 "main_menu_file_widget_width": 504.0, 
-                "main_menu_file_widget_size_slider_value": 0.84
+                "main_menu_file_widget_size_slider_value": 0.84,
+                "window_size": (800, 800),
+                "window_state": "visible",
+                "main_menu_current_tab": "Files"
                 }
         self.set_main_menu_widget_sizes(saved_app_data_dictionary)
         self.set_main_menu_widget_sort(saved_app_data_dictionary)
         self.set_main_menu_widget_sort_order(saved_app_data_dictionary)
         self.set_audio_player_card_height()
+        self.set_window_size(saved_app_data_dictionary)
+        self.set_window_state(saved_app_data_dictionary)
+        self.set_main_menu_current_tab(saved_app_data_dictionary)
 
     def build(self):
         self.title = "Book Reader"
