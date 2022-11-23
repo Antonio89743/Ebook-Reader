@@ -207,6 +207,8 @@ Screen:
                 Screen:
                     id: main_menu_screen
                     name: "Main Menu"
+                    on_pre_enter: app.change_widget_height(toolbar, 70)
+                    on_pre_enter: app.change_widget_opacity(toolbar, 1)
                     on_enter: toolbar_label.text = "Main Menu"
                     size_hint: (None, None)
                     width: root.width - navbar.width
@@ -308,8 +310,6 @@ Screen:
                     on_pre_enter: app.change_widget_height(toolbar, 0)
                     on_pre_enter: app.change_widget_opacity(toolbar, 0)
                     on_enter: toolbar_label.text = ""
-                    on_pre_leave: app.change_widget_opacity(toolbar, 1)
-                    on_pre_leave: app.change_widget_height(toolbar, 70)
                     MDCard:
                         id: file_reader_content_card
                         orientation: "vertical"
@@ -336,6 +336,8 @@ Screen:
                 Screen:
                     name: "File Details Screen"
                     on_enter: toolbar_label.text = "File Detail Screen"
+                    on_pre_enter: app.change_widget_height(toolbar, 70)
+                    on_pre_enter: app.change_widget_opacity(toolbar, 1)
                     MDLabel:
                         text: "File Details Screen"
                         halign: "center"
@@ -344,8 +346,6 @@ Screen:
                     on_pre_enter: app.change_widget_height(toolbar, 0)
                     on_pre_enter: app.change_widget_opacity(toolbar, 0)
                     on_enter: toolbar_label.text = ""
-                    on_pre_leave: app.change_widget_opacity(toolbar, 1)
-                    on_pre_leave: app.change_widget_height(toolbar, 70)
                     ScrollView:
                         id: album_inspector_scroll_view
                         always_overscroll: False
@@ -363,6 +363,8 @@ Screen:
                             orientation: "vertical"
                 Screen:
                     name: "Settings Screen"
+                    on_pre_enter: app.change_widget_height(toolbar, 70)
+                    on_pre_enter: app.change_widget_opacity(toolbar, 1)
                     on_enter: toolbar_label.text = "Settings"
                     TabbedPanel:
                         do_default_tab: False
@@ -686,7 +688,8 @@ class FileReaderApp(MDApp):
                 # cbr_file_data.get_cbr_file_content(file["absolute_file_path"])
                 # file_cover = rarfile.RarFile(file["absolute_file_path"])
                 # file_cover.read(file["file_cover"])
-                print(file_cover, type(file_cover))
+                # print(file_cover, type(file_cover))
+                file_cover = None
                 card = MDCard(
                         orientation = "vertical",
                         size_hint = (None, None),
@@ -903,12 +906,14 @@ class FileReaderApp(MDApp):
     def change_widget_height(self, widget_id, new_value):
         animation = Animation(height = new_value)
         if widget_id == self.root.ids.toolbar:
-            animation.start(self.root.ids.toolbar)
+            if self.root.ids.toolbar.height != new_value:
+                animation.start(self.root.ids.toolbar)
 
     def change_widget_opacity(self, widget_id, new_value):
         animation = Animation(opacity = new_value)
         if widget_id == self.root.ids.toolbar:
-            animation.start(self.root.ids.toolbar)
+            if self.root.ids.toolbar.opacity != new_value:
+                animation.start(self.root.ids.toolbar)
 
     def on_pause_resume_audio_file_button_pressed(self):
         if self.kivy_music_loader != None:
@@ -1140,6 +1145,8 @@ class FileReaderApp(MDApp):
         elif file["file_format"] == "docx": 
             pass
         elif file["file_format"] == "cbz": 
+            file_content = cbz_file_data.get_cbz_file_content(file["absolute_file_path"])
+        elif file["file_format"] == "cbr": 
             file_content = cbz_file_data.get_cbz_file_content(file["absolute_file_path"])
         elif file["file_format"] == "mp3_album": 
             pass
