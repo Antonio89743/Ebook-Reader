@@ -93,7 +93,6 @@ Kivy = '''
     size_hint: (0.7, None)
     padding: [20, 20, 20, 20]
     spacing: 20
-
     Button:
         text: "Add Local Folder To Scan"
         size_hint: (0.7, None)
@@ -300,13 +299,11 @@ Screen:
                             text: "Authors"
                             Label:
                                 text: "CCCC"    
-
                         TabbedPanelItem:
                             id: main_menu_collections_tab
                             text: "Collections"
                             Label:
-                                text: "XXXXX"    
-            
+                                text: "XXXXX"
                 Screen:
                     name: "Read Currently Open File Screen"
                     on_pre_enter: app.change_widget_height(toolbar, 0)
@@ -317,7 +314,7 @@ Screen:
                         orientation: "vertical"
                         size_hint: (None, None)
                         pos_hint: {"center_x": 0.5}
-                        width: 700
+                        width: 1100
                         height: root.height - audio_player_card.height - toolbar.height
                         radius: [0, 0, 0, 0]
                         ScrollView:
@@ -335,6 +332,29 @@ Screen:
                                 width: file_reader_content_scroll_view.width 
                                 height: self.minimum_height 
                                 orientation: 'vertical'
+                    FloatLayout:
+                        size_hint: (1, 1)
+                        MDCard:
+                            id: file_reader_floating_options_card
+                            size_hint: (None, None)
+                            height: 40
+                            width: self.minimum_width
+                            pos: (300, 300)
+                            radius: [0, 0, 0, 0]
+                            md_bg_color: (0, 0, 0, 1)
+                            BoxLayout:
+                                id: file_reader_floating_options_card_horizontal_box_layout
+                                orientation: "horizontal"
+                                padding: [5, 5, 5, 5]
+                                spacing: 5
+                                size_hint: (1, 1)
+                                BoxLayout:
+                                    id: file_reader_floating_options_card_move_button_box_layout
+                                    orientation: "horizontal"
+                                    size_hint: (1, 1)
+                                    Button:
+                                        id: file_reader_floating_options_card_move_button
+                                        text: ":"
                 Screen:
                     name: "File Details Screen"
                     on_pre_enter: app.change_widget_height(toolbar, 50)
@@ -562,7 +582,6 @@ class FileReaderApp(MDApp):
                 if file_cover != None:
                     cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                     file_cover_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
                         background_color = (0, 0, 0, 0),
                         pos_hint = {"bottom": 1}
                         )
@@ -584,6 +603,7 @@ class FileReaderApp(MDApp):
                         height = 50,
                         # width = 300,
                     )
+                file_cover_button.bind(on_press = lambda button: app.main_menu_file_widget_pressed(file, button))
                 file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_cover_button)                         
                 if file_title != None:
@@ -639,7 +659,6 @@ class FileReaderApp(MDApp):
                 if file_cover != None:
                     cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                     file_cover_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
                         background_color = (0, 0, 0, 0),
                         pos_hint = {"bottom": 1}
                         )
@@ -661,6 +680,7 @@ class FileReaderApp(MDApp):
                         height = 50,
                         # width = 300,
                     )
+                file_cover_button.bind(on_press = lambda button: app.main_menu_file_widget_pressed(file, button))
                 file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_cover_button)                       
                 if file_title != None:
@@ -705,7 +725,6 @@ class FileReaderApp(MDApp):
                 if file_cover != None:
                     cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
                     file_cover_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Read Currently Open File Screen", False),
                         background_color = (0, 0, 0, 0),
                         pos_hint = {"bottom": 1}
                         )
@@ -727,6 +746,7 @@ class FileReaderApp(MDApp):
                         height = 50,
                         # width = 300,
                     )
+                file_cover_button.bind(on_press = lambda button: app.main_menu_file_widget_pressed(file, button))
                 file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_cover_button)                       
                 if file_title != None:
@@ -764,8 +784,7 @@ class FileReaderApp(MDApp):
                 app.root.ids.main_menu_grid_layout.add_widget(card)
                 if file_cover != None:
                     cover_image = CoreImage(io.BytesIO(file_cover), ext = "jpg")
-                    file_cover_button = KivyButton(
-                        on_press = lambda x: app.change_screen("Album Inspector Screen", False),
+                    file_cover_button = KivyButton( 
                         background_color = (0, 0, 0, 0),
                         pos_hint = {"bottom": 1}
                         )
@@ -788,6 +807,7 @@ class FileReaderApp(MDApp):
                         height = 50,
                         # width = 300,
                     )
+                file_cover_button.bind(on_press = lambda button: app.main_menu_file_widget_pressed(file, button))
                 file_cover_button.bind(on_press = lambda x: app.load_album_inspector_screen(file))  
                 card.add_widget(file_cover_button)                        
                 if album_title != None:
@@ -890,7 +910,7 @@ class FileReaderApp(MDApp):
             )
             header_genre_layout.add_widget(genre_button)
 
-    list_of_files = None
+    list_of_files = []
     currently_open_file = None
     currently_open_album = None 
     screen_currently_in_use :int = 0
@@ -907,6 +927,16 @@ class FileReaderApp(MDApp):
     about_to_play_another_track_bool = None
     kivy_music_loader_position_at_track_paused = None
 
+    def main_menu_file_widget_pressed(self, file, button):
+        if button.last_touch.button == "left":
+            if file["file_format"] in self.music_tag_compatible_file_formats:
+                self.change_screen("Album Inspector Screen", False)
+            else:
+                self.change_screen("Read Currently Open File Screen", False)
+        elif button.last_touch.button == "right":
+            print("right mouse clicked")
+            #in ky create context menu class
+        
     def change_widget_height(self, widget_id, new_value):
         animation = Animation(height = new_value)
         if widget_id == self.root.ids.toolbar:
@@ -1036,8 +1066,11 @@ class FileReaderApp(MDApp):
             header_info_layout.add_widget(header_genre_layout)
             album_genres = file["album_genre"]
             for album_genre in album_genres:
-                if album_genre[0] == "'":
-                    album_genre = album_genre[1:-1]
+                try:
+                    if album_genre[0] == "'":
+                        album_genre = album_genre[1:-1]
+                except IndexError:
+                    pass
                 self.Album_Genres(self, album_genre, header_genre_layout)
             header_play_album_button = KivyButton(
                 text = "Play Album",
@@ -1070,19 +1103,51 @@ class FileReaderApp(MDApp):
                 child.width = self.main_menu_files_widgets_width
             self.responsive_grid_layout()
 
+    def set_file_reader_floating_options_card(self, file_format, file_read_screen_mode):
+        if file_read_screen_mode == "pageless infinite scroll":
+            pass
+        elif file_read_screen_mode == "pages and infinite scroll":
+            if file_format == "cbz":
+                file_read_screen_mode_horizontal_box_layout = BoxLayout(
+                    orientation = "horizontal"
+                )
+
+                
+                
+                file_read_screen_background_options_horizontal_box_layout = BoxLayout(
+                    orientation = "horizontal"
+                )
+
+
+
+
+                self.root.ids.file_reader_floating_options_card_horizontal_box_layout.add_widget(file_read_screen_mode_horizontal_box_layout)
+        elif file_read_screen_mode == "book simulator":
+            pass
+        print(file_format, file_read_screen_mode)
+    
     def load_file_read_screen(self, file):
         if self.currently_open_file != file:
-            self.file_read_screen_mode(file, "pages and infinite scroll") #second arg is temporary
+            self.file_read_screen_mode(file)
 
     def file_read_screen_mode(self, file, *args):
         self.root.ids.file_reader_content_grid_layout.clear_widgets()
         file_content = self.get_file_contents(file)
-
         if args == ():
             # there isn't a specified reading mode, so check defaults or previously used modes for this type or just previously used modes for any type
             # file specific?, file type specific mode?
-            pass
-
+            if file["file_format"] == "txt":
+                args_as_list = list(args)
+                args_as_list.append("pageless infinite scroll")
+                args = tuple(args_as_list)
+            elif file["file_format"] == "epub":
+                args_as_list = list(args)
+                args_as_list.append("pageless infinite scroll")
+                args = tuple(args_as_list)
+            elif file["file_format"] == "cbz":
+                args_as_list = list(args)
+                args_as_list.append("pages and infinite scroll")
+                args = tuple(args_as_list)
         if args:
             if args[0] == "pageless infinite scroll":
                 if file["file_format"] == "txt":
@@ -1096,6 +1161,7 @@ class FileReaderApp(MDApp):
                         )
                     label.bind(texture_size = label.setter("size"))
                     self.root.ids.file_reader_content_grid_layout.add_widget(label)
+                    self.set_file_reader_floating_options_card(file["file_format"], args[0])
                 elif file["file_format"] == "epub": 
                     for file in file_content:
                         if file["file_type"] == "html":
@@ -1110,9 +1176,10 @@ class FileReaderApp(MDApp):
                             label.bind(texture_size = label.setter("size"))
                             self.root.ids.file_reader_content_grid_layout.add_widget(label)
                             # should there only be one widget? will that make it better for pages?
+                    self.set_file_reader_floating_options_card("epub", args[0])
                 elif file["file_format"] == "cbz": 
-                    # redirect to another value
-                    pass
+                    self.file_read_screen_mode(file, "pages and infinite scroll")
+                    self.set_file_reader_floating_options_card("cbz", args[0])
             elif args[0] == "pages and infinite scroll":
                 if file["file_format"] == "cbz": 
                     for file_item in file_content:
@@ -1131,8 +1198,9 @@ class FileReaderApp(MDApp):
                     self.root.ids.file_reader_content_grid_layout.size_hint = (None, 1)
                     self.root.ids.file_reader_content_grid_layout.height = self.root.ids.file_reader_content_grid_layout.minimum_height
                     self.root.ids.file_reader_content_grid_layout.size_hint_y = None
+                    self.set_file_reader_floating_options_card("cbz", args[0])
             elif args[0] == "book simulator":
-                pass
+                self.set_file_reader_floating_options_card(file["file_format"], args[0])
         self.currently_open_file = file
 
     def get_file_contents(self, file):
@@ -1229,16 +1297,16 @@ class FileReaderApp(MDApp):
         self.add_main_menu_widgets()
 
     def add_folder_to_scan_folder_selected(self, folder_selected):
-        self.list_of_files.append(scan_folders.scan_folders(str(folder_selected), True))
+        self.list_of_files = scan_folders.scan_folders(str(folder_selected), True)
         self.add_main_menu_widgets()
-    
+        
     def full_scan(self):
         if exists("Book Worm\Book Worm\local_folders_to_scan.json"):
             file = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
             json_file_data = file.read()
             file.close()
             if json_file_data != "":
-                self.list_of_files.append(scan_folders.scan_folders(json_file_data.split(","), False))
+                self.list_of_files = scan_folders.scan_folders(json_file_data.split(","), False)
                 self.add_main_menu_widgets()
 
     def local_folders_and_files_scan(self): 
@@ -1246,8 +1314,8 @@ class FileReaderApp(MDApp):
             file = open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "r")
             json_file_data = file.read()
             file.close()
-            if json_file_data != "":
-                self.list_of_files.append(scan_folders.scan_folders(json_file_data, False))
+            if json_file_data != "":     
+                self.list_of_files = scan_folders.scan_folders(json_file_data, False)
                 self.add_main_menu_widgets()
         elif exists("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") == False:
             open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "a").close()
