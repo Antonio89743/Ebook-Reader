@@ -38,6 +38,9 @@ import io
 import zipfile
 import rarfile
 from itertools import cycle
+import kivy_garden.contextmenu as ContextMenu
+from kivy.properties import ObjectProperty
+from kivy.factory import Factory
 
 Kivy = '''
 
@@ -83,8 +86,9 @@ Kivy = '''
                 Button:
                     text: "Add Folder"
                     on_release: app.add_folder_to_scan_folder_selected(folder_chooser.selection)
-
+                    
 <LocalFoldersExpansionPanelContent>
+    local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list: local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list
     id: expansion_panel
     height: self.minimum_height
     adaptive_height: True
@@ -93,12 +97,40 @@ Kivy = '''
     size_hint: (0.7, None)
     padding: [20, 20, 20, 20]
     spacing: 20
-    Button:
-        text: "Add Local Folder To Scan"
+    BoxLayout:
+        height: self.minimum_height
+        adaptive_height: True
+        orientation: "vertical"
+        pos_hint: {"center_x": 0.5}
         size_hint: (0.7, None)
-        pos_hint: {"center_x": 0.5, "top": 1}
-        width: 100
-        on_press: Factory.LocalFolderPopUp().open()
+        padding: [20, 20, 20, 20]
+        spacing: 20
+        Button:
+            text: "Add Local Folder To Scan"
+            size_hint: (0.7, None)
+            pos_hint: {"center_x": 0.5, "top": 1}
+            width: 100
+            on_press: Factory.LocalFolderPopUp().open()
+        BoxLayout:
+            id: local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list
+            height: self.minimum_height
+            adaptive_height: True
+            orientation: "vertical"
+            pos_hint: {"center_x": 0.5}
+            size_hint: (0.7, None)
+            padding: [20, 20, 20, 20]
+            spacing: 20
+
+<MainMenuFilesContextMenu>
+    ContextMenu:
+        id: context_menu
+        visible: True
+        cancel_handler_widget: layout
+
+        ContextMenuTextItem:
+            text: "SubMenu #2"
+        ContextMenuTextItem:
+            text: "SubMenu #3"
 
 Screen:
     GridLayout:
@@ -409,7 +441,7 @@ Screen:
                                 pos_hint: {"right": 1}
                                 size_hint: (None, None)
                                 width: root.width - navbar.width
-                                height: root.height - 70 - 40
+                                height: root.height - toolbar.height - 40
                                 BoxLayout:
                                     id: settings_scanning_local_folders_box_layout
                                     pos_hint: {"top": 1}
@@ -530,7 +562,28 @@ class AddLocalFolderToScanDialog():
     '''AddLocalFolderToScanDialog'''
 
 class LocalFoldersExpansionPanelContent(BoxLayout):
+    local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list = ObjectProperty(None)
+    # def x(self):
+    #     self.root.ids.expansion_panel.add_widget(
+    #         Label(text="dfassad")
+    #     )
+
+    # def x(self):
+    #     self.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.add_widget(
+    #         Label(text = "GFDDFGDF")
+    #     )
     '''LocalFoldersExpansionPanelContent'''
+
+    
+
+    def add_list_of_previous_local_folder_widgets(self):
+        self.LocalFoldersExpansionPanelContent.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.add_widget(
+            Label(text = "GFDDFGDF")
+        )
+
+    
+class MainMenuFilesContextMenu():
+    '''MainMenuFilesContextMenu'''
 
 class FileReaderApp(MDApp):
     class File():
@@ -604,7 +657,6 @@ class FileReaderApp(MDApp):
                         # width = 300,
                     )
                 file_cover_button.bind(on_press = lambda button: app.main_menu_file_widget_pressed(file, button))
-                file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_cover_button)                         
                 if file_title != None:
                     file_title_button = KivyButton(
@@ -681,7 +733,6 @@ class FileReaderApp(MDApp):
                         # width = 300,
                     )
                 file_cover_button.bind(on_press = lambda button: app.main_menu_file_widget_pressed(file, button))
-                file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_cover_button)                       
                 if file_title != None:
                     file_title_button = KivyButton(
@@ -747,7 +798,6 @@ class FileReaderApp(MDApp):
                         # width = 300,
                     )
                 file_cover_button.bind(on_press = lambda button: app.main_menu_file_widget_pressed(file, button))
-                file_cover_button.bind(on_press = lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_cover_button)                       
                 if file_title != None:
                     file_title_button = KivyButton(
@@ -808,7 +858,6 @@ class FileReaderApp(MDApp):
                         # width = 300,
                     )
                 file_cover_button.bind(on_press = lambda button: app.main_menu_file_widget_pressed(file, button))
-                file_cover_button.bind(on_press = lambda x: app.load_album_inspector_screen(file))  
                 card.add_widget(file_cover_button)                        
                 if album_title != None:
                     file_title_button = KivyButton(
@@ -931,11 +980,17 @@ class FileReaderApp(MDApp):
         if button.last_touch.button == "left":
             if file["file_format"] in self.music_tag_compatible_file_formats:
                 self.change_screen("Album Inspector Screen", False)
+                self.load_album_inspector_screen(file)
             else:
                 self.change_screen("Read Currently Open File Screen", False)
+                self.load_file_read_screen(file)
         elif button.last_touch.button == "right":
             print("right mouse clicked")
-            #in ky create context menu class
+            # in ky create context menu class
+            # show the class
+
+            MainMenuFilesContextMenu()
+        # self.root.ids.context_menu.show(*app.root_window.mouse_pos)
         
     def change_widget_height(self, widget_id, new_value):
         animation = Animation(height = new_value)
@@ -1297,6 +1352,22 @@ class FileReaderApp(MDApp):
         self.add_main_menu_widgets()
 
     def add_folder_to_scan_folder_selected(self, folder_selected):
+
+        t = Label(
+            text="tfddfgjghfssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+            )
+
+        print(self.root.ids.local_folders_to_scan_expansion_panel.content.children)
+
+        print("a", self.root.ids.local_folders_to_scan_expansion_panel)
+        print("b", self.root.ids.local_folders_to_scan_expansion_panel.content.ids)
+        print("c", self.root.ids.local_folders_to_scan_expansion_panel.content.children)
+
+        self.root.ids.local_folders_to_scan_expansion_panel.content.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.add_widget(t)
+
+        
+
+
         self.list_of_files = scan_folders.scan_folders(str(folder_selected), True)
         self.add_main_menu_widgets()
         
@@ -1324,8 +1395,7 @@ class FileReaderApp(MDApp):
                 open("Book Worm\Book Worm\local_folders_to_scan.json", "a").close()
 
     def create_local_folders_to_scan_expansion_panel(self):
-        self.root.ids.settings_scanning_local_folders_box_layout.add_widget(
-            MDExpansionPanel(
+        local_folders_to_scan_expansion_panel = MDExpansionPanel(
                 content = LocalFoldersExpansionPanelContent(),
                 panel_cls = MDExpansionPanelOneLine(
                     text = "Local Folders To Scan",
@@ -1334,8 +1404,9 @@ class FileReaderApp(MDApp):
                     # position this in the middle of the screen and set size hit x to 0.8
                     )
                 )   
-            ) 
-    
+        self.root.ids["local_folders_to_scan_expansion_panel"] = local_folders_to_scan_expansion_panel
+        self.root.ids.settings_scanning_local_folders_box_layout.add_widget(local_folders_to_scan_expansion_panel)
+
     def responsive_grid_layout(self, *args):
         self.root.ids.main_menu_grid_layout.cols = int(self.root.ids.main_menu_grid_layout.width / (self.main_menu_files_widgets_width + 20))
 
