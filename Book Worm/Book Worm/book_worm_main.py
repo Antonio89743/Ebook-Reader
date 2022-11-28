@@ -94,7 +94,7 @@ Kivy = '''
     adaptive_height: True
     orientation: "vertical"
     pos_hint: {"center_x": 0.5}
-    size_hint: (0.7, None)
+    size_hint: (1, None)
     padding: [20, 20, 20, 20]
     spacing: 20
     BoxLayout:
@@ -102,12 +102,12 @@ Kivy = '''
         adaptive_height: True
         orientation: "vertical"
         pos_hint: {"center_x": 0.5}
-        size_hint: (0.7, None)
+        size_hint: (1, None)
         padding: [20, 20, 20, 20]
         spacing: 20
         Button:
             text: "Add Local Folder To Scan"
-            size_hint: (0.7, None)
+            size_hint: (1, None)
             pos_hint: {"center_x": 0.5, "top": 1}
             on_press: Factory.LocalFolderPopUp().open()
         BoxLayout:
@@ -116,7 +116,7 @@ Kivy = '''
             adaptive_height: True
             orientation: "vertical"
             pos_hint: {"center_x": 0.5}
-            size_hint: (0.7, None)
+            size_hint: (1, None)
             padding: [20, 20, 20, 20]
             spacing: 20
 
@@ -947,7 +947,7 @@ class FileReaderApp(MDApp):
             )
             header_genre_layout.add_widget(genre_button)
 
-    class Folder_To_Scan_Card(): #run this on open for every folder saved in previous session
+    class Folder_To_Scan_Card():
         def __init__(self, app, folder_selected):
             card = MDCard(
                 orientation = "vertical",
@@ -956,13 +956,15 @@ class FileReaderApp(MDApp):
                 md_bg_color = (0, 0, 0, 1),
                 pos_hint = {"center_x": 0.5, "top": 1}
             )
+            folder_selected_string = str(folder_selected)
+            if folder_selected_string.startswith("['") and folder_selected_string.endswith("']"):
+                folder_selected_string = folder_selected_string[2:-2]
             folder_path_label = Label(
-                text = str(folder_selected)
+                text = folder_selected_string
             )
             card.add_widget(folder_path_label)
-
             remove_folder_from_scan_list_button = KivyButton(
-                on_press = lambda x: self.remove_folder_from_scan_list(app, card),
+                on_press = lambda x: self.remove_folder_from_scan_list(app, card, folder_selected_string),
                 text = "X",
                 size = (50, 50),
                 pos_hint = {"top": 1, "right": 1} 
@@ -972,14 +974,6 @@ class FileReaderApp(MDApp):
 
             # this isn't really doing anything
             app.root.ids.local_folders_to_scan_expansion_panel.content.height = app.root.ids.local_folders_to_scan_expansion_panel.content.minimum_height
-
-        def remove_folder_from_scan_list(self, app, card):
-            app.root.ids.local_folders_to_scan_expansion_panel.content.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.remove_widget(card)
-            # resize expansion panel
-            app.root.ids.local_folders_to_scan_expansion_panel.content.height = app.root.ids.local_folders_to_scan_expansion_panel.content.minimum_height
-            
-
-
 
             # app.root.ids.local_folders_to_scan_expansion_panel.close_panel(app.root.ids.local_folders_to_scan_expansion_panel, app.root.ids.local_folders_to_scan_expansion_panel)
             # # Exception has occurred: TypeError
@@ -993,6 +987,25 @@ class FileReaderApp(MDApp):
             # or just do minimal size?
 
             # button fix position and do the on press
+
+        def remove_folder_from_scan_list(self, app, card, folder):
+            print("remove", folder)
+            app.root.ids.local_folders_to_scan_expansion_panel.content.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.remove_widget(card)
+            # resize expansion panel
+            app.root.ids.local_folders_to_scan_expansion_panel.content.height = app.root.ids.local_folders_to_scan_expansion_panel.content.minimum_height
+
+            if exists("Book Worm\Book Worm\local_folders_to_scan.json"):
+                print("hai")
+                file = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
+                json_file_data = file.read()
+                file.close()
+                if json_file_data != "":
+                    list_of_folders_to_scan = eval(json_file_data)
+                    if folder in list_of_folders_to_scan:
+                        file = open("Book Worm\Book Worm\local_folders_to_scan.json", "w")
+                        list_of_folders_to_scan.remove(folder)
+                        file.write(json.dumps(list_of_folders_to_scan))
+                        file.close()
 
     list_of_files = []
     currently_open_file = None
