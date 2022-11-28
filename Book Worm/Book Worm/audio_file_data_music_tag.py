@@ -16,7 +16,11 @@ def get_audio_file_data_music_tag_artist(file_path):
 
 def get_audio_file_data_music_tag_release_year(file_path):
     file = music_tag.load_file(file_path)
-    file_release_year = file["year"].values
+    try:
+        file_release_year = file["year"].values
+    except ValueError:
+        file_release_year = file["year"]
+
     if type(file_release_year) == list:
         if len(file_release_year) > 1:
             if str(file_release_year[1])[0] == "[":
@@ -81,6 +85,8 @@ def get_audio_file_data_music_tag_artwork(file_path):
     try:
         return file["artwork"].value.data
     except ValueError:
+        pass
+    except KeyError:
         pass
 
 def get_audio_file_data_music_tag_length(file_path):
