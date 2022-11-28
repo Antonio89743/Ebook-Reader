@@ -959,6 +959,25 @@ class FileReaderApp(MDApp):
             )
             header_genre_layout.add_widget(genre_button)
 
+    class Folder_To_Scan_Card(): #run this on open for every folder saved in previous session
+        def __init__(self, app, folder_selected):
+            card = MDCard(
+                orientation = "vertical",
+                size_hint = (0.7, None),
+                width = 100,
+                radius = [0, 0, 0, 0],
+                md_bg_color = (0, 0, 0, 1),
+                pos_hint = {"center_x": 0.5, "top": 1}
+            )
+            folder_path_label = Label(
+                text = str(folder_selected)
+            )
+            card.add_widget(folder_path_label)
+            app.root.ids.local_folders_to_scan_expansion_panel.content.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.add_widget(card)
+            # fix position
+
+            # add label and button to remove this folder from list
+
     list_of_files = []
     currently_open_file = None
     currently_open_album = None 
@@ -1352,22 +1371,9 @@ class FileReaderApp(MDApp):
         self.add_main_menu_widgets()
 
     def add_folder_to_scan_folder_selected(self, folder_selected):
-
-        t = Label(
-            text="tfddfgjghfssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
-            )
-
-        print(self.root.ids.local_folders_to_scan_expansion_panel.content.children)
-
-        print("a", self.root.ids.local_folders_to_scan_expansion_panel)
-        print("b", self.root.ids.local_folders_to_scan_expansion_panel.content.ids)
-        print("c", self.root.ids.local_folders_to_scan_expansion_panel.content.children)
-
-        self.root.ids.local_folders_to_scan_expansion_panel.content.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.add_widget(t)
-
-        
-
-
+        self.Folder_To_Scan_Card(self, folder_selected)
+        # local_folder_card = self.Folder_To_Scan_Card(self, folder_selected)
+        # self.root.ids.local_folders_to_scan_expansion_panel.content.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.add_widget(local_folder_card)
         self.list_of_files = scan_folders.scan_folders(str(folder_selected), True)
         self.add_main_menu_widgets()
         
@@ -1399,7 +1405,7 @@ class FileReaderApp(MDApp):
                 content = LocalFoldersExpansionPanelContent(),
                 panel_cls = MDExpansionPanelOneLine(
                     text = "Local Folders To Scan",
-                    size_hint = (1, None),
+                    size_hint = (0.8, None),
                     pos_hint = {"center_x": 0.5}
                     # position this in the middle of the screen and set size hit x to 0.8
                     )
