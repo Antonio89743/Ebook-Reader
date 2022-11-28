@@ -231,7 +231,6 @@ Screen:
                     valign: "center"
             ScreenManager:
                 id: screen_manager
-                
                 Screen:
                     id: main_menu_screen
                     name: "Main Menu"
@@ -242,7 +241,6 @@ Screen:
                     width: root.width - navbar.width
                     height: root_screen_vertical_box_layout.height - audio_player_card.height - toolbar.height
                     y: 0
-
                     TabbedPanel:
                         id: main_menu_tabbed_panel
                         do_default_tab: False
@@ -253,23 +251,18 @@ Screen:
                         tab_width: 150
                         pos_y: 0
                         y: 0
-
                         TabbedPanelItem:
                             id: main_menu_files_tab
                             text: "Files"
-
                             BoxLayout:
                                 orientation: "vertical"
-
                                 BoxLayout:
                                     orientation: "horizontal"
-
                                     Label:
                                         text: "Sort by: "
                                         size_hint: (None, None)
                                         width: 100
                                         height: 30
-                                    
                                     Spinner: 
                                         id: main_menu_files_widget_sort_spinner
                                         text: "Release Date"
@@ -279,7 +272,6 @@ Screen:
                                         width: 100
                                         height: 30
                                         on_text: app.add_main_menu_widgets()
-                                    
                                     Button:
                                         id: main_menu_files_widget_order
                                         text: "Ascending"
@@ -287,13 +279,11 @@ Screen:
                                         width: 100
                                         height: 30
                                         on_press: app.sort_order_button_pressed()
-
                                     Button:
                                         text: "Filter"
                                         size_hint: (None, None)
                                         width: 100
                                         height: 30
-                                    
                                     Slider:
                                         id: main_menu_file_widget_size_slider
                                         orientation: "horizontal"
@@ -305,7 +295,6 @@ Screen:
                                         min: 0.1
                                         max: 1
                                         on_value: app.main_menu_file_widget_size(main_menu_file_widget_size_slider)
-
                                 ScrollView:
                                     id: main_menu_scroll_view
                                     always_overscroll: False
@@ -314,7 +303,6 @@ Screen:
                                     size_hint: (None, None)
                                     width: root.width - navbar.width
                                     height: root.height - toolbar.height - 40 - 5 - 30 - audio_player_card.height
-
                                     GridLayout:
                                         id: main_menu_grid_layout
                                         pos_hint: {"top": 1}
@@ -324,7 +312,6 @@ Screen:
                                         padding: [20, 20, 20, 20]
                                         spacing: 20
                                         cols: 5
-
                         TabbedPanelItem:
                             id: main_menu_authors_tab
                             text: "Authors"
@@ -537,7 +524,6 @@ Screen:
 
 '''
 
-# see if you can get the location of the mouse and hide the navbar in the currently reading frame and only show it if mouse is in position
 # navbar searchbar buton on press expand it to a full searchbar
 # audio file module for playing audio files
 # in the future check if file that gets to sound loader is compatible with sound loader
@@ -989,13 +975,11 @@ class FileReaderApp(MDApp):
             # button fix position and do the on press
 
         def remove_folder_from_scan_list(self, app, card, folder):
-            print("remove", folder)
             app.root.ids.local_folders_to_scan_expansion_panel.content.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.remove_widget(card)
             # resize expansion panel
             app.root.ids.local_folders_to_scan_expansion_panel.content.height = app.root.ids.local_folders_to_scan_expansion_panel.content.minimum_height
 
             if exists("Book Worm\Book Worm\local_folders_to_scan.json"):
-                print("hai")
                 file = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
                 json_file_data = file.read()
                 file.close()
@@ -1225,8 +1209,19 @@ class FileReaderApp(MDApp):
 
 
                 self.root.ids.file_reader_floating_options_card_horizontal_box_layout.add_widget(file_read_screen_mode_horizontal_box_layout)
+
+        elif file_read_screen_mode == "pages and focus":
+            if file_format == "cbz":
+                
+                
+
+                pass
+
+
         elif file_read_screen_mode == "book simulator":
             pass
+
+
         print(file_format, file_read_screen_mode)
     
     def load_file_read_screen(self, file):
@@ -1249,7 +1244,7 @@ class FileReaderApp(MDApp):
                 args = tuple(args_as_list)
             elif file["file_format"] == "cbz":
                 args_as_list = list(args)
-                args_as_list.append("pages and infinite scroll")
+                args_as_list.append("pages and focus")
                 args = tuple(args_as_list)
         if args:
             if args[0] == "pageless infinite scroll":
@@ -1281,7 +1276,7 @@ class FileReaderApp(MDApp):
                             # should there only be one widget? will that make it better for pages?
                     self.set_file_reader_floating_options_card("epub", args[0])
                 elif file["file_format"] == "cbz": 
-                    self.file_read_screen_mode(file, "pages and infinite scroll")
+                    self.file_read_screen_mode(file, "pages and focus")
                     self.set_file_reader_floating_options_card("cbz", args[0])
             elif args[0] == "pages and infinite scroll":
                 if file["file_format"] == "cbz": 
@@ -1302,6 +1297,21 @@ class FileReaderApp(MDApp):
                     self.root.ids.file_reader_content_grid_layout.height = self.root.ids.file_reader_content_grid_layout.minimum_height
                     self.root.ids.file_reader_content_grid_layout.size_hint_y = None
                     self.set_file_reader_floating_options_card("cbz", args[0])
+            elif args[0] == "pages and focus":
+                if file["file_format"] == "cbz": 
+                    
+
+
+
+
+
+                    # scrollview, scroll increment, gridlayout, cols, rows
+                    pass
+
+
+
+
+
             elif args[0] == "book simulator":
                 self.set_file_reader_floating_options_card(file["file_format"], args[0])
         self.currently_open_file = file
