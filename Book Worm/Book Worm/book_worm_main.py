@@ -1104,6 +1104,15 @@ class FileReaderApp(MDApp):
         self.root.ids.audio_player_card_file_title_label.text = currently_playing_file_title
         self.root.ids.audio_player_card_file_author_label.text = currently_playing_file_author
         self.root.ids.audio_player_card_file_lenght_label.text = currently_playing_file_lenght
+        # find which album it is from the track data with:
+        # iterate all albums
+
+        # for album in list of all albums
+
+            # if album["file_album_title"] == track["track_album_title"] and album["file_album_artist"] == track["file_album_artist"]:
+                # if album["file_album_total_track_number"] == track["file_album_total_track_number"] and album["file_album_total_disk_number"] == track["file_album_total_disk_number"]:
+                    # self.root.ids.audio_player_card_file_viewer_button.bind(on_press = lambda x: self.load_album_inspector_screen(album))  
+        self.root.ids.audio_player_card_file_viewer_button.bind(on_press = lambda x: self.change_screen("Album Inspector Screen", False))
 
     def on_kivy_music_loader_stop(self, dt):
         if self.about_to_play_another_track_bool == True:
@@ -1165,7 +1174,6 @@ class FileReaderApp(MDApp):
                 self.Album_Genres(self, album_genre, header_genre_layout)
             header_play_album_button = KivyButton(
                 text = "Play Album",
-                # on_press = lambda x: self.play_album(file)
                 on_press = lambda x: self.play_audio_file_list(file, True, True)
             )
             header_info_layout.add_widget(header_play_album_button)
