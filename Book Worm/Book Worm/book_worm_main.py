@@ -1004,6 +1004,7 @@ class FileReaderApp(MDApp):
     album_track_card_secondary_color = (0.9, 0.9, 0.9, 1)
     kivy_compatible_image_files = ["jpeg", "jpg", "png", "gif"]
     music_tag_compatible_file_formats = ["wav_album", "ogg_album", "mp3_album", "aac_album", "flac_album", "wv_album", "m4a_album", "opus_album", "dsf_album", "aiff_album"]
+    kivy_music_loader = SoundLoader
     kivy_music_loader = None
     track_currently_playing_index = 0
     list_of_audio_files_to_play = [None]
@@ -1060,6 +1061,7 @@ class FileReaderApp(MDApp):
             self.set_sound_loader_file()
 
     def play_audio_file_list(self, track_or_album_file, play_full_album_bool, play_now_bool):
+        # check that there aren't 2 same tracks in a row? check if the new file is the same as the old file
         if play_full_album_bool == True:
             # this is always a play now?
             track_currently_playing_index = self.track_currently_playing_index
@@ -1075,9 +1077,11 @@ class FileReaderApp(MDApp):
                 self.list_of_audio_files_to_play.insert(self.track_currently_playing_index + 1, track_or_album_file)
 
     def set_sound_loader_file(self):
-        if self.kivy_music_loader != None:
+        try:
             self.kivy_music_loader.stop()
-        else:
+        except AttributeError:
+            self.kivy_music_loader = None
+        if self.kivy_music_loader == None:
             for child in self.root.ids.audio_player_card.children:
                 child.opacity = 1
             animation = Animation(height = 70, opacity = 1)
@@ -1087,8 +1091,6 @@ class FileReaderApp(MDApp):
         self.kivy_music_loader.play()
         self.kivy_music_loader.bind(on_stop = self.on_kivy_music_loader_stop)
         self.set_audio_player_card_widgets()
-
-# check that there aren't 2 same tracks in a row?
 
     def set_audio_player_card_widgets(self):
         file_currently_playing = self.list_of_audio_files_to_play[self.track_currently_playing_index]
@@ -1182,6 +1184,17 @@ class FileReaderApp(MDApp):
             layout.bind(minimum_height = layout.setter("height"))
             self.root.ids.album_inspector_box_layout.bind(minimum_height = self.root.ids.album_inspector_box_layout.setter("height"))
             self.currently_open_album = file
+    
+    def window_resized(self, *args):
+        self.responsive_grid_layout()
+        if self.root.ids.screen_manager.current == "Read Currently Open File Screen":
+            self.set_file_reader_screen_page_focus_mode_scroll_distance()
+
+    def set_file_reader_screen_page_focus_mode_scroll_distance(self):
+        if self.root.ids.file_reader_content_box_layout_grid_layout_focus_mode != None:
+            self.root.ids.file_reader_content_box_layout_grid_layout_focus_mode.spacing = Window.size[1]
+            self.root.ids.file_reader_content_scroll_view.scroll_distance = Window.size[1] 
+            self.root.ids.file_reader_content_scroll_view.scroll_wheel_distance = Window.size[1] 
 
     def main_menu_file_widget_size(self, id):
         if id == self.root.ids.main_menu_file_widget_size_slider:
@@ -1232,6 +1245,8 @@ class FileReaderApp(MDApp):
 
     def file_read_screen_mode(self, file, *args):
         self.root.ids.file_reader_content_box_layout.clear_widgets()
+        self.root.ids.file_reader_content_scroll_view.scroll_distance = 20
+        self.root.ids.file_reader_content_scroll_view.scroll_wheel_distance = 20
         file_content = self.get_file_contents(file)
         if args == ():
             # there isn't a specified reading mode, so check defaults or previously used modes for this type or just previously used modes for any type
@@ -1310,18 +1325,19 @@ class FileReaderApp(MDApp):
                     self.set_file_reader_floating_options_card("cbz", args[0])
                     # fix gridlayout items not covering entire grid layout
             elif args[0] == "pages and focus":
+                # you'll have to adjust scroll by size of individual widget
+                # maybe set widgets on a card of a set size?
+                # that card can take the hight of window? |-> no, what if there are multiple rows? divide window size by row number
                 if file["file_format"] == "cbz": 
-
                     grid_layout = GridLayout(
-                        cols = 1, # save from previous session, do same with rows (if they aren't default)
+                        cols = 1, # save from previous session, do same with rows (if they aren't default)?
                         size_hint = (1, 1),
                         pos_hint = {"center_x": 0.5}
                     )
                     self.root.ids.file_reader_content_box_layout.add_widget(grid_layout)
-
+                    self.root.ids["file_reader_content_box_layout_grid_layout_focus_mode"] = grid_layout
                     for file_item in file_content:
                         if file_item["file_format"] in self.kivy_compatible_image_files:
-
                             # this part of the code isn't working; sizes, size hints and such are issues
                             image = CoreImage(io.BytesIO(file_item["file"]), ext = "jpg")
                             file_image = Image(
@@ -1332,10 +1348,7 @@ class FileReaderApp(MDApp):
                                 pos_hint = {"center_x": 0.5}
                             )
                             grid_layout.add_widget(file_image)
-
-                    grid_layout.spacing = Window.size_y # -> no size_y, get that another way
-                    self.root.ids.file_reader_content_scroll_view.scroll_distance = Window.size_y #reset this on exit
-
+                    self.set_file_reader_screen_page_focus_mode_scroll_distance()
                     grid_layout.size_hint = (1, 1)
                     grid_layout.height = grid_layout.minimum_height
                     grid_layout.size_hint_y = None
@@ -1344,15 +1357,6 @@ class FileReaderApp(MDApp):
                     self.root.ids.file_reader_content_box_layout.bind(minimum_height = self.root.ids.file_reader_content_box_layout.setter("height"))
                     self.root.ids.file_reader_content_box_layout.size_hint_y = None
                     self.set_file_reader_floating_options_card("cbz", args[0])
-
-
-
-                    # fix gridlayout items not covering entire grid layout
-                    # scroll increment -> scroll_distance    |    is this a good method? just go to next item when scrollwheel scrolle with some other container to 'focus' on page? 
-                    # what if pages aren't of uniform size?
-                    # just seperate pages by get screen height, and do that for scroll distance?
-                    # how to actually 'focus' on single item? 
-
             elif args[0] == "book simulator":
                 self.set_file_reader_floating_options_card(file["file_format"], args[0])
         self.currently_open_file = file
@@ -1537,14 +1541,17 @@ class FileReaderApp(MDApp):
             self.root.ids.main_menu_files_widget_order.text = args["main_menu_file_sort_order"]
     
     def set_audio_player_card_height(self):
-        if self.kivy_music_loader == None:
+        if self.kivy_music_loader == None: #or Sound() == None: #check if there is no active file
             self.root.ids.audio_player_card.height = 0
             for child in self.root.ids.audio_player_card.children:
                 child.opacity = 0
 
     def set_window_size(self, saved_app_data_dictionary):
         if Config.get("graphics", "window_state") != "maximized":
-            Window.size = saved_app_data_dictionary["window_size"] 
+            try:
+                Window.size = saved_app_data_dictionary["window_size"]
+            except TypeError:
+                pass
 
     def set_main_menu_current_tab(self, saved_app_data_dictionary):
         for tab in self.root.ids.main_menu_tabbed_panel.tab_list:
@@ -1581,7 +1588,7 @@ class FileReaderApp(MDApp):
 
     def build(self):
         self.title = "Book Reader"
-        Window.bind(on_resize = self.responsive_grid_layout)
+        Window.bind(on_resize = self.window_resized)
         Window.bind(on_restore = self.responsive_grid_layout)
         Window.bind(on_maximize = self.responsive_grid_layout)
         Window.bind(on_request_close = self.on_request_close)
