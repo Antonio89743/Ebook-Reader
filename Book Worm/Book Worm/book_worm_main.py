@@ -14,6 +14,7 @@ from kivymd.uix.card import MDCard
 from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivymd.uix.button import MDIconButton
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.core.image import Image as CoreImage
@@ -39,7 +40,6 @@ import zipfile
 import rarfile
 from itertools import cycle
 import kivy_garden.contextmenu as ContextMenu
-from kivy.properties import ObjectProperty
 from kivy.factory import Factory
 
 Kivy = '''
@@ -344,7 +344,7 @@ Screen:
                             width: file_reader_content_card.width
                             height: file_reader_content_card.height
                             BoxLayout:
-                                id: file_reader_content_grid_layout
+                                id: file_reader_content_box_layout
                                 pos_hint: {"top": 1}
                                 size_hint: (None, None)
                                 width: file_reader_content_scroll_view.width 
@@ -553,7 +553,6 @@ class AddLocalFolderToScanDialog():
     '''AddLocalFolderToScanDialog'''
 
 class LocalFoldersExpansionPanelContent(BoxLayout):
-    local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list = ObjectProperty(None)
     '''LocalFoldersExpansionPanelContent'''
     
 class MainMenuFilesContextMenu():
@@ -960,6 +959,9 @@ class FileReaderApp(MDApp):
 
             # this isn't really doing anything
             app.root.ids.local_folders_to_scan_expansion_panel.content.height = app.root.ids.local_folders_to_scan_expansion_panel.content.minimum_height
+            app.root.ids.local_folders_to_scan_expansion_panel.content.bind(minimum_height = app.root.ids.local_folders_to_scan_expansion_panel.content.setter("height"))
+
+            # the problem might be the first box view in 'content' kv, not the second one
 
             # app.root.ids.local_folders_to_scan_expansion_panel.close_panel(app.root.ids.local_folders_to_scan_expansion_panel, app.root.ids.local_folders_to_scan_expansion_panel)
             # # Exception has occurred: TypeError
@@ -1229,7 +1231,7 @@ class FileReaderApp(MDApp):
             self.file_read_screen_mode(file)
 
     def file_read_screen_mode(self, file, *args):
-        self.root.ids.file_reader_content_grid_layout.clear_widgets()
+        self.root.ids.file_reader_content_box_layout.clear_widgets()
         file_content = self.get_file_contents(file)
         if args == ():
             # there isn't a specified reading mode, so check defaults or previously used modes for this type or just previously used modes for any type
@@ -1255,10 +1257,10 @@ class FileReaderApp(MDApp):
                             size_hint = (None, None),
                             halign = "left",
                             valign = "top",
-                            size = self.root.ids.file_reader_content_grid_layout.size
+                            size = self.root.ids.file_reader_content_box_layout.size
                         )
                     label.bind(texture_size = label.setter("size"))
-                    self.root.ids.file_reader_content_grid_layout.add_widget(label)
+                    self.root.ids.file_reader_content_box_layout.add_widget(label)
                     self.set_file_reader_floating_options_card(file["file_format"], args[0])
                 elif file["file_format"] == "epub": 
                     for file in file_content:
@@ -1269,10 +1271,10 @@ class FileReaderApp(MDApp):
                                 size_hint = (None, None),
                                 halign = "left",
                                 valign = "top",
-                                size = self.root.ids.file_reader_content_grid_layout.size
+                                size = self.root.ids.file_reader_content_box_layout.size
                             )
                             label.bind(texture_size = label.setter("size"))
-                            self.root.ids.file_reader_content_grid_layout.add_widget(label)
+                            self.root.ids.file_reader_content_box_layout.add_widget(label)
                             # should there only be one widget? will that make it better for pages?
                     self.set_file_reader_floating_options_card("epub", args[0])
                 elif file["file_format"] == "cbz": 
@@ -1280,6 +1282,43 @@ class FileReaderApp(MDApp):
                     self.set_file_reader_floating_options_card("cbz", args[0])
             elif args[0] == "pages and infinite scroll":
                 if file["file_format"] == "cbz": 
+                    grid_layout = GridLayout(
+                        cols = 1, # save from previous session, do same with rows (if they aren't default)
+                        size_hint = (1, 1),
+                        pos_hint = {"center_x": 0.5}
+                    )
+                    self.root.ids.file_reader_content_box_layout.add_widget(grid_layout)
+                    for file_item in file_content:
+                        if file_item["file_format"] in self.kivy_compatible_image_files:
+                            # this part of the code isn't working; sizes, size hints and such are issues
+                            image = CoreImage(io.BytesIO(file_item["file"]), ext = "jpg")
+                            file_image = Image(
+                                texture = CoreImage(image).texture,
+                                size_hint = (None, None),
+                                # height = 400,
+                                # width = 400,
+                                pos_hint = {"center_x": 0.5}
+                            )
+                            grid_layout.add_widget(file_image)
+                    grid_layout.size_hint = (1, 1)
+                    grid_layout.height = grid_layout.minimum_height
+                    grid_layout.size_hint_y = None
+                    grid_layout.bind(minimum_height = grid_layout.setter("height"))
+                    self.root.ids.file_reader_content_box_layout.size_hint = (None, 1)
+                    self.root.ids.file_reader_content_box_layout.bind(minimum_height = self.root.ids.file_reader_content_box_layout.setter("height"))
+                    self.root.ids.file_reader_content_box_layout.size_hint_y = None
+                    self.set_file_reader_floating_options_card("cbz", args[0])
+                    # fix gridlayout items not covering entire grid layout
+            elif args[0] == "pages and focus":
+                if file["file_format"] == "cbz": 
+
+                    grid_layout = GridLayout(
+                        cols = 1, # save from previous session, do same with rows (if they aren't default)
+                        size_hint = (1, 1),
+                        pos_hint = {"center_x": 0.5}
+                    )
+                    self.root.ids.file_reader_content_box_layout.add_widget(grid_layout)
+
                     for file_item in file_content:
                         if file_item["file_format"] in self.kivy_compatible_image_files:
 
@@ -1292,25 +1331,22 @@ class FileReaderApp(MDApp):
                                 # width = 400,
                                 pos_hint = {"center_x": 0.5}
                             )
-                            self.root.ids.file_reader_content_grid_layout.add_widget(file_image)
-                    self.root.ids.file_reader_content_grid_layout.size_hint = (None, 1)
-                    self.root.ids.file_reader_content_grid_layout.height = self.root.ids.file_reader_content_grid_layout.minimum_height
-                    self.root.ids.file_reader_content_grid_layout.size_hint_y = None
+                            grid_layout.add_widget(file_image)
+
+                    grid_layout.size_hint = (1, 1)
+                    grid_layout.height = grid_layout.minimum_height
+                    grid_layout.size_hint_y = None
+                    grid_layout.bind(minimum_height = grid_layout.setter("height"))
+                    self.root.ids.file_reader_content_box_layout.size_hint = (None, 1)
+                    self.root.ids.file_reader_content_box_layout.bind(minimum_height = self.root.ids.file_reader_content_box_layout.setter("height"))
+                    self.root.ids.file_reader_content_box_layout.size_hint_y = None
                     self.set_file_reader_floating_options_card("cbz", args[0])
-            elif args[0] == "pages and focus":
-                if file["file_format"] == "cbz": 
-                    
 
-
-
-
-
-                    # scrollview, scroll increment, gridlayout, cols, rows
-                    pass
-
-
-
-
+                    # fix gridlayout items not covering entire grid layout
+                    # scroll increment -> scroll_distance    |    is this a good method? just go to next item when scrollwheel scrolle with some other container to 'focus' on page? 
+                    # what if pages aren't of uniform size?
+                    # just seperate pages by get screen height, and do that for scroll distance?
+                    # how to actually 'focus' on single item? 
 
             elif args[0] == "book simulator":
                 self.set_file_reader_floating_options_card(file["file_format"], args[0])
