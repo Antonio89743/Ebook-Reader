@@ -1333,6 +1333,9 @@ class FileReaderApp(MDApp):
                             )
                             grid_layout.add_widget(file_image)
 
+                    grid_layout.spacing = Window.size_y # -> no size_y, get that another way
+                    self.root.ids.file_reader_content_scroll_view.scroll_distance = Window.size_y #reset this on exit
+
                     grid_layout.size_hint = (1, 1)
                     grid_layout.height = grid_layout.minimum_height
                     grid_layout.size_hint_y = None
@@ -1341,6 +1344,8 @@ class FileReaderApp(MDApp):
                     self.root.ids.file_reader_content_box_layout.bind(minimum_height = self.root.ids.file_reader_content_box_layout.setter("height"))
                     self.root.ids.file_reader_content_box_layout.size_hint_y = None
                     self.set_file_reader_floating_options_card("cbz", args[0])
+
+
 
                     # fix gridlayout items not covering entire grid layout
                     # scroll increment -> scroll_distance    |    is this a good method? just go to next item when scrollwheel scrolle with some other container to 'focus' on page? 
