@@ -1201,8 +1201,14 @@ class FileReaderApp(MDApp):
     def set_file_reader_screen_page_focus_mode_scroll_distance(self):
         if self.root.ids.file_reader_content_box_layout_grid_layout_focus_mode != None:
             self.root.ids.file_reader_content_box_layout_grid_layout_focus_mode.spacing = Window.size[1]
-            self.root.ids.file_reader_content_scroll_view.scroll_distance = Window.size[1] 
-            self.root.ids.file_reader_content_scroll_view.scroll_wheel_distance = Window.size[1] 
+            if self.root.ids.file_reader_content_box_layout_grid_layout_focus_mode.rows != None:
+                scroll_distance = Window.size[1] + (Window.size[1] / self.root.ids.file_reader_content_box_layout_grid_layout_focus_mode.rows)
+            else: 
+                scroll_distance = Window.size[1] * 2
+            self.root.ids.file_reader_content_scroll_view.scroll_distance = scroll_distance
+            self.root.ids.file_reader_content_scroll_view.scroll_wheel_distance = scroll_distance
+            for child in self.root.ids.file_reader_content_box_layout_grid_layout_focus_mode.children:
+                child.height = Window.size[1] 
 
     def main_menu_file_widget_size(self, id):
         if id == self.root.ids.main_menu_file_widget_size_slider:
@@ -1214,39 +1220,41 @@ class FileReaderApp(MDApp):
             self.responsive_grid_layout()
 
     def set_file_reader_floating_options_card(self, file_format, file_read_screen_mode):
+        self.set_file_reader_floating_options_card_reading_mode_part(file_format, file_read_screen_mode)
+        self.set_file_reader_floating_options_card_background_options_part()
+        self.set_file_reader_floating_options_card_file_type_part(file_format, file_read_screen_mode) 
+        
+    def set_file_reader_floating_options_card_reading_mode_part(self, file_format, file_read_screen_mode):
         if file_read_screen_mode == "pageless infinite scroll":
             pass
         elif file_read_screen_mode == "pages and infinite scroll":
+            pass
+        elif file_read_screen_mode == "pages and focus":
             if file_format == "cbz":
+
                 file_read_screen_mode_horizontal_box_layout = BoxLayout(
                     orientation = "horizontal"
-                )
+                    )
 
-                
-                
-                file_read_screen_background_options_horizontal_box_layout = BoxLayout(
-                    orientation = "horizontal"
-                )
-
-
-
+                # add rows, cols
 
                 self.root.ids.file_reader_floating_options_card_horizontal_box_layout.add_widget(file_read_screen_mode_horizontal_box_layout)
 
-        elif file_read_screen_mode == "pages and focus":
-            if file_format == "cbz":
-                
-                
-
-                pass
-
-
-        elif file_read_screen_mode == "book simulator":
+        elif file_read_screen_mode == "book simulator":                                                                                                                            
             pass
 
+    def set_file_reader_floating_options_card_background_options_part(self):
+        file_read_screen_background_options_horizontal_box_layout = BoxLayout(
+            orientation = "horizontal"
+        )
 
-        print(file_format, file_read_screen_mode)
-    
+        # background color
+        
+        self.root.ids.file_reader_floating_options_card_horizontal_box_layout.add_widget(file_read_screen_background_options_horizontal_box_layout)
+
+    def set_file_reader_floating_options_card_file_type_part(self, file_format, file_read_screen_mode):
+        pass
+
     def load_file_read_screen(self, file):
         if self.currently_open_file != file:
             self.file_read_screen_mode(file)
@@ -1331,31 +1339,35 @@ class FileReaderApp(MDApp):
                     self.root.ids.file_reader_content_box_layout.bind(minimum_height = self.root.ids.file_reader_content_box_layout.setter("height"))
                     self.root.ids.file_reader_content_box_layout.size_hint_y = None
                     self.set_file_reader_floating_options_card("cbz", args[0])
-                    # fix gridlayout items not covering entire grid layout
             elif args[0] == "pages and focus":
-                # you'll have to adjust scroll by size of individual widget
-                # maybe set widgets on a card of a set size?
-                # that card can take the hight of window? |-> no, what if there are multiple rows? divide window size by row number
                 if file["file_format"] == "cbz": 
                     grid_layout = GridLayout(
                         cols = 1, # save from previous session, do same with rows (if they aren't default)?
+                        rows = None,
                         size_hint = (1, 1),
-                        pos_hint = {"center_x": 0.5}
+                        pos_hint = {"center_x": 0.5},
+                        width = self.root.ids.file_reader_content_box_layout.width
                     )
-                    self.root.ids.file_reader_content_box_layout.add_widget(grid_layout)
                     self.root.ids["file_reader_content_box_layout_grid_layout_focus_mode"] = grid_layout
+                    self.root.ids.file_reader_content_box_layout.add_widget(grid_layout)
                     for file_item in file_content:
                         if file_item["file_format"] in self.kivy_compatible_image_files:
-                            # this part of the code isn't working; sizes, size hints and such are issues
+                            container_card = MDCard(
+                                orientation = "vertical",
+                                size_hint = (1, None),
+                                radius = [0, 0, 0, 0],
+                                md_bg_color = (0, 0, 0, 0),
+                                pos_hint = {"center_x": 0.5, "top": 1},
+                                height = Window.size[1]
+                            )
                             image = CoreImage(io.BytesIO(file_item["file"]), ext = "jpg")
                             file_image = Image(
                                 texture = CoreImage(image).texture,
-                                size_hint = (None, None),
-                                # height = 400,
-                                # width = 400,
+                                size_hint = (1, 1),
                                 pos_hint = {"center_x": 0.5}
                             )
-                            grid_layout.add_widget(file_image)
+                            container_card.add_widget(file_image)
+                            grid_layout.add_widget(container_card)
                     self.set_file_reader_screen_page_focus_mode_scroll_distance()
                     grid_layout.size_hint = (1, 1)
                     grid_layout.height = grid_layout.minimum_height
@@ -1549,7 +1561,7 @@ class FileReaderApp(MDApp):
             self.root.ids.main_menu_files_widget_order.text = args["main_menu_file_sort_order"]
     
     def set_audio_player_card_height(self):
-        if self.kivy_music_loader == None: #or Sound() == None: #check if there is no active file
+        if self.kivy_music_loader == None:
             self.root.ids.audio_player_card.height = 0
             for child in self.root.ids.audio_player_card.children:
                 child.opacity = 0
