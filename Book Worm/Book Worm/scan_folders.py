@@ -23,7 +23,7 @@ array_or_cbz_files : array = []
 array_of_valid_files = []
 
 def save_local_folders_array(folders_to_scan):
-    with open(local_folders_to_scan_json_file_path, 'r+') as file:
+    with open(local_folders_to_scan_json_file_path, "r+") as file:
         try:
             file_x = open(local_folders_to_scan_json_file_path, 'r')
             list_folders_to_scan = file_x.read()
@@ -51,7 +51,7 @@ def save_local_folders_array(folders_to_scan):
 
 def save_local_files_dictionary(array_of_valid_files):
     data = json.dumps(array_of_valid_files)
-    file = open(local_folders_to_scan_dictionary_file_path, 'w')
+    file = open(local_folders_to_scan_dictionary_file_path, "w")
     file.write(data)
     file.close()    
 

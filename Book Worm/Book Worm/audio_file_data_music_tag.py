@@ -66,7 +66,9 @@ def get_audio_file_data_music_tag_album_artist(file_path):
 
 def get_audio_file_data_music_tag_track_title(file_path):
     file = music_tag.load_file(file_path)
-    return str(file["tracktitle"].values)[2:-2]  
+    track_title_string_value = str(file["tracktitle"].values)[2:-2]
+    track_title_string_value = track_title_string_value.replace(r"\xa0", " ")
+    return track_title_string_value
 
 def get_audio_file_data_music_tag_track_number(file_path):
     file = music_tag.load_file(file_path)
@@ -106,7 +108,7 @@ def get_audio_file_data_music_tag_length(file_path):
         else:
             return "%0d:%02d" % (minutes, seconds)
 
-# print(get_audio_file_data_music_tag_genre(r"E:\Music\Larkin Poe\Larkin Poe - Kindred Spirits (2020) - WEB FLAC/01. Hellhound On My Trail.flac"))
+# print(get_audio_file_data_music_tag_track_title(r"E:\Music\Larkin Poe\Kin (2014)/02 - Don't  .flac"))
 
 # comment
 # compilation
