@@ -1,5 +1,5 @@
 from datetime import datetime
-import os.path
+import os
 
 def get_txt_file_content(file_path):
     with open(file_path) as open_file:
