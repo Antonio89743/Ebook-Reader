@@ -5,6 +5,14 @@ from kivy.config import Config
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Config.set("graphics", "minimum_width", "700")
 Config.set("graphics", "minimum_height", "400")
+# config kivy window_icon
+# graphics:
+#  window_state 
+# height
+# width
+# left
+# position
+# top
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivy.uix.image import Image
@@ -197,6 +205,45 @@ Screen:
                         color : [1.0, 1.0, 1.0, 1.0]
                         icon_size: 5
                         on_press: app.change_screen("Album Inspector Screen", False)
+
+
+                    # <HoverItem@MDIconButton+HoverBehavior>:
+                    #     id: reading_sign_collections_navbar_button
+                    #     pos_hint: {"y": 1}
+                    #     width: navbar.width
+                    #     height: navbar.width
+                    #     color : [1.0, 1.0, 1.0, 1.0]
+                    #     icon_size: 5
+                    #     on_enter: reading_sign_collections_navbar_card.height = reading_sign_collections_navbar_button.height
+                    #     on_enter: reading_sign_collections_navbar_card.width = 150
+
+                    MDIconButton:
+                        id: reading_sign_collections_navbar_button
+                        pos_hint: {"y": 1}
+                        width: navbar.width
+                        height: navbar.width
+                        color : [1.0, 1.0, 1.0, 1.0]
+                        icon_size: 5
+
+                        on_press: app.change_widget_width(reading_sign_collections_navbar_card, 150)
+                        on_press: reading_sign_collections_navbar_card.height = reading_sign_collections_navbar_button.height
+
+                    #     HoverBehavior:
+                    #         on_enter: reading_sign_collections_navbar_card.height = reading_sign_collections_navbar_button.height
+                    #         on_enter: reading_sign_collections_navbar_card.width = 150
+
+                    #     # on enter and on press get the thing to expand and show up, animate it
+                    #     # on leave, reverse the animation
+
+
+                    #     # on_enter: reading_sign_collections_navbar_card.height = reading_sign_collections_navbar_button.height
+                    #     # on_enter: reading_sign_collections_navbar_card.width = 150
+
+
+                    #     # on_leave: reading_sign_collections_navbar_card.height = 0
+                    #     # on_leave: reading_sign_collections_navbar_card.width = 0
+
+
                     BoxLayout:
                         id: nav_bar_settings
                         orientation: "vertical"
@@ -326,6 +373,7 @@ Screen:
                     name: "Read Currently Open File Screen"
                     on_pre_enter: app.change_widget_height(toolbar, 0)
                     on_pre_enter: app.change_widget_opacity(toolbar, 0)
+                    on_pre_enter: app.change_widget_width(navbar, 0)
                     on_enter: toolbar_label.text = ""
                     MDCard:
                         id: file_reader_content_card
@@ -521,6 +569,20 @@ Screen:
                             # timeline
                             Label:
                                 id: audio_player_card_file_lenght_label 
+    FloatLayout:
+        size_hint: (1, 1)
+        MDCard:
+            id: reading_sign_collections_navbar_card
+            size_hint: (None, None)
+            # width: 150
+            # height: reading_sign_collections_navbar_button.height
+            # size: (0, 0)
+            width: 0
+            height: 0
+            x: reading_sign_collections_navbar_button.x + reading_sign_collections_navbar_button.width
+            y: reading_sign_collections_navbar_button.y
+            md_bg_color: (0, 0, 1, 1)
+            radius: [0, 0, 0, 0]
 
 '''
 
@@ -975,12 +1037,7 @@ class FileReaderApp(MDApp):
             # or just do minimal size?
 
             # button fix position and do the on press
-
-        def remove_folder_from_scan_list(self, app, card, folder):
-            app.root.ids.local_folders_to_scan_expansion_panel.content.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.remove_widget(card)
-            # resize expansion panel
-            app.root.ids.local_folders_to_scan_expansion_panel.content.height = app.root.ids.local_folders_to_scan_expansion_panel.content.minimum_height
-
+        def remove_folder_from_list_of_folders_json(folder):   
             if exists("Book Worm\Book Worm\local_folders_to_scan.json"):
                 file = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
                 json_file_data = file.read()
@@ -992,6 +1049,37 @@ class FileReaderApp(MDApp):
                         list_of_folders_to_scan.remove(folder)
                         file.write(json.dumps(list_of_folders_to_scan))
                         file.close()
+        
+        def remove_folder_files_from_file_dictionary_json(self, app, folder):
+            list_of_subfolders = [name for name in os.listdir(folder)
+                if os.path.isdir(os.path.join(folder, name))]
+
+            # list_of_local_folders_to_scan = # get python object of Book Worm\Book Worm\local_folders_to_scan.json
+            # local_folders_to_scan_dictonary = # get pthon object of dict json
+            # for subfolder in list_of_subfolders:
+                # if subfolder not in list_of_local_folders_to_scan:
+
+                    # for file in local_folders_to_scan_dictonary:
+                    #     if file["absolute_file_path"] # contains subfolder
+                    #         remove that file from local_folders_to_scan_dictonary
+            
+            # for file in local_folders_to_scan_dictonary:
+                # if file["absolute_file_path"] # contains only root, and no further subfodlers
+                    # remove that file from local_folders_to_scan_dictonary
+
+            # save local_folders_to_scan_dictonary.json
+
+            app.local_folders_and_files_scan()
+            app.add_main_menu_widgets()   
+
+        def remove_folder_from_scan_list(self, app, card, folder):
+            app.root.ids.local_folders_to_scan_expansion_panel.content.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.remove_widget(card)
+            # resize expansion panel
+            app.root.ids.local_folders_to_scan_expansion_panel.content.height = app.root.ids.local_folders_to_scan_expansion_panel.content.minimum_height
+            self.remove_folder_from_list_of_folders_json(folder)
+            self.remove_folder_files_from_file_dictionary_json(app, folder)
+            # what if files has been removed but is still open in album viewer/file deatails/file reader screen?
+
 
     list_of_files = []
     currently_open_file = None
@@ -1005,7 +1093,6 @@ class FileReaderApp(MDApp):
     kivy_compatible_image_files = ["jpeg", "jpg", "png", "gif"]
     music_tag_compatible_file_formats = ["wav_album", "ogg_album", "mp3_album", "aac_album", "flac_album", "wv_album", "m4a_album", "opus_album", "dsf_album", "aiff_album"]
     kivy_music_loader = SoundLoader
-    kivy_music_loader = None
     track_currently_playing_index = 0
     list_of_audio_files_to_play = [None]
     about_to_play_another_track_bool = None
@@ -1032,6 +1119,24 @@ class FileReaderApp(MDApp):
         if widget_id == self.root.ids.toolbar:
             if self.root.ids.toolbar.height != new_value:
                 animation.start(self.root.ids.toolbar)
+        elif widget_id == self.root.ids.reading_sign_collections_navbar_card:
+            if self.root.ids.reading_sign_collections_navbar_card.height != new_value:
+                animation.start(self.root.ids.reading_sign_collections_navbar_card)
+
+    def change_widget_width(self, widget_id, new_value):
+        animation = Animation(width = new_value)
+        try:
+            if widget_id == self.root.ids.reading_sign_collections_navbar_card:
+                if self.root.ids.reading_sign_collections_navbar_card.width != new_value:
+                    animation.start(self.root.ids.reading_sign_collections_navbar_card)
+        except AttributeError:
+            print("AttributeError, change_widget_width, widget_id")
+            if widget_id == self.root.ids.navbar:
+                if self.root.ids.navbar.width != new_value:
+                    animation.start(self.root.ids.navbar)
+                    # for child in self.root.ids.navbar.children:
+                    #     child.width = new_value
+                    # self.root.ids.navbar.width = new_value
 
     def change_widget_opacity(self, widget_id, new_value):
         animation = Animation(opacity = new_value)
@@ -1081,7 +1186,16 @@ class FileReaderApp(MDApp):
             self.kivy_music_loader.stop()
         except AttributeError:
             self.kivy_music_loader = None
-        if self.kivy_music_loader == None:
+        try:
+            if self.kivy_music_loader == None or self.kivy_music_loader.source == None:
+                print("FD")
+                for child in self.root.ids.audio_player_card.children:
+                    child.opacity = 1
+                animation = Animation(height = 70, opacity = 1)
+                # animation &= Animation(x=100, y=100)
+                animation.start(self.root.ids.audio_player_card)
+        except AttributeError:
+            print("NO")
             for child in self.root.ids.audio_player_card.children:
                 child.opacity = 1
             animation = Animation(height = 70, opacity = 1)
@@ -1091,7 +1205,7 @@ class FileReaderApp(MDApp):
         self.kivy_music_loader.play()
         self.kivy_music_loader.bind(on_stop = self.on_kivy_music_loader_stop)
         self.set_audio_player_card_widgets()
-
+    
     def set_audio_player_card_widgets(self):
         file_currently_playing = self.list_of_audio_files_to_play[self.track_currently_playing_index]
         currently_playing_file_title = self.list_of_audio_files_to_play[self.track_currently_playing_index]["track_title"]
@@ -1561,10 +1675,17 @@ class FileReaderApp(MDApp):
             self.root.ids.main_menu_files_widget_order.text = args["main_menu_file_sort_order"]
     
     def set_audio_player_card_height(self):
-        if self.kivy_music_loader == None:
-            self.root.ids.audio_player_card.height = 0
+        try:
+            if self.kivy_music_loader == None or self.kivy_music_loader.source == None:
+                for child in self.root.ids.audio_player_card.children:
+                    child.opacity = 0
+                animation = Animation(opacity = 0, height = 0, duration = 0)
+                animation.start(self.root.ids.audio_player_card)
+        except AttributeError:
             for child in self.root.ids.audio_player_card.children:
                 child.opacity = 0
+            animation = Animation(opacity = 0, height = 0, duration = 0)
+            animation.start(self.root.ids.audio_player_card)
 
     def set_window_size(self, saved_app_data_dictionary):
         if Config.get("graphics", "window_state") != "maximized":
@@ -1620,7 +1741,7 @@ class FileReaderApp(MDApp):
         self.responsive_grid_layout()
         self.create_local_folders_to_scan_expansion_panel()
         self.local_folders_and_files_scan()
-        # print(Config.get('graphics', 'window_state'), Config.get("graphics", "fullscreen"))
+        # print(Config.get("graphics", "window_state"), Config.get("graphics", "fullscreen"))
         # Config.set('graphics', 'window_state', 'hidden')
 
     def on_request_close(self, *args):
