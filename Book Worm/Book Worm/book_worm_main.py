@@ -1036,8 +1036,7 @@ class FileReaderApp(MDApp):
             # it's fine on reopening the expansion panel, so maybe just do that? 
             # or just do minimal size?
 
-            # button fix position and do the on press
-        def remove_folder_from_list_of_folders_json(folder):   
+        def remove_folder_from_list_of_folders_json(self, folder):   
             if exists("Book Worm\Book Worm\local_folders_to_scan.json"):
                 file = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
                 json_file_data = file.read()
@@ -1049,26 +1048,42 @@ class FileReaderApp(MDApp):
                         list_of_folders_to_scan.remove(folder)
                         file.write(json.dumps(list_of_folders_to_scan))
                         file.close()
-        
+        # when adding fodlers to folders to scan, check if it's a unique one, or if one already exists
         def remove_folder_files_from_file_dictionary_json(self, app, folder):
             list_of_subfolders = [name for name in os.listdir(folder)
                 if os.path.isdir(os.path.join(folder, name))]
+            # as it stands, to remove folder you've gotta open the file bellow twice, cut down on that
+            local_folders_to_scan = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
+            list_of_local_folders_to_scan = local_folders_to_scan.read()
+            local_folders_to_scan.close()
+            with open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") as local_files_dictionary:
+                local_folders_to_scan_dictionary = json.load(local_files_dictionary)
+                for subfolder in list_of_subfolders:
+                    if subfolder not in list_of_local_folders_to_scan:
+                        for file_index, file in enumerate(local_folders_to_scan_dictionary):
+                            try:
+                                if subfolder in file["absolute_file_path"]:
+                                    local_folders_to_scan_dictionary.pop(file_index)          
+                                else:
+                                    print("nein", subfolder, file["absolute_file_path"])
+                            except TypeError:
+                                print("XXXX TypeError")
+                                # absolute file path will be null for mp3 albums
+                                # nabokov audio book sample doesn't show any info on the album view screen -> software is fine, it's the file's problem, but why can't you play that file?
+                                pass
 
-            # list_of_local_folders_to_scan = # get python object of Book Worm\Book Worm\local_folders_to_scan.json
-            # local_folders_to_scan_dictonary = # get pthon object of dict json
-            # for subfolder in list_of_subfolders:
-                # if subfolder not in list_of_local_folders_to_scan:
 
-                    # for file in local_folders_to_scan_dictonary:
-                    #     if file["absolute_file_path"] # contains subfolder
-                    #         remove that file from local_folders_to_scan_dictonary
-            
-            # for file in local_folders_to_scan_dictonary:
-                # if file["absolute_file_path"] # contains only root, and no further subfodlers
-                    # remove that file from local_folders_to_scan_dictonary
+                # for file_index, file in enumerate(local_folders_to_scan_dictionary):
 
-            # save local_folders_to_scan_dictonary.json
+                    # if file["absolute_file_path"] # contains only root, and no further subfodlers
+                        # do this by getting rid of the 'folder' string in file["absolute_file_path"] and cehcking if there are any other / signs left
 
+                        # local_folders_to_scan_dictionary.pop(file_index)    
+
+                print(local_folders_to_scan_dictionary)
+                file = open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "w")
+                file.write(json.dumps(local_folders_to_scan_dictionary))
+                file.close()  
             app.local_folders_and_files_scan()
             app.add_main_menu_widgets()   
 
@@ -1079,7 +1094,6 @@ class FileReaderApp(MDApp):
             self.remove_folder_from_list_of_folders_json(folder)
             self.remove_folder_files_from_file_dictionary_json(app, folder)
             # what if files has been removed but is still open in album viewer/file deatails/file reader screen?
-
 
     list_of_files = []
     currently_open_file = None
@@ -1171,10 +1185,15 @@ class FileReaderApp(MDApp):
             # this is always a play now?
             track_currently_playing_index = self.track_currently_playing_index
             for track in track_or_album_file["album_tracks_dictionary"]:
-                self.list_of_audio_files_to_play.insert(track_currently_playing_index + 1, track)
+                track_and_album_dictionary = {
+                    "track": track,
+                    "album": track_or_album_file
+                }
+                # self.list_of_audio_files_to_play.insert(track_currently_playing_index + 1, track)
+                self.list_of_audio_files_to_play.insert(track_currently_playing_index + 1, track_and_album_dictionary) #updated with dict
                 track_currently_playing_index += 1
             self.on_play_next_audio_file_button_pressed()
-        else: 
+        else: # what to do here, if the track_or_album_file is just a single track??????
             if play_now_bool == True:
                 self.list_of_audio_files_to_play.insert(self.track_currently_playing_index + 1, track_or_album_file)
                 self.on_play_next_audio_file_button_pressed()
@@ -1188,18 +1207,14 @@ class FileReaderApp(MDApp):
             self.kivy_music_loader = None
         try:
             if self.kivy_music_loader == None or self.kivy_music_loader.source == None:
-                print("FD")
                 for child in self.root.ids.audio_player_card.children:
                     child.opacity = 1
                 animation = Animation(height = 70, opacity = 1)
-                # animation &= Animation(x=100, y=100)
                 animation.start(self.root.ids.audio_player_card)
         except AttributeError:
-            print("NO")
             for child in self.root.ids.audio_player_card.children:
                 child.opacity = 1
             animation = Animation(height = 70, opacity = 1)
-            # animation &= Animation(x=100, y=100)
             animation.start(self.root.ids.audio_player_card)
         self.kivy_music_loader = SoundLoader.load(self.list_of_audio_files_to_play[self.track_currently_playing_index]["absolute_file_path"])
         self.kivy_music_loader.play()
@@ -1218,14 +1233,17 @@ class FileReaderApp(MDApp):
         self.root.ids.audio_player_card_file_title_label.text = currently_playing_file_title
         self.root.ids.audio_player_card_file_author_label.text = currently_playing_file_author
         self.root.ids.audio_player_card_file_lenght_label.text = currently_playing_file_lenght
+
         # find which album it is from the track data with:
         # iterate all albums
 
-        # for album in list of all albums
+        # for album in list_of_albums:
+        #     if album["file_album_title"] == track["track_album_title"] and album["file_album_artist"] == track["file_album_artist"]:
+        #         if album["file_album_total_track_number"] == track["file_album_total_track_number"] and album["file_album_total_disk_number"] == track["file_album_total_disk_number"]:
+        #             self.root.ids.audio_player_card_file_viewer_button.bind(on_press = lambda x: self.load_album_inspector_screen(album))  
+        # self.root.ids.audio_player_card_file_viewer_button.bind(on_press = lambda x: self.change_screen("Album Inspector Screen", False))
 
-            # if album["file_album_title"] == track["track_album_title"] and album["file_album_artist"] == track["file_album_artist"]:
-                # if album["file_album_total_track_number"] == track["file_album_total_track_number"] and album["file_album_total_disk_number"] == track["file_album_total_disk_number"]:
-                    # self.root.ids.audio_player_card_file_viewer_button.bind(on_press = lambda x: self.load_album_inspector_screen(album))  
+        self.root.ids.audio_player_card_file_viewer_button.bind(on_press = lambda x: self.load_album_inspector_screen(self.list_of_audio_files_to_play[self.track_currently_playing_index]["album"]))  
         self.root.ids.audio_player_card_file_viewer_button.bind(on_press = lambda x: self.change_screen("Album Inspector Screen", False))
 
     def on_kivy_music_loader_stop(self, dt):
