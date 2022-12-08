@@ -1095,6 +1095,7 @@ class FileReaderApp(MDApp):
             self.remove_folder_files_from_file_dictionary_json(app, folder)
             # what if files has been removed but is still open in album viewer/file deatails/file reader screen?
 
+    navbar_width_max = 50
     list_of_files = []
     currently_open_file = None
     currently_open_album = None 
@@ -1744,6 +1745,21 @@ class FileReaderApp(MDApp):
         self.set_window_size(saved_app_data_dictionary)
         self.set_window_state(saved_app_data_dictionary)
         self.set_main_menu_current_tab(saved_app_data_dictionary)
+    
+    def check_mouse_position_on_navbar(self, mouse_position):
+        if self.root.ids.screen_manager.current == "Read Currently Open File Screen":
+            if self.root.ids.navbar.width == 0:
+        # if current screen has hide-able navbar
+        # if navbar is currently hidden
+                if mouse_position[0] <= self.root.ids.navbar.pos[0] + self.navbar_width_max:
+                    # show nabvar
+                    print("XXXX")
+                # else, hide navbar
+
+# when exactly should you hide navbar, when exactly should you show it
+
+    def on_mouse_position_changed(self, window_object, mouse_position):
+        self.check_mouse_position_on_navbar(mouse_position)
 
     def build(self):
         self.title = "Book Reader"
@@ -1752,6 +1768,7 @@ class FileReaderApp(MDApp):
         Window.bind(on_maximize = self.responsive_grid_layout)
         Window.bind(on_request_close = self.on_request_close)
         Window.bind(on_key_down = self.on_key_down)
+        Window.bind(mouse_pos = self.on_mouse_position_changed)
         return Builder.load_string(Kivy)
     
     def on_start(self):
