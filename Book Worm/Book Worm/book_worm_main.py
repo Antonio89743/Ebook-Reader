@@ -37,6 +37,7 @@ from kivy.core.window import Window
 import os, string
 from os.path import sep, expanduser, isdir, dirname, exists
 import sys
+import re
 import json
 import scan_folders
 from io import StringIO 
@@ -1067,20 +1068,27 @@ class FileReaderApp(MDApp):
                                 else:
                                     print("nein", subfolder, file["absolute_file_path"])
                             except TypeError:
-                                print("XXXX TypeError")
+                                print("XXXX TypeError", file["absolute_file_path"])
                                 # absolute file path will be null for mp3 albums
                                 # nabokov audio book sample doesn't show any info on the album view screen -> software is fine, it's the file's problem, but why can't you play that file?
                                 pass
 
+                
+                for file_index, file in enumerate(local_folders_to_scan_dictionary):
+                    try:
+                    # print("OOOOOO", file["absolute_file_path"].removeprefix(folder))
+                        file_path_without_folder = file["absolute_file_path"].removeprefix(folder)
+                        if ("/" not in file_path_without_folder) and (r"\\" not in file_path_without_folder):
+                            print("gone", file["absolute_file_path"].removeprefix(folder), file["absolute_file_path"])
+                            local_folders_to_scan_dictionary.pop(file_index)    
+                    except TypeError:
+                        print("CCCC", file["absolute_file_path"])
+                        pass
+                    except AttributeError:
+                        print("KKKK", file["absolute_file_path"])
+                        pass
 
-                # for file_index, file in enumerate(local_folders_to_scan_dictionary):
-
-                    # if file["absolute_file_path"] # contains only root, and no further subfodlers
-                        # do this by getting rid of the 'folder' string in file["absolute_file_path"] and cehcking if there are any other / signs left
-
-                        # local_folders_to_scan_dictionary.pop(file_index)    
-
-                print(local_folders_to_scan_dictionary)
+                # print(local_folders_to_scan_dictionary)
                 file = open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "w")
                 file.write(json.dumps(local_folders_to_scan_dictionary))
                 file.close()  
@@ -1608,8 +1616,22 @@ class FileReaderApp(MDApp):
         self.add_main_menu_widgets()
 
     def add_folder_to_scan_folder_selected(self, folder_selected):
-        self.Folder_To_Scan_Card(self, folder_selected)
-        self.list_of_files = scan_folders.scan_folders(str(folder_selected), True)
+        unique_folder = True
+        folder_selected_string = str(folder_selected)
+        if exists("Book Worm\Book Worm\local_folders_to_scan.json"):
+            file = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
+            json_file_data = file.read()
+            file.close()
+            if json_file_data != "":
+                list_of_folders_to_scan = eval(json_file_data)
+                folder_selected_string_path = re.sub("/+", "/", folder_selected_string[2:-2])
+                for folder in list_of_folders_to_scan:
+                    folder_path = re.sub("/+", "/", folder)
+                    if folder_path == folder_selected_string_path:
+                        unique_folder = False
+        if unique_folder == True:
+            self.Folder_To_Scan_Card(self, folder_selected)
+        self.list_of_files = scan_folders.scan_folders(folder_selected_string, unique_folder)
         self.add_main_menu_widgets()
         
     def full_scan(self):

@@ -235,176 +235,176 @@ def scan_folders(folders_to_scan, new_folder_bool):
     #                 array_or_cbr_files.append(absolute_path_to_file)
         save_local_files_dictionary(array_of_valid_files)
     elif type(folders_to_scan) is str:
-        if new_folder_bool == True:
-            folders_to_scan = folders_to_scan[1:]
-            folders_to_scan = folders_to_scan[:-1]
-            folders_to_scan = folders_to_scan[:-1]
-            folders_to_scan = folders_to_scan[1:]
-            epub_files = glob.glob(folders_to_scan + "/**/*.epub", recursive = True)
-            for epub_file in epub_files:
-                absolute_path_to_file = os.path.abspath(epub_file) # is this really needed or is there a better way of getting rid of // from epub_file
-                if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
-                    file_title = epub_file_data.get_epub_book_title(absolute_path_to_file)
-                    file_author = epub_file_data.get_epub_book_author(absolute_path_to_file)
-                    file_cover = epub_file_data.get_epub_cover_image_path(absolute_path_to_file)
-                    array_of_valid_files.append({
-                        "absolute_file_path" : absolute_path_to_file, 
-                        "file_format" : "epub", 
-                        "file_name" : file_title, 
-                        "file_author" : file_author,
-                        "file_cover" : file_cover,
-                        "release_date" : None,
-                        "date_added" : None,
-                        "publisher" : None, 
-                        "genre" : None, # this could be an list?
-                        "date_most_recently_opened" : None, 
-                        "country_of_origin" : None,
-                        "language" : None,
-                        "file_size" : None})
-            txt_files = glob.glob(folders_to_scan + "/**/*.txt", recursive = True)
-            for txt_file in txt_files:
-                absolute_path_to_file = os.path.abspath(txt_file)
-                if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
-                    file_title = text_file_data.get_txt_file_name(absolute_path_to_file)
-                    array_of_valid_files.append({
-                        "absolute_file_path" : absolute_path_to_file, 
-                        "file_format" : "txt", 
-                        "file_name" : file_title, 
-                        "file_author" : None,
-                        "release_date" : None,
-                        "date_added" : None,
-                        "publisher" : None, 
-                        "genre" : None, # this could be an list?
-                        "date_most_recently_opened" : None, 
-                        "country_of_origin" : None,
-                        "language" : None,
-                        "file_size" : None})
-            cb7_files = glob.glob(folders_to_scan + "/**/*.cb7", recursive = True)
-            cba_files = glob.glob(folders_to_scan + "/**/*.cba", recursive = True)
-            cbt_files = glob.glob(folders_to_scan + "/**/*.cbt", recursive = True)          
-            cbz_files = glob.glob(folders_to_scan + "/**/*.cbz", recursive = True)
-            for cbz_file in cbz_files:
-                absolute_path_to_file = os.path.abspath(cbz_file)
-                if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
-                    file_title = cbz_file_data.get_cbz_file_title(absolute_path_to_file)
-                    file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)
-                    array_of_valid_files.append({
-                        "absolute_file_path" : absolute_path_to_file, 
-                        "file_format" : "cbz", 
-                        "file_name" : file_title, 
-                        "file_author" : None,
-                        "file_cover" : file_cover,
-                        "release_date" : None,
-                        "date_added" : None,
-                        "publisher" : None, 
-                        "genre" : None, # this could be an list?
-                        "date_most_recently_opened" : None, 
-                        "country_of_origin" : None,
-                        "language" : None,
-                        "file_size" : None})
-            cbr_files = glob.glob(folders_to_scan + "/**/*.cbr", recursive = True)
-            for cbr_file in cbr_files:
-                absolute_path_to_file = os.path.abspath(cbr_file)
-                if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
-                    file_title = cbr_file_data.get_cbr_file_title(absolute_path_to_file)
-                    file_cover = cbr_file_data.get_cbr_cover_image(absolute_path_to_file)
-                    array_of_valid_files.append({
-                        "absolute_file_path" : absolute_path_to_file, 
-                        "file_format" : "cbr", 
-                        "file_name" : file_title, 
-                        "file_author" : None,
-                        "file_cover" : file_cover,
-                        "release_date" : None,
-                        "date_added" : None,
-                        "publisher" : None, 
-                        "genre" : None, # this could be an list?
-                        "date_most_recently_opened" : None, 
-                        "country_of_origin" : None,
-                        "language" : None,
-                        "file_size" : None})        
-            mp3_files = glob.glob(folders_to_scan + "/**/*.mp3", recursive = True)
-            wav_files = glob.glob(folders_to_scan + "/**/*.wav", recursive = True)
-            ogg_files = glob.glob(folders_to_scan + "/**/*.ogg", recursive = True)
-            aac_files = glob.glob(folders_to_scan + "/**/*.aac", recursive = True)
-            flac_files = glob.glob(folders_to_scan + "/**/*.flac", recursive = True)
-            music_tag_compatible_audio_files = []
-            music_tag_compatible_audio_files.extend(mp3_files)
-            music_tag_compatible_audio_files.extend(wav_files)
-            music_tag_compatible_audio_files.extend(ogg_files)
-            music_tag_compatible_audio_files.extend(aac_files)
-            music_tag_compatible_audio_files.extend(flac_files)
-            list_of_albums = []
-            list_of_tracks = []
-            for music_tag_compatible_audio_file in music_tag_compatible_audio_files:
-                absolute_path_to_file = os.path.abspath(music_tag_compatible_audio_file)
-                if absolute_path_to_file.endswith(".mp3"):
-                    file_format = "mp3"
-                elif absolute_path_to_file.endswith(".wav"):
-                    file_format = "wav"
-                elif absolute_path_to_file.endswith(".ogg"):
-                    file_format = "ogg"
-                elif absolute_path_to_file.endswith(".aac"):
-                    file_format = "aac"
-                elif absolute_path_to_file.endswith(".flac"):
-                    file_format = "flac"
-                file_album_title = audio_file_data_music_tag.get_audio_file_data_music_tag_album_name(absolute_path_to_file)
-                file_album_artist = audio_file_data_music_tag.get_audio_file_data_music_tag_album_artist(absolute_path_to_file)
-                file_album_total_track_number = audio_file_data_music_tag.get_audio_file_data_music_tag_total_tracks(absolute_path_to_file)
-                file_album_total_disk_number = audio_file_data_music_tag.get_audio_file_data_music_tag_total_discs(absolute_path_to_file)
-                file_album_release_year = audio_file_data_music_tag.get_audio_file_data_music_tag_release_year(absolute_path_to_file)
-                album_dictionary = {
-                    "file_album_title" : file_album_title,
-                    "file_album_artist" : file_album_artist,
-                    "file_album_total_track_number" : file_album_total_track_number,
-                    "file_album_total_disk_number" : file_album_total_disk_number,
-                    "file_album_release_year" : file_album_release_year}
-                list_of_albums.append(album_dictionary)
-                track_title = audio_file_data_music_tag.get_audio_file_data_music_tag_title(absolute_path_to_file)
-                track_artist = audio_file_data_music_tag.get_audio_file_data_music_tag_artist(absolute_path_to_file)
-                track_number = audio_file_data_music_tag.get_audio_file_data_music_tag_track_number(absolute_path_to_file)
-                track_genre = audio_file_data_music_tag.get_audio_file_data_music_tag_genre(absolute_path_to_file)
-                track_lenght = audio_file_data_music_tag.get_audio_file_data_music_tag_length(absolute_path_to_file)
-                track_dictionary = {
-                    "track_album_title" : file_album_title,
-                    "file_album_artist" : file_album_artist,
-                    "file_album_total_track_number" : file_album_total_track_number,
-                    "file_album_total_disk_number" : file_album_total_disk_number,
-                    "file_album_release_year" : file_album_release_year,
-                    "track_title" : track_title,
-                    "track_artist" : track_artist,
-                    "track_number" : track_number,
-                    "track_genre" : track_genre,
-                    "track_lenght" : track_lenght,
-                    "absolute_file_path" : absolute_path_to_file,
-                    "file_format" : file_format}
-                list_of_tracks.append(track_dictionary)
-            list_of_unique_albums = list(map(dict, set(tuple(sorted(sub.items())) for sub in list_of_albums)))
-            for album in list_of_unique_albums:
-                album_genres = []
-                album_tracks_dictionary = []
-                for track in list_of_tracks:
-                    if album["file_album_title"] == track["track_album_title"] and album["file_album_artist"] == track["file_album_artist"]:
-                        if album["file_album_total_track_number"] == track["file_album_total_track_number"] and album["file_album_total_disk_number"] == track["file_album_total_disk_number"]:
-                            album_tracks_dictionary.append(track)
-                            album_genres.append(track["track_genre"])
-                            album_genres = [*set(album_genres)]
-                            album_file_format = track["file_format"] + "_album"
+        
+        folders_to_scan = folders_to_scan[1:]
+        folders_to_scan = folders_to_scan[:-1]
+        folders_to_scan = folders_to_scan[:-1]
+        folders_to_scan = folders_to_scan[1:]
+        epub_files = glob.glob(folders_to_scan + "/**/*.epub", recursive = True)
+        for epub_file in epub_files:
+            absolute_path_to_file = os.path.abspath(epub_file) # is this really needed or is there a better way of getting rid of // from epub_file
+            if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
+                file_title = epub_file_data.get_epub_book_title(absolute_path_to_file)
+                file_author = epub_file_data.get_epub_book_author(absolute_path_to_file)
+                file_cover = epub_file_data.get_epub_cover_image_path(absolute_path_to_file)
                 array_of_valid_files.append({
-                    "absolute_file_path" : None, 
-                    "file_format" : album_file_format,
-                    "file_name" : album["file_album_title"], 
-                    "file_author" : album["file_album_artist"],
-                    "file_cover" : None,
-                    "release_date" : album["file_album_release_year"],
-                    "album_tracks_dictionary" : album_tracks_dictionary,
+                    "absolute_file_path" : absolute_path_to_file, 
+                    "file_format" : "epub", 
+                    "file_name" : file_title, 
+                    "file_author" : file_author,
+                    "file_cover" : file_cover,
+                    "release_date" : None,
                     "date_added" : None,
                     "publisher" : None, 
-                    "album_genre" : album_genres,
+                    "genre" : None, # this could be an list?
                     "date_most_recently_opened" : None, 
                     "country_of_origin" : None,
                     "language" : None,
                     "file_size" : None})
-            
+        txt_files = glob.glob(folders_to_scan + "/**/*.txt", recursive = True)
+        for txt_file in txt_files:
+            absolute_path_to_file = os.path.abspath(txt_file)
+            if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
+                file_title = text_file_data.get_txt_file_name(absolute_path_to_file)
+                array_of_valid_files.append({
+                    "absolute_file_path" : absolute_path_to_file, 
+                    "file_format" : "txt", 
+                    "file_name" : file_title, 
+                    "file_author" : None,
+                    "release_date" : None,
+                    "date_added" : None,
+                    "publisher" : None, 
+                    "genre" : None, # this could be an list?
+                    "date_most_recently_opened" : None, 
+                    "country_of_origin" : None,
+                    "language" : None,
+                    "file_size" : None})
+        cb7_files = glob.glob(folders_to_scan + "/**/*.cb7", recursive = True)
+        cba_files = glob.glob(folders_to_scan + "/**/*.cba", recursive = True)
+        cbt_files = glob.glob(folders_to_scan + "/**/*.cbt", recursive = True)          
+        cbz_files = glob.glob(folders_to_scan + "/**/*.cbz", recursive = True)
+        for cbz_file in cbz_files:
+            absolute_path_to_file = os.path.abspath(cbz_file)
+            if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
+                file_title = cbz_file_data.get_cbz_file_title(absolute_path_to_file)
+                file_cover = cbz_file_data.get_cbz_cover_image(absolute_path_to_file)
+                array_of_valid_files.append({
+                    "absolute_file_path" : absolute_path_to_file, 
+                    "file_format" : "cbz", 
+                    "file_name" : file_title, 
+                    "file_author" : None,
+                    "file_cover" : file_cover,
+                    "release_date" : None,
+                    "date_added" : None,
+                    "publisher" : None, 
+                    "genre" : None, # this could be an list?
+                    "date_most_recently_opened" : None, 
+                    "country_of_origin" : None,
+                    "language" : None,
+                    "file_size" : None})
+        cbr_files = glob.glob(folders_to_scan + "/**/*.cbr", recursive = True)
+        for cbr_file in cbr_files:
+            absolute_path_to_file = os.path.abspath(cbr_file)
+            if not any(dictionary["absolute_file_path"] == absolute_path_to_file for dictionary in array_of_valid_files):
+                file_title = cbr_file_data.get_cbr_file_title(absolute_path_to_file)
+                file_cover = cbr_file_data.get_cbr_cover_image(absolute_path_to_file)
+                array_of_valid_files.append({
+                    "absolute_file_path" : absolute_path_to_file, 
+                    "file_format" : "cbr", 
+                    "file_name" : file_title, 
+                    "file_author" : None,
+                    "file_cover" : file_cover,
+                    "release_date" : None,
+                    "date_added" : None,
+                    "publisher" : None, 
+                    "genre" : None, # this could be an list?
+                    "date_most_recently_opened" : None, 
+                    "country_of_origin" : None,
+                    "language" : None,
+                    "file_size" : None})        
+        mp3_files = glob.glob(folders_to_scan + "/**/*.mp3", recursive = True)
+        wav_files = glob.glob(folders_to_scan + "/**/*.wav", recursive = True)
+        ogg_files = glob.glob(folders_to_scan + "/**/*.ogg", recursive = True)
+        aac_files = glob.glob(folders_to_scan + "/**/*.aac", recursive = True)
+        flac_files = glob.glob(folders_to_scan + "/**/*.flac", recursive = True)
+        music_tag_compatible_audio_files = []
+        music_tag_compatible_audio_files.extend(mp3_files)
+        music_tag_compatible_audio_files.extend(wav_files)
+        music_tag_compatible_audio_files.extend(ogg_files)
+        music_tag_compatible_audio_files.extend(aac_files)
+        music_tag_compatible_audio_files.extend(flac_files)
+        list_of_albums = []
+        list_of_tracks = []
+        for music_tag_compatible_audio_file in music_tag_compatible_audio_files:
+            absolute_path_to_file = os.path.abspath(music_tag_compatible_audio_file)
+            if absolute_path_to_file.endswith(".mp3"):
+                file_format = "mp3"
+            elif absolute_path_to_file.endswith(".wav"):
+                file_format = "wav"
+            elif absolute_path_to_file.endswith(".ogg"):
+                file_format = "ogg"
+            elif absolute_path_to_file.endswith(".aac"):
+                file_format = "aac"
+            elif absolute_path_to_file.endswith(".flac"):
+                file_format = "flac"
+            file_album_title = audio_file_data_music_tag.get_audio_file_data_music_tag_album_name(absolute_path_to_file)
+            file_album_artist = audio_file_data_music_tag.get_audio_file_data_music_tag_album_artist(absolute_path_to_file)
+            file_album_total_track_number = audio_file_data_music_tag.get_audio_file_data_music_tag_total_tracks(absolute_path_to_file)
+            file_album_total_disk_number = audio_file_data_music_tag.get_audio_file_data_music_tag_total_discs(absolute_path_to_file)
+            file_album_release_year = audio_file_data_music_tag.get_audio_file_data_music_tag_release_year(absolute_path_to_file)
+            album_dictionary = {
+                "file_album_title" : file_album_title,
+                "file_album_artist" : file_album_artist,
+                "file_album_total_track_number" : file_album_total_track_number,
+                "file_album_total_disk_number" : file_album_total_disk_number,
+                "file_album_release_year" : file_album_release_year}
+            list_of_albums.append(album_dictionary)
+            track_title = audio_file_data_music_tag.get_audio_file_data_music_tag_title(absolute_path_to_file)
+            track_artist = audio_file_data_music_tag.get_audio_file_data_music_tag_artist(absolute_path_to_file)
+            track_number = audio_file_data_music_tag.get_audio_file_data_music_tag_track_number(absolute_path_to_file)
+            track_genre = audio_file_data_music_tag.get_audio_file_data_music_tag_genre(absolute_path_to_file)
+            track_lenght = audio_file_data_music_tag.get_audio_file_data_music_tag_length(absolute_path_to_file)
+            track_dictionary = {
+                "track_album_title" : file_album_title,
+                "file_album_artist" : file_album_artist,
+                "file_album_total_track_number" : file_album_total_track_number,
+                "file_album_total_disk_number" : file_album_total_disk_number,
+                "file_album_release_year" : file_album_release_year,
+                "track_title" : track_title,
+                "track_artist" : track_artist,
+                "track_number" : track_number,
+                "track_genre" : track_genre,
+                "track_lenght" : track_lenght,
+                "absolute_file_path" : absolute_path_to_file,
+                "file_format" : file_format}
+            list_of_tracks.append(track_dictionary)
+        list_of_unique_albums = list(map(dict, set(tuple(sorted(sub.items())) for sub in list_of_albums)))
+        for album in list_of_unique_albums:
+            album_genres = []
+            album_tracks_dictionary = []
+            for track in list_of_tracks:
+                if album["file_album_title"] == track["track_album_title"] and album["file_album_artist"] == track["file_album_artist"]:
+                    if album["file_album_total_track_number"] == track["file_album_total_track_number"] and album["file_album_total_disk_number"] == track["file_album_total_disk_number"]:
+                        album_tracks_dictionary.append(track)
+                        album_genres.append(track["track_genre"])
+                        album_genres = [*set(album_genres)]
+                        album_file_format = track["file_format"] + "_album"
+            array_of_valid_files.append({
+                "absolute_file_path" : None, 
+                "file_format" : album_file_format,
+                "file_name" : album["file_album_title"], 
+                "file_author" : album["file_album_artist"],
+                "file_cover" : None,
+                "release_date" : album["file_album_release_year"],
+                "album_tracks_dictionary" : album_tracks_dictionary,
+                "date_added" : None,
+                "publisher" : None, 
+                "album_genre" : album_genres,
+                "date_most_recently_opened" : None, 
+                "country_of_origin" : None,
+                "language" : None,
+                "file_size" : None})
+        
     #             absolute_path_to_file = os.path.abspath(epub_file)
     #             if array_or_epub_files.count(absolute_path_to_file) == 0 :
     #                 array_or_epub_files.append(absolute_path_to_file)
@@ -448,8 +448,10 @@ def scan_folders(folders_to_scan, new_folder_bool):
     #             absolute_path_to_file = os.path.abspath(cbz_file)
     #             if array_or_cbz_files.count(absolute_path_to_file) == 0 :
     #                 array_or_cbz_files.append(absolute_path_to_file)     
+    if new_folder_bool == True:
             save_local_files_dictionary(array_of_valid_files)
             save_local_folders_array(folders_to_scan)
-        elif new_folder_bool == False:
-            array_of_valid_files = json.loads(folders_to_scan)
+    
+        # elif new_folder_bool == False:
+        #     array_of_valid_files = json.loads(folders_to_scan)
     return array_of_valid_files
