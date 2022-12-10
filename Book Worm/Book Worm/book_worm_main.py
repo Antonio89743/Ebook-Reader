@@ -38,6 +38,7 @@ import os, string
 from os.path import sep, expanduser, isdir, dirname, exists
 import sys
 import re
+from glob import glob
 import json
 import scan_folders
 from io import StringIO 
@@ -400,7 +401,7 @@ Screen:
                                 size_hint: (None, None)
                                 width: file_reader_content_scroll_view.width 
                                 height: self.minimum_height 
-                                orientation: 'vertical'
+                                orientation: "vertical"
                     FloatLayout:
                         size_hint: (1, 1)
                         MDCard:
@@ -592,6 +593,7 @@ Screen:
 # navbar searchbar buton on press expand it to a full searchbar
 # audio file module for playing audio files
 # in the future check if file that gets to sound loader is compatible with sound loader
+# why can't you play nabokov audio book sample file?
 
 class LocalFolderPopUp(Popup):
     class DriveButton():
@@ -610,7 +612,7 @@ class LocalFolderPopUp(Popup):
         app.ids.folder_chooser.rootpath = drive
 
     def add_drives(self):
-        available_drives = ['%s:' % d for d in string.ascii_uppercase if os.path.exists('%s:' % d)]
+        available_drives = ["%s:" % d for d in string.ascii_uppercase if os.path.exists("%s:" % d)]
         for drive in available_drives:
             self.DriveButton(self, drive)
 
@@ -1053,34 +1055,51 @@ class FileReaderApp(MDApp):
                         file.close()
 
         def remove_folder_files_from_file_dictionary_json(self, app, folder):
-            list_of_subfolders = [name for name in os.listdir(folder)
-                if os.path.isdir(os.path.join(folder, name))]
+            list_of_subfolders = [x[0] for x in os.walk(folder)]
             # as it stands, to remove folder you've gotta open the file bellow twice, cut down on that
             local_folders_to_scan = open("Book Worm\Book Worm\local_folders_to_scan.json", "r")
-            list_of_local_folders_to_scan = local_folders_to_scan.read()
+            string_of_local_folders_to_scan = local_folders_to_scan.read()
             local_folders_to_scan.close()
+            list_of_local_folders_to_scan = eval(string_of_local_folders_to_scan)
+            for folder_to_scan in list_of_local_folders_to_scan:
+                folder_to_scan = folder_to_scan.replace("\\\\", "\\")
+                folder_to_scan = folder_to_scan.replace("\\\\", "\\")
+                folder_to_scan = re.sub("/+", "/", folder_to_scan)
             with open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") as local_files_dictionary:
-                local_folders_to_scan_dictionary = json.load(local_files_dictionary)
-                # for subfolder in list_of_subfolders:
-                #     if subfolder not in list_of_local_folders_to_scan:
-                #         for file_index, file in enumerate(local_folders_to_scan_dictionary):
-                #             try:
-                #                 if subfolder in file["absolute_file_path"]:
-                #                     local_folders_to_scan_dictionary.pop(file_index)          
-                #                 else:
-                #                     print("nein", subfolder, file["absolute_file_path"])
-                #             except TypeError:
-                #                 print("XXXX TypeError", file["absolute_file_path"])
-                #                 # absolute file path will be null for mp3 albums
-                #                 # nabokov audio book sample doesn't show any info on the album view screen -> software is fine, it's the file's problem, but why can't you play that file?
-                #                 pass
-                #             # if file["file_format"] in app.music_tag_compatible_file_formats:
-                #                 # run trough each track?
-
-                
+                try:
+                    local_folders_to_scan_dictionary = json.load(local_files_dictionary)
+                    for subfolder in list_of_subfolders:
+                        subfolder_path = subfolder.replace("\\\\", "\\")
+                        if subfolder_path not in list_of_local_folders_to_scan:
+                            for file in local_folders_to_scan_dictionary[:]:
+                                try:
+                                    if file["file_format"] in app.music_tag_compatible_file_formats:
+                                        for album_track in file["album_tracks_dictionary"]:
+                                            album_track_path = album_track["absolute_file_path"]
+                                            file_absolute_path = album_track_path.replace("\\\\", "\\")
+                                            file_absolute_path = file_absolute_path.replace("\\\\", "\\")
+                                            if subfolder_path in file_absolute_path:
+                                                local_folders_to_scan_dictionary.remove(file)  
+                                                # why isn't nabokov audio book sample getting removed?
+                                    else:
+                                        file_absolute_path = file["absolute_file_path"].replace("\\\\", "\\")
+                                        file_absolute_path = file_absolute_path.replace("\\\\", "\\") 
+                                        if subfolder_path in file_absolute_path:
+                                            local_folders_to_scan_dictionary.remove(file)    
+                                except TypeError:
+                                    print("TypeError, remove_folder_files_from_file_dictionary_json(", folder, ")", file["absolute_file_path"]) 
+                except Exception:
+                    logging.error(traceback.format_exc())
                 folder_path = folder.replace("\\\\", "\\")
-                for file_index, file in enumerate(local_folders_to_scan_dictionary[:]):
+                for file in local_folders_to_scan_dictionary[:]:
                     try:
+                        if file["file_format"] in app.music_tag_compatible_file_formats:
+                            for album_track in file["album_tracks_dictionary"]:
+                                album_track_path = album_track["absolute_file_path"]
+                                file_absolute_path = album_track_path.replace("\\\\", "\\")
+                                file_absolute_path = file_absolute_path.replace("\\\\", "\\")
+                                if subfolder_path in file_absolute_path:
+                                    local_folders_to_scan_dictionary.remove(file)  
                         file_path = re.sub("/+", "/", file["absolute_file_path"])
                         file_path_without_folder = file_path.removeprefix(folder_path)
                         if file_path_without_folder[0] == "\\":
@@ -1096,7 +1115,6 @@ class FileReaderApp(MDApp):
                     except Exception:
                         logging.error(traceback.format_exc())
                 if not local_folders_to_scan_dictionary:
-                    print("eee")
                     file = open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "w")
                     file.close()  
                 else:
@@ -1104,12 +1122,12 @@ class FileReaderApp(MDApp):
                     file.write(json.dumps(local_folders_to_scan_dictionary))
                     file.close()  
             app.local_folders_and_files_scan()
-            # print(app.list_of_files)
 
         def remove_folder_from_scan_list(self, app, card, folder):
             app.root.ids.local_folders_to_scan_expansion_panel.content.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.remove_widget(card)
             # resize expansion panel
             app.root.ids.local_folders_to_scan_expansion_panel.content.height = app.root.ids.local_folders_to_scan_expansion_panel.content.minimum_height
+            # which one of the next 2 lines should be executed first?
             self.remove_folder_from_list_of_folders_json(folder)
             self.remove_folder_files_from_file_dictionary_json(app, folder)
             # what if files has been removed but is still open in album viewer/file deatails/file reader screen?
@@ -1656,14 +1674,17 @@ class FileReaderApp(MDApp):
 
     def local_folders_and_files_scan(self): 
         if exists("Book Worm\Book Worm\local_folders_to_scan_dictonary.json"):
-            file = open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "r")
-            json_file_data = file.read()
-            file.close()
-            if json_file_data != "":     
-                # print(json_file_data, type(json_file_data)) should this be a list?, it probably should be a list
-                self.list_of_files = scan_folders.scan_folders(json_file_data, False)
+            with open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") as local_files_dictionary:
+                try:
+                    self.list_of_files = json.load(local_files_dictionary)
+                except Exception:
+                    if local_files_dictionary.read() == "":   
+                        self.list_of_files = []
+                        print(Exception, "local_folders_and_files_scan() dictionary json is empty")
+                    else:
+                        print(Exception, "local_folders_and_files_scan()")
                 self.add_main_menu_widgets()
-        elif exists("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") == False:
+        else:
             open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "a").close()
             self.full_scan()            
             if exists("Book Worm\Book Worm\local_folders_to_scan.json") == False: 
@@ -1811,7 +1832,7 @@ class FileReaderApp(MDApp):
         self.create_local_folders_to_scan_expansion_panel()
         self.local_folders_and_files_scan()
         # print(Config.get("graphics", "window_state"), Config.get("graphics", "fullscreen"))
-        # Config.set('graphics', 'window_state', 'hidden')
+        # Config.set("graphics", "window_state", "hidden")
 
     def on_request_close(self, *args):
         self.save_last_used_settings()
