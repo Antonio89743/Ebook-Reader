@@ -25,7 +25,7 @@ array_of_valid_files = []
 def save_local_folders_array(folders_to_scan):
     with open(local_folders_to_scan_json_file_path, "r+") as file:
         try:
-            file_x = open(local_folders_to_scan_json_file_path, 'r')
+            file_x = open(local_folders_to_scan_json_file_path, "r")
             list_folders_to_scan = file_x.read()
             if list_folders_to_scan == "":
                 folders_to_scan_list : list = []
@@ -235,7 +235,6 @@ def scan_folders(folders_to_scan, new_folder_bool):
     #                 array_or_cbr_files.append(absolute_path_to_file)
         save_local_files_dictionary(array_of_valid_files)
     elif type(folders_to_scan) is str:
-        
         folders_to_scan = folders_to_scan[1:]
         folders_to_scan = folders_to_scan[:-1]
         folders_to_scan = folders_to_scan[:-1]

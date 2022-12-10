@@ -41,6 +41,8 @@ import re
 import json
 import scan_folders
 from io import StringIO 
+import traceback
+import logging
 import imghdr
 import sys
 from zipfile import ZipFile
@@ -1049,7 +1051,7 @@ class FileReaderApp(MDApp):
                         list_of_folders_to_scan.remove(folder)
                         file.write(json.dumps(list_of_folders_to_scan))
                         file.close()
-        # when adding fodlers to folders to scan, check if it's a unique one, or if one already exists
+
         def remove_folder_files_from_file_dictionary_json(self, app, folder):
             list_of_subfolders = [name for name in os.listdir(folder)
                 if os.path.isdir(os.path.join(folder, name))]
@@ -1059,41 +1061,50 @@ class FileReaderApp(MDApp):
             local_folders_to_scan.close()
             with open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") as local_files_dictionary:
                 local_folders_to_scan_dictionary = json.load(local_files_dictionary)
-                for subfolder in list_of_subfolders:
-                    if subfolder not in list_of_local_folders_to_scan:
-                        for file_index, file in enumerate(local_folders_to_scan_dictionary):
-                            try:
-                                if subfolder in file["absolute_file_path"]:
-                                    local_folders_to_scan_dictionary.pop(file_index)          
-                                else:
-                                    print("nein", subfolder, file["absolute_file_path"])
-                            except TypeError:
-                                print("XXXX TypeError", file["absolute_file_path"])
-                                # absolute file path will be null for mp3 albums
-                                # nabokov audio book sample doesn't show any info on the album view screen -> software is fine, it's the file's problem, but why can't you play that file?
-                                pass
+                # for subfolder in list_of_subfolders:
+                #     if subfolder not in list_of_local_folders_to_scan:
+                #         for file_index, file in enumerate(local_folders_to_scan_dictionary):
+                #             try:
+                #                 if subfolder in file["absolute_file_path"]:
+                #                     local_folders_to_scan_dictionary.pop(file_index)          
+                #                 else:
+                #                     print("nein", subfolder, file["absolute_file_path"])
+                #             except TypeError:
+                #                 print("XXXX TypeError", file["absolute_file_path"])
+                #                 # absolute file path will be null for mp3 albums
+                #                 # nabokov audio book sample doesn't show any info on the album view screen -> software is fine, it's the file's problem, but why can't you play that file?
+                #                 pass
+                #             # if file["file_format"] in app.music_tag_compatible_file_formats:
+                #                 # run trough each track?
 
                 
-                for file_index, file in enumerate(local_folders_to_scan_dictionary):
+                folder_path = folder.replace("\\\\", "\\")
+                for file_index, file in enumerate(local_folders_to_scan_dictionary[:]):
                     try:
-                    # print("OOOOOO", file["absolute_file_path"].removeprefix(folder))
-                        file_path_without_folder = file["absolute_file_path"].removeprefix(folder)
-                        if ("/" not in file_path_without_folder) and (r"\\" not in file_path_without_folder):
-                            print("gone", file["absolute_file_path"].removeprefix(folder), file["absolute_file_path"])
-                            local_folders_to_scan_dictionary.pop(file_index)    
+                        file_path = re.sub("/+", "/", file["absolute_file_path"])
+                        file_path_without_folder = file_path.removeprefix(folder_path)
+                        if file_path_without_folder[0] == "\\":
+                            file_path_without_folder = file_path_without_folder[1:]
+                        if ("/" not in file_path_without_folder) and ("\\" not in file_path_without_folder):
+                            local_folders_to_scan_dictionary.remove(file)   
                     except TypeError:
-                        print("CCCC", file["absolute_file_path"])
+                        print("TypeError", file["absolute_file_path"])
                         pass
                     except AttributeError:
-                        print("KKKK", file["absolute_file_path"])
+                        print("AttributeError", file["absolute_file_path"])
                         pass
-
-                # print(local_folders_to_scan_dictionary)
-                file = open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "w")
-                file.write(json.dumps(local_folders_to_scan_dictionary))
-                file.close()  
+                    except Exception:
+                        logging.error(traceback.format_exc())
+                if not local_folders_to_scan_dictionary:
+                    print("eee")
+                    file = open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "w")
+                    file.close()  
+                else:
+                    file = open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json", "w")
+                    file.write(json.dumps(local_folders_to_scan_dictionary))
+                    file.close()  
             app.local_folders_and_files_scan()
-            app.add_main_menu_widgets()   
+            # print(app.list_of_files)
 
         def remove_folder_from_scan_list(self, app, card, folder):
             app.root.ids.local_folders_to_scan_expansion_panel.content.ids.local_folders_to_scan_expansion_panel_content_box_layout_folders_widget_list.remove_widget(card)
@@ -1649,6 +1660,7 @@ class FileReaderApp(MDApp):
             json_file_data = file.read()
             file.close()
             if json_file_data != "":     
+                # print(json_file_data, type(json_file_data)) should this be a list?, it probably should be a list
                 self.list_of_files = scan_folders.scan_folders(json_file_data, False)
                 self.add_main_menu_widgets()
         elif exists("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") == False:
