@@ -36,6 +36,8 @@ def get_cbr_file_content(file_path):
                 list_of_images.append(file_info)
                 file_number += 1
             elif file.endswith(".jpg"):
+                with open(file_path + r"\\" + file, "r") as g:
+                    print(g)
                 file_info = {"file" : z.read(file), "file_format" : "jpg"}
                 list_of_images.append(file_info)
                 file_number += 1

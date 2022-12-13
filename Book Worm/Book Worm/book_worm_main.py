@@ -5,6 +5,7 @@ from kivy.config import Config
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Config.set("graphics", "minimum_width", "700")
 Config.set("graphics", "minimum_height", "400")
+Config.set("kivy", "exit_on_escape", "0")
 # config kivy window_icon
 # graphics:
 #  window_state 
@@ -796,7 +797,6 @@ class FileReaderApp(MDApp):
                 card.add_widget(file_title_button)
             elif file["file_format"] == "cbr":
                 file_title = cbr_file_data.get_cbr_file_title(file["absolute_file_path"])
-                print(file_title)
                 file_author = file["file_author"]
                 print(file["file_cover"], type(file["file_cover"]))
                 # cbr_file_data.get_cbr_file_content(file["absolute_file_path"])
@@ -1148,6 +1148,7 @@ class FileReaderApp(MDApp):
     track_currently_playing_index = 0
     list_of_audio_files_to_play = [None]
     about_to_play_another_track_bool = None
+    keyboard_ctrl_button_pressed = False
     kivy_music_loader_position_at_track_paused = None
 
     def main_menu_file_widget_pressed(self, file, button):
@@ -1198,12 +1199,15 @@ class FileReaderApp(MDApp):
 
     def on_pause_resume_audio_file_button_pressed(self):
         if self.kivy_music_loader != None:
-            if self.kivy_music_loader.state == "stop" and self.kivy_music_loader_position_at_track_paused != None:
-                self.kivy_music_loader.play()
-                self.kivy_music_loader.seek(self.kivy_music_loader_position_at_track_paused)
-            else:
-                self.kivy_music_loader_position_at_track_paused = self.kivy_music_loader.get_pos()
-                self.kivy_music_loader.stop()
+            try:
+                if self.kivy_music_loader.state == "stop" and self.kivy_music_loader_position_at_track_paused != None:
+                    self.kivy_music_loader.play()
+                    self.kivy_music_loader.seek(self.kivy_music_loader_position_at_track_paused)
+                else:
+                    self.kivy_music_loader_position_at_track_paused = self.kivy_music_loader.get_pos()
+                    self.kivy_music_loader.stop()
+            except Exception:
+                print(Exception)
 
     def on_play_next_audio_file_button_pressed(self):
         if len(self.list_of_audio_files_to_play) - self.track_currently_playing_index > self.track_currently_playing_index + 1:
@@ -1445,6 +1449,10 @@ class FileReaderApp(MDApp):
                 args_as_list = list(args)
                 args_as_list.append("pageless infinite scroll")
                 args = tuple(args_as_list)
+            elif file["file_format"] == "cbr":
+                args_as_list = list(args)
+                args_as_list.append("pages and focus")
+                args = tuple(args_as_list)
             elif file["file_format"] == "cbz":
                 args_as_list = list(args)
                 args_as_list.append("pages and focus")
@@ -1481,6 +1489,9 @@ class FileReaderApp(MDApp):
                 elif file["file_format"] == "cbz": 
                     self.file_read_screen_mode(file, "pages and focus")
                     self.set_file_reader_floating_options_card("cbz", args[0])
+                elif file["file_format"] == "cbr": 
+                    self.file_read_screen_mode(file, "pages and focus")
+                    self.set_file_reader_floating_options_card("cbr", args[0])
             elif args[0] == "pages and infinite scroll":
                 if file["file_format"] == "cbz": 
                     grid_layout = GridLayout(
@@ -1547,6 +1558,43 @@ class FileReaderApp(MDApp):
                     self.root.ids.file_reader_content_box_layout.bind(minimum_height = self.root.ids.file_reader_content_box_layout.setter("height"))
                     self.root.ids.file_reader_content_box_layout.size_hint_y = None
                     self.set_file_reader_floating_options_card("cbz", args[0])
+                if file["file_format"] == "cbr": 
+                    grid_layout = GridLayout(
+                        cols = 1, # save from previous session, do same with rows (if they aren't default)?
+                        rows = None,
+                        size_hint = (1, 1),
+                        pos_hint = {"center_x": 0.5},
+                        width = self.root.ids.file_reader_content_box_layout.width
+                    )
+                    self.root.ids["file_reader_content_box_layout_grid_layout_focus_mode"] = grid_layout
+                    self.root.ids.file_reader_content_box_layout.add_widget(grid_layout)
+                    for file_item in file_content:
+                        if file_item["file_format"] in self.kivy_compatible_image_files:
+                            container_card = MDCard(
+                                orientation = "vertical",
+                                size_hint = (1, None),
+                                radius = [0, 0, 0, 0],
+                                md_bg_color = (0, 0, 0, 0),
+                                pos_hint = {"center_x": 0.5, "top": 1},
+                                height = Window.size[1]
+                            )
+                            image = CoreImage(io.BytesIO(file_item["file"]), ext = "jpg")
+                            file_image = Image(
+                                texture = CoreImage(image).texture,
+                                size_hint = (1, 1),
+                                pos_hint = {"center_x": 0.5}
+                            )
+                            container_card.add_widget(file_image)
+                            grid_layout.add_widget(container_card)
+                    self.set_file_reader_screen_page_focus_mode_scroll_distance()
+                    grid_layout.size_hint = (1, 1)
+                    grid_layout.height = grid_layout.minimum_height
+                    grid_layout.size_hint_y = None
+                    grid_layout.bind(minimum_height = grid_layout.setter("height"))
+                    self.root.ids.file_reader_content_box_layout.size_hint = (None, 1)
+                    self.root.ids.file_reader_content_box_layout.bind(minimum_height = self.root.ids.file_reader_content_box_layout.setter("height"))
+                    self.root.ids.file_reader_content_box_layout.size_hint_y = None
+                    self.set_file_reader_floating_options_card("cbz", args[0])
             elif args[0] == "book simulator":
                 self.set_file_reader_floating_options_card(file["file_format"], args[0])
         self.currently_open_file = file
@@ -1567,18 +1615,16 @@ class FileReaderApp(MDApp):
         elif file["file_format"] == "cbz": 
             file_content = cbz_file_data.get_cbz_file_content(file["absolute_file_path"])
         elif file["file_format"] == "cbr": 
-            file_content = cbz_file_data.get_cbz_file_content(file["absolute_file_path"])
-        elif file["file_format"] == "mp3_album": 
-            pass
+            file_content = cbr_file_data.get_cbr_file_content(file["absolute_file_path"])
         return file_content
 
     def go_forward_to_next_tab_or_screen(self):
         self.change_screen(self.previous_screens_and_tabs_list[self.screen_currently_in_use + 1], True)
 
     def return_to_previous_tab_or_screen(self):
-        self.change_screen(self.previous_screens_and_tabs_list[self.screen_currently_in_use - 1], True)
         self.screen_currently_in_use -= 1
-
+        self.change_screen(self.previous_screens_and_tabs_list[self.screen_currently_in_use], True)
+    
     def change_screen(self, screen, using_return_bool):
         self.root.ids.screen_manager.current = screen
         self.previous_screens_and_tabs_list.append(screen)
@@ -1811,7 +1857,7 @@ class FileReaderApp(MDApp):
                     print("XXXX")
                 # else, hide navbar
 
-# when exactly should you hide navbar, when exactly should you show it
+        # when exactly should you hide navbar, when exactly should you show it
 
     def on_mouse_position_changed(self, window_object, mouse_position):
         self.check_mouse_position_on_navbar(mouse_position)
@@ -1823,6 +1869,7 @@ class FileReaderApp(MDApp):
         Window.bind(on_maximize = self.responsive_grid_layout)
         Window.bind(on_request_close = self.on_request_close)
         Window.bind(on_key_down = self.on_key_down)
+        Window.bind(on_mouse_down = self.on_mouse_down)
         Window.bind(mouse_pos = self.on_mouse_position_changed)
         return Builder.load_string(Kivy)
     
@@ -1837,8 +1884,40 @@ class FileReaderApp(MDApp):
     def on_request_close(self, *args):
         self.save_last_used_settings()
 
+    def mouse_button_and_keayboard_input(self, mouse_wheel_input):
+        if self.keyboard_ctrl_button_pressed == True:
+            if mouse_wheel_input == "scrollup":
+                pass
+            elif mouse_wheel_input == "scrolldown":
+                pass
+
+    def on_mouse_down(self, *args):
+        # print("Mouse input:", args)
+        if args[3] == "mouse5":
+            self.go_forward_to_next_tab_or_screen()
+        if args[3] == "mouse4":
+            self.return_to_previous_tab_or_screen()
+
+        if args[3] == "scrollup":
+            self.mouse_button_and_keayboard_input(args[3])
+        if args[3] == "scrolldown":
+            self.mouse_button_and_keayboard_input(args[3])
+
     def on_key_down(self, *args):
-        print(args, print(type(args)))
+        # print("Keyboard input:", args)
+        if args[3] == "y" and str(args[4]) == "['ctrl']":
+            pass
+        if args[3] == "z" and str(args[4]) == "['ctrl']":
+            pass
+        if str(args[4]) == "['ctrl']":
+            self.keyboard_ctrl_button_pressed = True
+        else:
+            self.keyboard_ctrl_button_pressed = False
+        if args[1] == 27:
+            self.change_screen("Settings Screen", False)
+        if args[1] == 1073742085:
+            self.on_pause_resume_audio_file_button_pressed()
+
     #     if args[3] == "Ĥ":
     #         if Config.get("graphics", "fullscreen") == "0":
     #             Config.set("graphics", "fullscreen", "1")
