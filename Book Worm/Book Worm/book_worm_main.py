@@ -54,6 +54,7 @@ import rarfile
 from itertools import cycle
 import kivy_garden.contextmenu as ContextMenu
 from kivy.factory import Factory
+import kivy_main_menu_authors_screen as main_menu_authors_screen
 
 Kivy = '''
 
@@ -346,7 +347,7 @@ Screen:
                                         step: 0.01
                                         min: 0.1
                                         max: 1
-                                        on_value: app.main_menu_file_widget_size(main_menu_file_widget_size_slider)
+                                        on_value: app.on_slider_value_changed(main_menu_file_widget_size_slider)
                                 ScrollView:
                                     id: main_menu_scroll_view
                                     always_overscroll: False
@@ -367,8 +368,64 @@ Screen:
                         TabbedPanelItem:
                             id: main_menu_authors_tab
                             text: "Authors"
-                            Label:
-                                text: "CCCC"    
+                            BoxLayout:
+                                orientation: "vertical"
+                                BoxLayout:
+                                    orientation: "horizontal"
+                                    Label:
+                                        text: "Sort by: "
+                                        size_hint: (None, None)
+                                        width: 100
+                                        height: 30
+                                    Spinner: 
+                                        id: main_menu_authors_widget_sort_spinner
+                                        text: "Release Date"
+                                        values: ("Release Date", "File Name", "Author Name", "File Format")
+                                        size_hint: (None, None)
+                                        sync_height: True
+                                        width: 100
+                                        height: 30
+                                        on_text: app.add_main_menu_widgets()
+                                    Button:
+                                        id: main_menu_authors_widget_order
+                                        text: "Ascending"
+                                        size_hint: (None, None)
+                                        width: 100
+                                        height: 30
+                                        on_press: app.sort_order_button_pressed()
+                                    Button:
+                                        text: "Filter"
+                                        size_hint: (None, None)
+                                        width: 100
+                                        height: 30
+                                    Slider:
+                                        id: main_menu_authors_widget_size_slider
+                                        orientation: "horizontal"
+                                        size_hint: (None, None)
+                                        width: 300
+                                        height: 30
+                                        value: 0.5
+                                        step: 0.01
+                                        min: 0.1
+                                        max: 1
+                                        on_value: app.on_slider_value_changed(main_menu_authors_widget_size_slider)
+                                ScrollView:
+                                    id: main_menu_authors_scroll_view
+                                    always_overscroll: False
+                                    do_scroll_x: False
+                                    pos_hint: {"right": 1}
+                                    size_hint: (None, None)
+                                    width: root.width - navbar.width
+                                    height: root.height - toolbar.height - 40 - 5 - 30 - audio_player_card.height
+                                    GridLayout:
+                                        id: main_menu_authors_grid_layout
+                                        pos_hint: {"top": 1}
+                                        size_hint: (None, None)
+                                        width: main_menu_scroll_view.width 
+                                        height: self.minimum_height 
+                                        padding: [20, 20, 20, 20]
+                                        spacing: 20
+                                        cols: 5
                         TabbedPanelItem:
                             id: main_menu_collections_tab
                             text: "Collections"
@@ -434,6 +491,8 @@ Screen:
                     MDLabel:
                         text: "File Details Screen"
                         halign: "center"
+                Screen:
+                    name: "Author Screen"
                 Screen:
                     name: "Album Inspector Screen"
                     on_pre_enter: app.change_widget_height(toolbar, 0)
@@ -859,7 +918,7 @@ class FileReaderApp(MDApp):
                     )
                 file_title_button.bind(on_press=lambda x: app.load_file_read_screen(file))  
                 card.add_widget(file_title_button)
-            elif (file["file_format"] in app.music_tag_compatible_file_formats):
+            elif file["file_format"] in app.music_tag_compatible_file_formats:
                 album_title = file["file_name"]
                 album_author = file["file_author"]
                 file_cover = audio_file_data_music_tag.get_audio_file_data_music_tag_artwork(file["album_tracks_dictionary"][0]["absolute_file_path"])
@@ -1134,6 +1193,7 @@ class FileReaderApp(MDApp):
 
     navbar_width_max = 50
     list_of_files = []
+    list_of_authors = []
     currently_open_file = None
     currently_open_album = None 
     screen_currently_in_use :int = 0
@@ -1384,7 +1444,7 @@ class FileReaderApp(MDApp):
             for child in self.root.ids.file_reader_content_box_layout_grid_layout_focus_mode.children:
                 child.height = Window.size[1] 
 
-    def main_menu_file_widget_size(self, id):
+    def on_slider_value_changed(self, id):
         if id == self.root.ids.main_menu_file_widget_size_slider:
             self.main_menu_files_widgets_height = 1000 * id.value
             self.main_menu_files_widgets_width = 600 * id.value
@@ -1631,12 +1691,32 @@ class FileReaderApp(MDApp):
         if using_return_bool == False:
             self.screen_currently_in_use += 1
 
-    def add_main_menu_widgets(self):
+    def add_main_menu_authors_tab_widgets(self):
+        self.root.ids.main_menu_authors_grid_layout.clear_widgets()
+        # self.sort_file_list()
+        for author in self.list_of_authors:
+            main_menu_authors_screen.AuthorMainMenuWidget(self, author)
+
+    def add_main_menu_files_tab_widgets(self):
         self.root.ids.main_menu_grid_layout.clear_widgets()
         self.sort_file_list()
         for file in self.list_of_files:
             self.File(self, file)
-    
+
+    def add_main_menu_widgets(self):
+        self.add_main_menu_files_tab_widgets()
+
+    def create_list_of_authors(self):
+        for file in self.list_of_files:
+            if file["file_format"] in self.music_tag_compatible_file_formats:
+                # get autohr of each track and for each track get album author
+                pass
+            else:
+                if file["file_author"] != None:
+                    if file["file_author"] not in self.list_of_authors:
+                        self.list_of_authors.append(file["file_author"])
+        self.add_main_menu_authors_tab_widgets()
+
     def sort_file_list(self):
         def sort_release_year(list):
             try:
@@ -1707,6 +1787,7 @@ class FileReaderApp(MDApp):
         if unique_folder == True:
             self.Folder_To_Scan_Card(self, folder_selected)
         self.list_of_files = scan_folders.scan_folders(folder_selected_string, unique_folder)
+        self.create_list_of_authors()
         self.add_main_menu_widgets()
         
     def full_scan(self):
@@ -1716,6 +1797,7 @@ class FileReaderApp(MDApp):
             file.close()
             if json_file_data != "":
                 self.list_of_files = scan_folders.scan_folders(eval(json_file_data), False)
+                self.create_list_of_authors()
                 self.add_main_menu_widgets()
 
     def local_folders_and_files_scan(self): 
@@ -1723,6 +1805,7 @@ class FileReaderApp(MDApp):
             with open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") as local_files_dictionary:
                 try:
                     self.list_of_files = json.load(local_files_dictionary)
+                    self.create_list_of_authors()
                 except Exception:
                     if local_files_dictionary.read() == "":   
                         self.list_of_files = []
@@ -1885,9 +1968,18 @@ class FileReaderApp(MDApp):
         self.save_last_used_settings()
 
     def mouse_button_and_keayboard_input(self, mouse_wheel_input):
+        # check current screen, if main menu, if files tab, chage size of widgets by some increment
         if self.keyboard_ctrl_button_pressed == True:
             if mouse_wheel_input == "scrollup":
-                pass
+                if self.root.ids.screen_manager.current == "Main Menu":
+                    if self.root.ids.main_menu_tabbed_panel.current_tab.text == "Files":
+                        self.root.ids.main_menu_file_widget_size_slider.value -= 10
+                        self.on_slider_value_changed(self.root.ids.main_menu_file_widget_size_slider)
+                        # [WARNING] <kivy.uix.gridlayout.GridLayout object at 0x000002C0FF490350> have no cols or rows set, layout is not triggered.
+                    elif self.root.ids.main_menu_tabbed_panel.current_tab == "Authors":
+                        pass
+                elif self.root.ids.screen_manager.current == "Read Currently Open File Screen":
+                    pass
             elif mouse_wheel_input == "scrolldown":
                 pass
 
