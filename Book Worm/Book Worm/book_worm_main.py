@@ -399,7 +399,7 @@ Screen:
                                         width: 100
                                         height: 30
                                     Slider:
-                                        id: main_menu_authors_widget_size_slider
+                                        id: main_menu_authors_tab_widget_size_slider
                                         orientation: "horizontal"
                                         size_hint: (None, None)
                                         width: 300
@@ -408,7 +408,7 @@ Screen:
                                         step: 0.01
                                         min: 0.1
                                         max: 1
-                                        on_value: app.on_slider_value_changed(main_menu_authors_widget_size_slider)
+                                        on_value: app.on_slider_value_changed(main_menu_authors_tab_widget_size_slider)
                                 ScrollView:
                                     id: main_menu_authors_scroll_view
                                     always_overscroll: False
@@ -418,7 +418,7 @@ Screen:
                                     width: root.width - navbar.width
                                     height: root.height - toolbar.height - 40 - 5 - 30 - audio_player_card.height
                                     GridLayout:
-                                        id: main_menu_authors_grid_layout
+                                        id: main_menu_authors_tab_grid_layout
                                         pos_hint: {"top": 1}
                                         size_hint: (None, None)
                                         width: main_menu_scroll_view.width 
@@ -794,6 +794,8 @@ class FileReaderApp(MDApp):
                     height = 50,
                     # width = 300,
                     ) 
+                file_author_button.bind(on_press = lambda x: app.change_screen("Author Screen", False))
+                # file_author_button.bind(on_press = lambda button: self.main_menu_author_widget_pressed(button, app, files_of_author))
                 card.add_widget(file_author_button)
             elif file["file_format"] == "cbz":
                 file_title = cbz_file_data.get_cbz_file_title(file["absolute_file_path"])
@@ -1193,13 +1195,15 @@ class FileReaderApp(MDApp):
 
     navbar_width_max = 50
     list_of_files = []
-    list_of_authors = []
+    authors_dictionary = {}
     currently_open_file = None
     currently_open_album = None 
     screen_currently_in_use :int = 0
     previous_screens_and_tabs_list = ["Main Menu"]
     main_menu_files_widgets_height = None
     main_menu_files_widgets_width = None
+    main_menu_authors_tab_widgets_height = None
+    main_menu_authors_tab_widgets_width = None
     album_track_card_primary_color = (1, 1, 1, 1)
     album_track_card_secondary_color = (0.9, 0.9, 0.9, 1)
     kivy_compatible_image_files = ["jpeg", "jpg", "png", "gif"]
@@ -1452,6 +1456,13 @@ class FileReaderApp(MDApp):
                 child.height = self.main_menu_files_widgets_height
                 child.width = self.main_menu_files_widgets_width
             self.responsive_grid_layout()
+        if id == self.root.ids.main_menu_authors_tab_widget_size_slider:
+            self.main_menu_authors_tab_widgets_height = 1000 * id.value
+            self.main_menu_authors_tab_widgets_width = 600 * id.value
+            for child in self.root.ids.main_menu_authors_tab_grid_layout.children:
+                child.height = self.main_menu_authors_tab_widgets_height
+                child.width = self.main_menu_authors_tab_widgets_width
+            self.responsive_grid_layout()
 
     def set_file_reader_floating_options_card(self, file_format, file_read_screen_mode):
         self.set_file_reader_floating_options_card_reading_mode_part(file_format, file_read_screen_mode)
@@ -1692,10 +1703,10 @@ class FileReaderApp(MDApp):
             self.screen_currently_in_use += 1
 
     def add_main_menu_authors_tab_widgets(self):
-        self.root.ids.main_menu_authors_grid_layout.clear_widgets()
-        # self.sort_file_list()
-        for author in self.list_of_authors:
-            main_menu_authors_screen.AuthorMainMenuWidget(self, author)
+        self.root.ids.main_menu_authors_tab_grid_layout.clear_widgets()
+        # self.sort_authors_dictionary()
+        for author in self.authors_dictionary:
+            main_menu_authors_screen.AuthorMainMenuWidget(self, self.authors_dictionary[author])
 
     def add_main_menu_files_tab_widgets(self):
         self.root.ids.main_menu_grid_layout.clear_widgets()
@@ -1706,15 +1717,20 @@ class FileReaderApp(MDApp):
     def add_main_menu_widgets(self):
         self.add_main_menu_files_tab_widgets()
 
-    def create_list_of_authors(self):
+    def create_authors_dictionary(self):
         for file in self.list_of_files:
             if file["file_format"] in self.music_tag_compatible_file_formats:
                 # get autohr of each track and for each track get album author
                 pass
             else:
                 if file["file_author"] != None:
-                    if file["file_author"] not in self.list_of_authors:
-                        self.list_of_authors.append(file["file_author"])
+                    if file["file_author"] not in self.authors_dictionary:
+                        self.authors_dictionary[file["file_author"]] = []
+        for file in self.list_of_files:
+            for author in self.authors_dictionary:
+                if file["file_author"] == author:
+                    if file not in self.authors_dictionary[author]:
+                        self.authors_dictionary[author].append(file)
         self.add_main_menu_authors_tab_widgets()
 
     def sort_file_list(self):
@@ -1787,7 +1803,7 @@ class FileReaderApp(MDApp):
         if unique_folder == True:
             self.Folder_To_Scan_Card(self, folder_selected)
         self.list_of_files = scan_folders.scan_folders(folder_selected_string, unique_folder)
-        self.create_list_of_authors()
+        self.create_authors_dictionary()
         self.add_main_menu_widgets()
         
     def full_scan(self):
@@ -1797,7 +1813,7 @@ class FileReaderApp(MDApp):
             file.close()
             if json_file_data != "":
                 self.list_of_files = scan_folders.scan_folders(eval(json_file_data), False)
-                self.create_list_of_authors()
+                self.create_authors_dictionary()
                 self.add_main_menu_widgets()
 
     def local_folders_and_files_scan(self): 
@@ -1805,7 +1821,7 @@ class FileReaderApp(MDApp):
             with open("Book Worm\Book Worm\local_folders_to_scan_dictonary.json") as local_files_dictionary:
                 try:
                     self.list_of_files = json.load(local_files_dictionary)
-                    self.create_list_of_authors()
+                    self.create_authors_dictionary()
                 except Exception:
                     if local_files_dictionary.read() == "":   
                         self.list_of_files = []
@@ -1840,15 +1856,21 @@ class FileReaderApp(MDApp):
 
     def responsive_grid_layout(self, *args):
         self.root.ids.main_menu_grid_layout.cols = int(self.root.ids.main_menu_grid_layout.width / (self.main_menu_files_widgets_width + 20))
+        self.root.ids.main_menu_authors_tab_grid_layout.cols = int(self.root.ids.main_menu_authors_tab_grid_layout.width / (self.main_menu_files_widgets_width + 20))
 
     def set_main_menu_widget_sizes(self, *args):
         if type(args[0]) == dict:
             self.root.ids.main_menu_file_widget_size_slider.value = args[0]["main_menu_file_widget_size_slider_value"]
+            self.root.ids.main_menu_authors_tab_widget_size_slider.value = args[0]["main_menu_authors_tab_widget_size_slider"]
             self.main_menu_files_widgets_height = args[0]["main_menu_file_widget_height"]
             self.main_menu_files_widgets_width = args[0]["main_menu_file_widget_width"]
+            self.main_menu_authors_tab_widgets_height = args[0]["main_menu_authors_tab_widgets_height"]
+            self.main_menu_authors_tab_widgets_width = args[0]["main_menu_authors_tab_widgets_width"]
         else:
             self.main_menu_files_widgets_height = 1000
             self.main_menu_files_widgets_width = 600
+            self.main_menu_authors_tab_widgets_height = 1000
+            self.main_menu_authors_tab_widgets_width = 600
 
     def save_last_used_settings(self):
         if Config.get("graphics", "window_state") == "maximized":
@@ -1860,7 +1882,10 @@ class FileReaderApp(MDApp):
             "main_menu_file_sort_order": self.root.ids.main_menu_files_widget_order.text,
             "main_menu_file_widget_height": self.main_menu_files_widgets_height,
             "main_menu_file_widget_width": self.main_menu_files_widgets_width,
+            "main_menu_authors_tab_widgets_height" : self.main_menu_authors_tab_widgets_height,
+            "main_menu_authors_tab_widgets_width" : self.main_menu_authors_tab_widgets_width,
             "main_menu_file_widget_size_slider_value": self.root.ids.main_menu_file_widget_size_slider.value,
+            "main_menu_authors_tab_widget_size_slider": self.root.ids.main_menu_authors_tab_widget_size_slider.value,
             "window_size": Window.size,
             "window_state": window_state,
             "main_menu_current_tab": self.root.ids.main_menu_tabbed_panel.current_tab.text,
@@ -1918,6 +1943,9 @@ class FileReaderApp(MDApp):
                 "main_menu_file_widget_height": 840.0, 
                 "main_menu_file_widget_width": 504.0, 
                 "main_menu_file_widget_size_slider_value": 0.84,
+                "main_menu_authors_tab_widgets_height": 840.0, 
+                "main_menu_authors_tab_widgets_width": 504.0, 
+                "main_menu_authors_tab_widget_size_slider": 0.84,
                 "window_size": (800, 800),
                 "window_state": "visible",
                 "main_menu_current_tab": "Files"
@@ -1968,13 +1996,16 @@ class FileReaderApp(MDApp):
         self.save_last_used_settings()
 
     def mouse_button_and_keayboard_input(self, mouse_wheel_input):
-        # check current screen, if main menu, if files tab, chage size of widgets by some increment
+        # check current screen, if main menu, if files tab, chage size of widgets by some increment, same if authors tab
         if self.keyboard_ctrl_button_pressed == True:
             if mouse_wheel_input == "scrollup":
                 if self.root.ids.screen_manager.current == "Main Menu":
                     if self.root.ids.main_menu_tabbed_panel.current_tab.text == "Files":
                         self.root.ids.main_menu_file_widget_size_slider.value -= 10
                         self.on_slider_value_changed(self.root.ids.main_menu_file_widget_size_slider)
+                    elif self.root.ids.main_menu_tabbed_panel.current_tab.text == "Authors":
+                        self.root.ids.main_menu_authors_tab_widget_size_slider.value -= 10
+                        self.on_slider_value_changed(self.root.ids.main_menu_authors_tab_widget_size_slider)
                         # [WARNING] <kivy.uix.gridlayout.GridLayout object at 0x000002C0FF490350> have no cols or rows set, layout is not triggered.
                     elif self.root.ids.main_menu_tabbed_panel.current_tab == "Authors":
                         pass
