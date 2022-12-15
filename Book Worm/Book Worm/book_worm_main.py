@@ -493,6 +493,42 @@ Screen:
                         halign: "center"
                 Screen:
                     name: "Author Screen"
+                    on_pre_enter: app.change_widget_height(toolbar, 50)
+                    on_pre_enter: app.change_widget_opacity(toolbar, 1)
+                    GridLayout:
+                        id: author_screen_grid_layout
+                        pos_hint: {"top": 1}
+                        size_hint: (None, None)
+                        width: main_menu_scroll_view.width 
+                        height: self.minimum_height                         
+
+
+
+
+                                # ScrollView:
+                                #     id: main_menu_authors_scroll_view
+                                #     always_overscroll: False
+                                #     do_scroll_x: False
+                                #     pos_hint: {"right": 1}
+                                #     size_hint: (None, None)
+                                #     width: root.width - navbar.width
+                                #     height: root.height - toolbar.height - 40 - 5 - 30 - audio_player_card.height
+                                #     GridLayout:
+                                #         id: main_menu_authors_tab_grid_layout
+                                #         pos_hint: {"top": 1}
+                                #         size_hint: (None, None)
+                                #         width: main_menu_scroll_view.width 
+                                #         height: self.minimum_height 
+                                #         padding: [20, 20, 20, 20]
+                                #         spacing: 20
+                                #         cols: 5
+
+
+
+
+
+
+
                 Screen:
                     name: "Album Inspector Screen"
                     on_pre_enter: app.change_widget_height(toolbar, 0)
@@ -786,6 +822,7 @@ class FileReaderApp(MDApp):
                         height = 50,
                         # width = 300,
                         )
+                    file_author_button.bind(on_press = lambda button: app.main_menu_author_widget_pressed(button, app.authors_dictionary[file_author]))
                 else:
                     file_author_button = KivyButton(
                     text = "File Author Not Found",
@@ -794,8 +831,6 @@ class FileReaderApp(MDApp):
                     height = 50,
                     # width = 300,
                     ) 
-                file_author_button.bind(on_press = lambda x: app.change_screen("Author Screen", False))
-                # file_author_button.bind(on_press = lambda button: self.main_menu_author_widget_pressed(button, app, files_of_author))
                 card.add_widget(file_author_button)
             elif file["file_format"] == "cbz":
                 file_title = cbz_file_data.get_cbz_file_title(file["absolute_file_path"])
@@ -1223,6 +1258,18 @@ class FileReaderApp(MDApp):
             else:
                 self.change_screen("Read Currently Open File Screen", False)
                 self.load_file_read_screen(file)
+        elif button.last_touch.button == "right":
+            print("right mouse clicked")
+            # in ky create context menu class
+            # show the class
+
+            MainMenuFilesContextMenu()
+        # self.root.ids.context_menu.show(*app.root_window.mouse_pos)
+
+    def main_menu_author_widget_pressed(self, button, files_of_author):
+        if button.last_touch.button == "left":
+                self.change_screen("Author Screen", False)
+                main_menu_authors_screen.AuthorScreen.get_author_screen_data(main_menu_authors_screen.AuthorScreen, self, files_of_author)
         elif button.last_touch.button == "right":
             print("right mouse clicked")
             # in ky create context menu class
@@ -1856,16 +1903,16 @@ class FileReaderApp(MDApp):
 
     def responsive_grid_layout(self, *args):
         self.root.ids.main_menu_grid_layout.cols = int(self.root.ids.main_menu_grid_layout.width / (self.main_menu_files_widgets_width + 20))
-        self.root.ids.main_menu_authors_tab_grid_layout.cols = int(self.root.ids.main_menu_authors_tab_grid_layout.width / (self.main_menu_files_widgets_width + 20))
+        self.root.ids.main_menu_authors_tab_grid_layout.cols = int(self.root.ids.main_menu_authors_tab_grid_layout.width / (self.main_menu_authors_tab_widgets_width + 20))
 
     def set_main_menu_widget_sizes(self, *args):
         if type(args[0]) == dict:
-            self.root.ids.main_menu_file_widget_size_slider.value = args[0]["main_menu_file_widget_size_slider_value"]
-            self.root.ids.main_menu_authors_tab_widget_size_slider.value = args[0]["main_menu_authors_tab_widget_size_slider"]
             self.main_menu_files_widgets_height = args[0]["main_menu_file_widget_height"]
             self.main_menu_files_widgets_width = args[0]["main_menu_file_widget_width"]
             self.main_menu_authors_tab_widgets_height = args[0]["main_menu_authors_tab_widgets_height"]
             self.main_menu_authors_tab_widgets_width = args[0]["main_menu_authors_tab_widgets_width"]
+            self.root.ids.main_menu_file_widget_size_slider.value = args[0]["main_menu_file_widget_size_slider_value"]
+            self.root.ids.main_menu_authors_tab_widget_size_slider.value = args[0]["main_menu_authors_tab_widget_size_slider"]
         else:
             self.main_menu_files_widgets_height = 1000
             self.main_menu_files_widgets_width = 600
